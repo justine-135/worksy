@@ -21,7 +21,7 @@ export default function ProjectLayout({
   return (
     <div className={`${inter.className} min-h-screen bg-gray-50`}>
       <div className="flex justify-center">
-        <div className="flex w-[90%] max-w-400">
+        <div className="flex w-[90%] max-w-550">
           <SidebarNavigation />
           <main className="py-8 px-6">{children}</main>
         </div>
