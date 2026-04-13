@@ -20,8 +20,9 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { useState, useSyncExternalStore } from "react";
 import useDragState, { getColumnId, getTaskId } from "./useDragState";
-import { IColumn, ITaskResponse } from "@/types/board";
+import { TaskBoardDTO } from "@/types/taskboard.dto";
 import AddTaskModal from "./AddTaskModal";
+import { TaskResponseDTO } from "@/types/task.dto";
 
 const transition = {
   duration: 220,
@@ -32,10 +33,10 @@ const TaskCardContent = ({
   data,
   dragging = false,
 }: {
-  data: ITaskResponse;
+  data: TaskResponseDTO;
   dragging?: boolean;
 }) => {
-  const { title, ticket, assignee } = data;
+  const { title, id, assignee } = data;
 
   return (
     <Card
@@ -49,7 +50,7 @@ const TaskCardContent = ({
     >
       <Card.Header className="min-w-0">
         <Card.Title className="truncate">{title}</Card.Title>
-        <Card.Description>{ticket}</Card.Description>
+        <Card.Description>#{id}</Card.Description>
       </Card.Header>
 
       <Card.Footer className="flex min-w-0 gap-2">
@@ -59,7 +60,7 @@ const TaskCardContent = ({
         </Avatar>
 
         <span className="truncate text-xs text-default-600">
-          {!assignee ? "Unassigned" : `Assigned to ${assignee}`}
+          {!assignee ? "Unassigned" : `Assigned to ${assignee.name}`}
         </span>
       </Card.Footer>
     </Card>
@@ -70,8 +71,8 @@ const TaskCard = ({
   data,
   columnId,
 }: {
-  data: ITaskResponse;
-  columnId: number;
+  data: TaskResponseDTO;
+  columnId: string;
 }) => {
   const {
     attributes,
@@ -109,7 +110,7 @@ const TaskCard = ({
   );
 };
 
-const StaticTaskCard = ({ data }: { data: ITaskResponse }) => {
+const StaticTaskCard = ({ data }: { data: TaskResponseDTO }) => {
   return (
     <div className="touch-none">
       <TaskCardContent data={data} />
@@ -117,7 +118,7 @@ const StaticTaskCard = ({ data }: { data: ITaskResponse }) => {
   );
 };
 
-const EmptyColumnDropZone = ({ columnId }: { columnId: number }) => {
+const EmptyColumnDropZone = ({ columnId }: { columnId: string }) => {
   const { isOver, setNodeRef } = useDroppable({
     id: `column-drop-${columnId}`,
     data: {
@@ -145,7 +146,7 @@ const TaskList = ({
   column,
   sortable = true,
 }: {
-  column: IColumn;
+  column: TaskBoardDTO;
   sortable?: boolean;
 }) => {
   return (
@@ -176,7 +177,7 @@ const TaskBoardContent = ({
   onTaskDetailLeave,
   sortable = true,
 }: {
-  column: IColumn;
+  column: TaskBoardDTO;
   dragging?: boolean;
   dragDisabled?: boolean;
   dragHandleAttributes?: object;
@@ -232,7 +233,7 @@ const TaskBoardContent = ({
   );
 };
 
-const TaskBoard = ({ column }: { column: IColumn }) => {
+const TaskBoard = ({ column }: { column: TaskBoardDTO }) => {
   const [isTaskDetailHovered, setIsTaskDetailHovered] = useState(false);
   const {
     attributes,
