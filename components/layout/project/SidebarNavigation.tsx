@@ -28,15 +28,17 @@ export default function SidebarNavigation() {
   return (
     <nav className="SidebarNavigation h-screen px-6 space-y-6 border-r-gray-200 border-r pt-8">
       <div className="flex space-x-2">
-        <div>
-          <Avatar>
-            <Avatar.Image
-              alt="Blue"
-              src="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/blue.jpg"
-            />
-            <Avatar.Fallback>B</Avatar.Fallback>
-          </Avatar>
-        </div>
+        <Button className="p-1 h-auto" variant="ghost">
+          <Link href="/projects">
+            <Avatar>
+              <Avatar.Image
+                alt="Blue"
+                src="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/blue.jpg"
+              />
+              <Avatar.Fallback>B</Avatar.Fallback>
+            </Avatar>
+          </Link>
+        </Button>
         <div className="flex flex-col ">
           <span className="font-semibold">Justine</span>
           <span className="text-muted text-sm">Owner</span>

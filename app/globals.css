@@ -15,11 +15,13 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-fredoka: var(--font-fredoka);
-}
 
+  --font-project: var(--font-project);
+}
 body {
   /* @apply bg-background text-foreground; */
 

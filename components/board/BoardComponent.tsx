@@ -18,9 +18,10 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import useDragState, { getColumnId, getTaskId } from "./useDragState";
 import { IColumn, ITaskResponse } from "@/types/board";
+import AddTaskModal from "./AddTaskModal";
 
 const transition = {
   duration: 220,
@@ -167,64 +168,72 @@ const TaskList = ({
 const TaskBoardContent = ({
   column,
   dragging = false,
+  dragDisabled = false,
   dragHandleAttributes,
   dragHandleListeners,
   setDragHandleRef,
+  onTaskDetailEnter,
+  onTaskDetailLeave,
   sortable = true,
 }: {
   column: IColumn;
   dragging?: boolean;
+  dragDisabled?: boolean;
   dragHandleAttributes?: object;
   dragHandleListeners?: object;
   setDragHandleRef?: (element: HTMLElement | null) => void;
+  onTaskDetailEnter?: () => void;
+  onTaskDetailLeave?: () => void;
   sortable?: boolean;
 }) => {
   return (
     <Card
+      ref={setDragHandleRef}
+      {...(!dragDisabled ? dragHandleAttributes : {})}
+      {...(!dragDisabled ? dragHandleListeners : {})}
       className={[
-        "flex h-full min-h-72 min-w-[20rem] max-w-[20rem] flex-col rounded-xl border border-default-200/80",
-        "bg-content1/95 p-3 shadow-sm",
+        "flex h-full min-h-72 min-w-[20rem] max-w-[20rem] flex-col rounded-xl border border-default-200/80 p-1 shadow-sm",
+        dragDisabled
+          ? "bg-content1/95 cursor-default"
+          : "bg-content1/95 cursor-grab active:cursor-grabbing hover:bg-gray-200 active:opacity-70",
         dragging ? "shadow-xl ring-1 ring-primary/20" : "",
       ].join(" ")}
     >
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <div className="truncate font-semibold">{column.title}</div>
-        <div className="flex items-center gap-2">
-          <div className="rounded-full bg-default-100 px-2 py-1 text-xs text-default-600">
-            {column.tasks.length}
+      <div
+        className="TaskDetail h-full rounded-lg bg-white p-1 cursor-default"
+        onMouseEnter={onTaskDetailEnter}
+        onMouseLeave={onTaskDetailLeave}
+      >
+        <div className="mb-3 flex items-center gap-2">
+          <div className="truncate font-semibold">{column.title}</div>
+          <div className="flex items-center gap-2">
+            <div className="rounded-full bg-default-100 px-2 py-0 text-xs text-default-600 bg-gray-100">
+              {column.tasks.length}
+            </div>
           </div>
-
-          {setDragHandleRef ? (
-            <button
-              ref={setDragHandleRef}
-              type="button"
-              {...dragHandleAttributes}
-              {...dragHandleListeners}
-              className="grid size-8 place-items-center rounded-lg border border-default-200 bg-default-50 text-default-500 transition-colors hover:bg-default-100"
-              aria-label={`Reorder ${column.title} column`}
-            >
-              <span className="text-sm leading-none">::</span>
-            </button>
-          ) : null}
+          <div className="ml-auto">
+            <AddTaskModal />
+          </div>
         </div>
-      </div>
 
-      {sortable ? (
-        <SortableContext
-          id={getColumnId(column.id)}
-          items={column.tasks.map((task) => getTaskId(task.id))}
-          strategy={verticalListSortingStrategy}
-        >
-          <TaskList column={column} />
-        </SortableContext>
-      ) : (
-        <TaskList column={column} sortable={false} />
-      )}
+        {sortable ? (
+          <SortableContext
+            id={getColumnId(column.id)}
+            items={column.tasks.map((task) => getTaskId(task.id))}
+            strategy={verticalListSortingStrategy}
+          >
+            <TaskList column={column} />
+          </SortableContext>
+        ) : (
+          <TaskList column={column} sortable={false} />
+        )}
+      </div>
     </Card>
   );
 };
 
 const TaskBoard = ({ column }: { column: IColumn }) => {
+  const [isTaskDetailHovered, setIsTaskDetailHovered] = useState(false);
   const {
     attributes,
     isDragging,
@@ -240,6 +249,7 @@ const TaskBoard = ({ column }: { column: IColumn }) => {
       columnId: column.id,
       column,
     },
+    disabled: isTaskDetailHovered,
     transition,
   });
 
@@ -254,9 +264,12 @@ const TaskBoard = ({ column }: { column: IColumn }) => {
       <TaskBoardContent
         column={column}
         dragging={isDragging}
+        dragDisabled={isTaskDetailHovered}
         dragHandleAttributes={attributes}
         dragHandleListeners={listeners}
         setDragHandleRef={setActivatorNodeRef}
+        onTaskDetailEnter={() => setIsTaskDetailHovered(true)}
+        onTaskDetailLeave={() => setIsTaskDetailHovered(false)}
       />
     </div>
   );

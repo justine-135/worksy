@@ -1,10 +1,14 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  darkMode: "class", // IMPORTANT
+  darkMode: "class",
   content: ["./app/**/*.{js,ts,jsx,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        project: ["var(--font-project)", "sans-serif"],
+      },
+    },
   },
 };
 
