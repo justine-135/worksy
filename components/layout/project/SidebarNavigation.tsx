@@ -1,5 +1,6 @@
 "use client";
 
+import SignOutButton from "@/components/button/SignOutButton";
 import { Avatar, Button } from "@heroui/react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
@@ -45,7 +46,7 @@ export default function SidebarNavigation() {
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="flex flex-col space-y-2 h-[90%]">
         {routes.map((route) => {
           const Icon = route.icon;
 
@@ -72,6 +73,7 @@ export default function SidebarNavigation() {
             </div>
           );
         })}
+        <SignOutButton />
       </div>
     </nav>
   );

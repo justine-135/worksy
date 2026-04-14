@@ -1,13 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { TaskBoardDTO } from "@/types/taskboard.dto";
 
-export async function getTaskBoard(id: string) {
+export async function getTaskBoard(userId: string, projectId: string) {
   const data = await prisma.taskBoard.findMany({
     where: {
       project: {
+        id: projectId,
         members: {
           some: {
-            userId: id,
+            userId,
           },
         },
       },
@@ -33,28 +34,8 @@ export async function getTaskBoard(id: string) {
             },
           },
         },
-        // include: {
-        //   assignee: {
-        //     include: {
-        //       user: {
-        //         select: {
-        //           name: true,
-        //           id: true,
-        //           image: true,
-        //         },
-        //       },
-        //     },
-        //   },
-        // },
       },
     },
   });
   return data as TaskBoardDTO[];
-  //   where: {
-  //   members: {
-  //     some: {
-  //       userId,
-  //     },
-  //   },
-  // },
 }

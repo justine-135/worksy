@@ -10,18 +10,23 @@ import {
 } from "@heroui/react";
 import { BiPlus } from "react-icons/bi";
 
-export default function AddTaskModal() {
+export default function AddProjectModal() {
   return (
     <Modal>
-      <Button className="px-1 h-5" variant="tertiary">
-        <BiPlus scale={2} />
+      <Button
+        variant="ghost"
+        className="flex flex-col items-center justify-center h-42 w-51.25 gap-2 bg-gray-100 hover:cursor-pointer hover:bg-gray-200"
+      >
+        <BiPlus size={40} fill="gray" />
       </Button>
       <Modal.Backdrop>
         <Modal.Container>
           <Modal.Dialog>
             <Modal.CloseTrigger />
             <Modal.Header>
-              <Modal.Heading className="font-semibold">Add Task</Modal.Heading>
+              <Modal.Heading className="font-semibold">
+                Add Project
+              </Modal.Heading>
             </Modal.Header>
             <Modal.Body className="space-y-4 p-1">
               <TextField>

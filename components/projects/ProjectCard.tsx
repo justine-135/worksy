@@ -2,7 +2,7 @@ import { Avatar, Card } from "@heroui/react";
 
 export function ProjectCard() {
   return (
-    <Card className="w-50 gap-2 hover:cursor-pointer hover:opacity-80">
+    <Card className="h-auto w-51.25 gap-2 hover:cursor-pointer hover:opacity-80">
       <img
         alt="Indie Hackers community"
         className="pointer-events-none aspect-square w-14 rounded-2xl object-cover select-none"

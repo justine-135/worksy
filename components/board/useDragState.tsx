@@ -6,7 +6,7 @@ import {
   DragStartEvent,
 } from "@dnd-kit/core/dist/types/events";
 import { arrayMove } from "@dnd-kit/sortable";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const getTaskId = (taskId: string) => `task-${taskId}`;
 
@@ -16,6 +16,11 @@ export default function useDragState({ data }: { data: TaskBoardDTO[] }) {
   const [columns, setColumns] = useState<TaskBoardDTO[]>(data);
   const [activeTask, setActiveTask] = useState<TaskResponseDTO | null>(null);
   const [activeColumn, setActiveColumn] = useState<TaskBoardDTO | null>(null);
+
+  useEffect(() => {
+    if (data) setColumns(data);
+  }, [data]);
+
   const handleDragStart = (event: DragStartEvent) => {
     const activeData = event.active.data.current;
 

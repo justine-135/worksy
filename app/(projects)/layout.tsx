@@ -22,8 +22,6 @@ export default async function ProjectLayout({
 }) {
   const session = await getServerSession(authConfig);
 
-  console.log("session:", session);
-
   if (!session) {
     redirect("/sign-in");
   }
