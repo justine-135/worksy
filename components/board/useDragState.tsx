@@ -12,40 +12,7 @@ export const getTaskId = (taskId: string) => `task-${taskId}`;
 
 export const getColumnId = (columnId: string) => `column-${columnId}`;
 
-const data: TaskBoardDTO[] = [
-  {
-    id: "1",
-    title: "Backlog",
-    tasks: [
-      {
-        id: "1",
-        title: "Task A",
-        assignee: { id: "1", name: "Justine" },
-      },
-      {
-        id: "2",
-        title: "Task B",
-        assignee: { id: "1", name: "Justine" },
-      },
-    ],
-  },
-  {
-    id: "2",
-    title: "Ready",
-    tasks: [
-      { id: "14", title: "Task H", assignee: { id: "1", name: "Justine" } },
-    ],
-  },
-  {
-    id: "3",
-    title: "Done",
-    tasks: [
-      { id: "15", title: "Task Z", assignee: { id: "1", name: "Justine" } },
-    ],
-  },
-];
-
-export default function useDragState() {
+export default function useDragState({ data }: { data: TaskBoardDTO[] }) {
   const [columns, setColumns] = useState<TaskBoardDTO[]>(data);
   const [activeTask, setActiveTask] = useState<TaskResponseDTO | null>(null);
   const [activeColumn, setActiveColumn] = useState<TaskBoardDTO | null>(null);

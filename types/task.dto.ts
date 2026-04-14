@@ -1,11 +1,14 @@
 export interface TaskResponseDTO {
   id: string;
   title: string;
-  description?: string;
-  priority?: string;
+  description?: string | null;
+  priority?: string | null;
   assignee?: {
-    id: string;
-    name: string;
+    user: {
+      name: string;
+      image: string;
+      id: string;
+    };
   };
 }
 

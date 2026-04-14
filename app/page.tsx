@@ -1,11 +1,6 @@
 "use server";
 
-import Link from "next/link";
-// import { auth, signOut } from "@/lib/auth";
-
 export default async function Home() {
-  // const session = await auth();
-
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-100 px-6 py-16">
       <div className="w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-10 shadow-sm">

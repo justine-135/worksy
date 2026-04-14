@@ -60,7 +60,7 @@ const TaskCardContent = ({
         </Avatar>
 
         <span className="truncate text-xs text-default-600">
-          {!assignee ? "Unassigned" : `Assigned to ${assignee.name}`}
+          {!assignee ? "Unassigned" : `Assigned to ${assignee.user.name}`}
         </span>
       </Card.Footer>
     </Card>
@@ -276,7 +276,7 @@ const TaskBoard = ({ column }: { column: TaskBoardDTO }) => {
   );
 };
 
-export default function BoardComponent() {
+export default function BoardComponent({ data }: { data: TaskBoardDTO[] }) {
   const {
     activeTask,
     activeColumn,
@@ -284,7 +284,7 @@ export default function BoardComponent() {
     columns,
     handleDragOver,
     handleDragEnd,
-  } = useDragState();
+  } = useDragState({ data });
 
   const isMounted = useSyncExternalStore(
     () => () => {},
