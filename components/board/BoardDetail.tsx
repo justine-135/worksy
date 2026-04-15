@@ -23,8 +23,10 @@ import useDragState, { getColumnId, getTaskId } from "./useDragState";
 import { TaskBoardResponseDTO } from "@/types/taskboard.dto";
 import AddTaskModal from "./AddTaskModal";
 import { TaskResponseDTO } from "@/types/task.dto";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useGetTaskBoard } from "@/lib/taskboard/fetchTaskBoard";
+import { useQueryClient } from "@tanstack/react-query";
+import { useGetTaskBoard } from "@/hooks/taskboard/useFetchTaskBoard";
+import useSaveTaskBoardPositionMutation from "@/hooks/taskboard/useSaveTaskBoardPositionMutation";
+import useSaveTaskPositionMutation from "@/hooks/taskboard/useSaveTaskPositionMutation";
 
 const transition = {
   duration: 220,
@@ -312,67 +314,16 @@ export default function BoardDetail({
     [queryClient, taskBoardQueryKey],
   );
 
-  const saveTaskBoardOrderMutation = useMutation({
-    mutationFn: async ({
-      orderedTaskBoardIds,
-    }: {
-      orderedTaskBoardIds: string[];
-    }) => {
-      const response = await fetch("/api/taskboard", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          projectId,
-          userId,
-          orderedTaskBoardIds,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to save task board order");
-      }
-
-      return response.json();
-    },
-    onSettled: invalidateTaskBoards,
+  const { saveTaskBoardOrderMutation } = useSaveTaskBoardPositionMutation({
+    userId,
+    projectId,
+    invalidateTaskBoards,
   });
 
-  const saveTaskPositionMutation = useMutation({
-    mutationFn: async ({
-      taskId,
-      taskBoardId,
-      orderedTaskIdsByBoard,
-    }: {
-      taskId: string;
-      taskBoardId: string;
-      orderedTaskIdsByBoard: Array<{
-        taskBoardId: string;
-        taskIds: string[];
-      }>;
-    }) => {
-      const response = await fetch("/api/task", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          projectId,
-          userId,
-          taskId,
-          taskBoardId,
-          orderedTaskIdsByBoard,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to save task position");
-      }
-
-      return response.json();
-    },
-    onSettled: invalidateTaskBoards,
+  const { mutation: saveTaskPosition } = useSaveTaskPositionMutation({
+    userId,
+    projectId,
+    invalidateTaskBoards,
   });
 
   const {
@@ -390,7 +341,7 @@ export default function BoardDetail({
       });
     },
     onTaskDrop: ({ task, taskBoardId, columns }) => {
-      saveTaskPositionMutation.mutate({
+      saveTaskPosition.mutate({
         taskId: task.id,
         taskBoardId,
         orderedTaskIdsByBoard: columns.map((column) => ({
