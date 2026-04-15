@@ -18,14 +18,12 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useState, useSyncExternalStore } from "react";
+import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
 import useDragState, { getColumnId, getTaskId } from "./useDragState";
-import { TaskBoardDTO } from "@/types/taskboard.dto";
+import { TaskBoardResponseDTO } from "@/types/taskboard.dto";
 import AddTaskModal from "./AddTaskModal";
 import { TaskResponseDTO } from "@/types/task.dto";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getServerSession } from "next-auth";
-import { getTaskBoard } from "@/db/taskboard.db";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useGetTaskBoard } from "@/lib/taskboard/fetchTaskBoard";
 
 const transition = {
@@ -150,7 +148,7 @@ const TaskList = ({
   column,
   sortable = true,
 }: {
-  column: TaskBoardDTO;
+  column: TaskBoardResponseDTO;
   sortable?: boolean;
 }) => {
   return (
@@ -181,7 +179,7 @@ const TaskBoardContent = ({
   onTaskDetailLeave,
   sortable = true,
 }: {
-  column: TaskBoardDTO;
+  column: TaskBoardResponseDTO;
   dragging?: boolean;
   dragDisabled?: boolean;
   dragHandleAttributes?: object;
@@ -237,7 +235,7 @@ const TaskBoardContent = ({
   );
 };
 
-const TaskBoard = ({ column }: { column: TaskBoardDTO }) => {
+const TaskBoard = ({ column }: { column: TaskBoardResponseDTO }) => {
   const [isTaskDetailHovered, setIsTaskDetailHovered] = useState(false);
   const {
     attributes,
@@ -287,32 +285,121 @@ export default function BoardDetail({
   userId: string;
   projectId: string;
 }) {
-  // Access the client
-  // const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
+  const taskBoardQueryKey = useMemo(
+    () => ["taskBoard", userId, projectId] as const,
+    [projectId, userId],
+  );
 
   // Queries
-  const { data, error, isLoading } = useGetTaskBoard({
+  const { data, isLoading } = useGetTaskBoard({
     userId,
     projectId,
   });
 
-  // Mutations
-  //   const mutation = useMutation({
-  //     mutationFn: postTodo,
-  //     onSuccess: () => {
-  //       // Invalidate and refetch
-  //       queryClient.invalidateQueries({ queryKey: ['todos'] })
-  //     },
-  //   })
+  const invalidateTaskBoards = async () => {
+    await queryClient.invalidateQueries({
+      queryKey: taskBoardQueryKey,
+    });
+  };
+
+  const columns: TaskBoardResponseDTO[] = data ?? [];
+
+  const handleColumnsChange = useCallback(
+    (nextColumns: TaskBoardResponseDTO[]) => {
+      queryClient.setQueryData(taskBoardQueryKey, nextColumns);
+    },
+    [queryClient, taskBoardQueryKey],
+  );
+
+  const saveTaskBoardOrderMutation = useMutation({
+    mutationFn: async ({
+      orderedTaskBoardIds,
+    }: {
+      orderedTaskBoardIds: string[];
+    }) => {
+      const response = await fetch("/api/taskboard", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          projectId,
+          userId,
+          orderedTaskBoardIds,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save task board order");
+      }
+
+      return response.json();
+    },
+    onSettled: invalidateTaskBoards,
+  });
+
+  const saveTaskPositionMutation = useMutation({
+    mutationFn: async ({
+      taskId,
+      taskBoardId,
+      orderedTaskIdsByBoard,
+    }: {
+      taskId: string;
+      taskBoardId: string;
+      orderedTaskIdsByBoard: Array<{
+        taskBoardId: string;
+        taskIds: string[];
+      }>;
+    }) => {
+      const response = await fetch("/api/task", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          projectId,
+          userId,
+          taskId,
+          taskBoardId,
+          orderedTaskIdsByBoard,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save task position");
+      }
+
+      return response.json();
+    },
+    onSettled: invalidateTaskBoards,
+  });
 
   const {
     activeTask,
     activeColumn,
     handleDragStart,
-    columns,
     handleDragOver,
     handleDragEnd,
-  } = useDragState({ data: data || [] });
+  } = useDragState({
+    columns,
+    onColumnsChange: handleColumnsChange,
+    onColumnDrop: ({ columns }) => {
+      saveTaskBoardOrderMutation.mutate({
+        orderedTaskBoardIds: columns.map((column) => column.id),
+      });
+    },
+    onTaskDrop: ({ task, taskBoardId, columns }) => {
+      saveTaskPositionMutation.mutate({
+        taskId: task.id,
+        taskBoardId,
+        orderedTaskIdsByBoard: columns.map((column) => ({
+          taskBoardId: column.id,
+          taskIds: column.tasks.map((columnTask) => columnTask.id),
+        })),
+      });
+    },
+  });
 
   const isMounted = useSyncExternalStore(
     () => () => {},
@@ -329,9 +416,6 @@ export default function BoardDetail({
   );
 
   if (isLoading) return <div>Loading ...</div>;
-
-  console.log(columns);
-
   return (
     <div className="flex min-h-0 flex-col space-y-6 overflow-hidden">
       <h1 className="font-semibold text-2xl">Board</h1>

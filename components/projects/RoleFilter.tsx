@@ -24,7 +24,6 @@ export function RoleFilter() {
           <Dropdown.Section>
             <Header>Select role</Header>
             {Object.values(ERoles).map((role, idx) => {
-              console.log(role, RoleLabel[role as ERoles], ERoles.OWNER);
               return (
                 <Dropdown.Item
                   id={role}

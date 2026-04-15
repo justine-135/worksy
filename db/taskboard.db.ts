@@ -1,7 +1,11 @@
 import { prisma } from "@/lib/prisma";
-import { TaskBoardDTO } from "@/types/taskboard.dto";
+import {
+  TaskBoardParamsDTO,
+  TaskBoardResponseDTO,
+  UpdateTaskBoardPositionDTO,
+} from "@/types/taskboard.dto";
 
-export async function getTaskBoard(userId: string, projectId: string) {
+export async function getTaskBoard({ userId, projectId }: TaskBoardParamsDTO) {
   const data = await prisma.taskBoard.findMany({
     where: {
       project: {
@@ -13,10 +17,17 @@ export async function getTaskBoard(userId: string, projectId: string) {
         },
       },
     },
+    orderBy: {
+      order: "asc",
+    },
     select: {
       id: true,
       title: true,
+      order: true,
       tasks: {
+        orderBy: {
+          order: "asc",
+        },
         select: {
           id: true,
           title: true,
@@ -37,5 +48,47 @@ export async function getTaskBoard(userId: string, projectId: string) {
       },
     },
   });
-  return data as TaskBoardDTO[];
+  return data as TaskBoardResponseDTO[];
+}
+
+export async function updateTaskBoardOrdersDB({
+  projectId,
+  userId,
+  orderedTaskBoardIds,
+}: UpdateTaskBoardPositionDTO) {
+  const accessibleBoards = await prisma.taskBoard.findMany({
+    where: {
+      id: {
+        in: orderedTaskBoardIds,
+      },
+      projectId,
+      project: {
+        members: {
+          some: {
+            userId,
+          },
+        },
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (accessibleBoards.length !== orderedTaskBoardIds.length) {
+    throw new Error("One or more task boards are inaccessible");
+  }
+
+  await prisma.$transaction(
+    orderedTaskBoardIds.map((taskBoardId, index) =>
+      prisma.taskBoard.update({
+        where: {
+          id: taskBoardId,
+        },
+        data: {
+          order: index + 1,
+        },
+      }),
+    ),
+  );
 }

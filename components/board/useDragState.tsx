@@ -1,25 +1,46 @@
 import { TaskResponseDTO } from "@/types/task.dto";
-import { TaskBoardDTO } from "@/types/taskboard.dto";
+import { TaskBoardResponseDTO } from "@/types/taskboard.dto";
 import {
   DragEndEvent,
   DragOverEvent,
   DragStartEvent,
 } from "@dnd-kit/core/dist/types/events";
 import { arrayMove } from "@dnd-kit/sortable";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export const getTaskId = (taskId: string) => `task-${taskId}`;
 
 export const getColumnId = (columnId: string) => `column-${columnId}`;
 
-export default function useDragState({ data }: { data: TaskBoardDTO[] }) {
-  const [columns, setColumns] = useState<TaskBoardDTO[]>(data);
+export default function useDragState({
+  columns,
+  onColumnsChange,
+  onTaskDrop,
+  onColumnDrop,
+}: {
+  columns: TaskBoardResponseDTO[];
+  onColumnsChange: (columns: TaskBoardResponseDTO[]) => void;
+  onTaskDrop?: (payload: {
+    task: TaskResponseDTO;
+    taskBoardId: string;
+    position: number;
+    columns: TaskBoardResponseDTO[];
+  }) => void;
+  onColumnDrop?: (payload: {
+    taskBoardId: string;
+    position: number;
+    columns: TaskBoardResponseDTO[];
+  }) => void;
+}) {
   const [activeTask, setActiveTask] = useState<TaskResponseDTO | null>(null);
-  const [activeColumn, setActiveColumn] = useState<TaskBoardDTO | null>(null);
+  const [activeColumn, setActiveColumn] = useState<TaskBoardResponseDTO | null>(
+    null,
+  );
+  const columnsRef = useRef(columns);
 
   useEffect(() => {
-    if (data) setColumns(data);
-  }, [data]);
+    columnsRef.current = columns;
+  }, [columns]);
 
   const handleDragStart = (event: DragStartEvent) => {
     const activeData = event.active.data.current;
@@ -30,7 +51,7 @@ export default function useDragState({ data }: { data: TaskBoardDTO[] }) {
     }
 
     if (activeData?.type === "column") {
-      setActiveColumn(activeData.column as TaskBoardDTO);
+      setActiveColumn(activeData.column as TaskBoardResponseDTO);
     }
   };
 
@@ -64,72 +85,73 @@ export default function useDragState({ data }: { data: TaskBoardDTO[] }) {
         active.rect.current.translated.height / 2 >
         over.rect.top + over.rect.height / 2;
 
-    setColumns((currentColumns) => {
-      const activeTaskId = activeData.task.id;
-      const activeLocation = findTaskLocation(currentColumns, activeTaskId);
-      const destinationColumnIndex = getColumnIndex(currentColumns, toColumnId);
+    const currentColumns = columnsRef.current;
+    const activeTaskId = activeData.task.id;
+    const activeLocation = findTaskLocation(currentColumns, activeTaskId);
+    const destinationColumnIndex = getColumnIndex(currentColumns, toColumnId);
 
-      if (!activeLocation || destinationColumnIndex === -1) {
-        return currentColumns;
+    if (!activeLocation || destinationColumnIndex === -1) {
+      return;
+    }
+
+    if (overData?.type === "task") {
+      const overTaskId = overData.task.id;
+      const overTaskIndex = currentColumns[
+        destinationColumnIndex
+      ].tasks.findIndex((task) => task.id === overTaskId);
+
+      if (overTaskIndex === -1) {
+        return;
       }
 
-      if (overData?.type === "task") {
-        const overTaskId = overData.task.id;
-        const overTaskIndex = currentColumns[
-          destinationColumnIndex
-        ].tasks.findIndex((task) => task.id === overTaskId);
-
-        if (overTaskIndex === -1) {
-          return currentColumns;
+      if (activeLocation.columnId === toColumnId) {
+        if (activeLocation.index === overTaskIndex) {
+          return;
         }
 
-        if (activeLocation.columnId === toColumnId) {
-          if (activeLocation.index === overTaskIndex) {
-            return currentColumns;
-          }
+        const reorderedTasks = arrayMove(
+          currentColumns[destinationColumnIndex].tasks,
+          activeLocation.index,
+          overTaskIndex,
+        );
 
-          const reorderedTasks = arrayMove(
-            currentColumns[destinationColumnIndex].tasks,
-            activeLocation.index,
-            overTaskIndex,
-          );
-
-          return currentColumns.map((column) =>
+        onColumnsChange(
+          currentColumns.map((column) =>
             column.id === toColumnId
               ? { ...column, tasks: reorderedTasks }
               : column,
-          );
-        }
+          ),
+        );
+        return;
       }
+    }
 
-      let targetIndex = currentColumns[destinationColumnIndex].tasks.length;
+    let targetIndex = currentColumns[destinationColumnIndex].tasks.length;
 
-      if (overData?.type === "task") {
-        const overTaskIndex = currentColumns[
-          destinationColumnIndex
-        ].tasks.findIndex((task) => task.id === overData.task.id);
+    if (overData?.type === "task") {
+      const overTaskIndex = currentColumns[
+        destinationColumnIndex
+      ].tasks.findIndex((task) => task.id === overData.task.id);
 
-        if (overTaskIndex !== -1) {
-          targetIndex = overTaskIndex + (isBelowOverTask ? 1 : 0);
-        }
+      if (overTaskIndex !== -1) {
+        targetIndex = overTaskIndex + (isBelowOverTask ? 1 : 0);
       }
+    }
 
-      const nextColumns = moveTask(
-        currentColumns,
-        activeTaskId,
-        activeLocation.columnId,
-        toColumnId,
-        targetIndex,
-      );
+    const nextColumns = moveTask(
+      currentColumns,
+      activeTaskId,
+      activeLocation.columnId,
+      toColumnId,
+      targetIndex,
+    );
 
-      if (nextColumns === currentColumns) {
-        return currentColumns;
-      }
+    if (nextColumns === currentColumns) {
+      return;
+    }
 
-      activeData.columnId = toColumnId;
-
-      return nextColumns;
-    });
+    activeData.columnId = toColumnId;
+    onColumnsChange(nextColumns);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -145,45 +167,47 @@ export default function useDragState({ data }: { data: TaskBoardDTO[] }) {
     }
 
     if (activeData?.type === "column") {
-      const oldIndex = columns.findIndex(
+      const currentColumns = columnsRef.current;
+      const oldIndex = currentColumns.findIndex(
         (column) => getColumnId(column.id) === active.id,
       );
       const targetColumnId = getDropColumnId(
         String(over.id),
         overData as Record<string, unknown> | undefined,
       );
-      const newIndex = columns.findIndex(
+      const newIndex = currentColumns.findIndex(
         (column) => column.id === targetColumnId,
       );
 
       if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-        setColumns((currentColumns) => {
-          const nextColumns = arrayMove(currentColumns, oldIndex, newIndex);
+        const nextColumns = arrayMove(currentColumns, oldIndex, newIndex);
+        const movedColumn = nextColumns[newIndex];
 
-          console.log("Column dropped", {
-            column: nextColumns[newIndex],
-            fromIndex: oldIndex,
-            toIndex: newIndex,
-          });
-
-          return nextColumns;
+        onColumnsChange(nextColumns);
+        onColumnDrop?.({
+          taskBoardId: movedColumn.id,
+          position: newIndex,
+          columns: nextColumns,
         });
       }
     }
 
     if (activeData?.type === "task") {
+      const currentColumns = columnsRef.current;
       const finalColumnId = activeData.columnId;
-      const finalColumn = columns.find((column) => column.id === finalColumnId);
+      const finalColumn = currentColumns.find(
+        (column) => column.id === finalColumnId,
+      );
       const finalTaskIndex =
         finalColumn?.tasks.findIndex(
           (task) => task.id === activeData.task.id,
         ) ?? -1;
 
-      console.log("Task dropped", {
+      onTaskDrop?.({
         task: activeData.task,
-        columnId: finalColumnId,
-        columnTitle: finalColumn?.title,
-        index: finalTaskIndex,
+        taskBoardId: finalColumnId,
+        position: finalTaskIndex,
+        columns: currentColumns,
       });
     }
   };
@@ -207,7 +231,10 @@ export default function useDragState({ data }: { data: TaskBoardDTO[] }) {
     return null;
   };
 
-  const findTaskLocation = (columns: TaskBoardDTO[], taskId: string) => {
+  const findTaskLocation = (
+    columns: TaskBoardResponseDTO[],
+    taskId: string,
+  ) => {
     for (const column of columns) {
       const index = column.tasks.findIndex((task) => task.id === taskId);
 
@@ -222,12 +249,15 @@ export default function useDragState({ data }: { data: TaskBoardDTO[] }) {
     return null;
   };
 
-  const getColumnIndex = (columns: TaskBoardDTO[], columnId: string) => {
+  const getColumnIndex = (
+    columns: TaskBoardResponseDTO[],
+    columnId: string,
+  ) => {
     return columns.findIndex((column) => column.id === columnId);
   };
 
   const moveTask = (
-    columns: TaskBoardDTO[],
+    columns: TaskBoardResponseDTO[],
     activeTaskId: string,
     fromColumnId: string,
     toColumnId: string,

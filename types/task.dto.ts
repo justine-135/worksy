@@ -21,3 +21,14 @@ export interface CreateTaskDTO {
 }
 
 export type UpdateTaskDTO = Partial<CreateTaskDTO>;
+
+export interface UpdateTaskPositionDTO {
+  projectId: string;
+  userId: string;
+  taskId: string;
+  taskBoardId: string;
+  orderedTaskIdsByBoard: Array<{
+    taskBoardId: string;
+    taskIds: string[];
+  }>;
+}
