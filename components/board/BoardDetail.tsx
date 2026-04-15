@@ -27,10 +27,29 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useGetTaskBoard } from "@/hooks/taskboard/useGetTaskBoard";
 import useSaveTaskBoardPositionMutation from "@/hooks/taskboard/useSaveTaskBoardPositionMutation";
 import useSaveTaskPositionMutation from "@/hooks/taskboard/useSaveTaskPositionMutation";
+import { BiPlus } from "react-icons/bi";
+import { Button } from "@heroui/react";
 
 const transition = {
   duration: 220,
   easing: "cubic-bezier(0.2, 1, 0.36, 1)",
+};
+
+const AddNewTaskBoard = () => {
+  const [isHovered, setIsHovered] = useState<boolean>(false);
+
+  return (
+    <Button
+      className="flex h-full min-w-[20rem] max-w-[20rem] flex-col rounded-xl border border-default-200/80 p-1 shadow-none opacity-50 hover:opacity-100"
+      variant="ghost"
+      onMouseOver={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="flex items-center justify-center h-[calc(100vh-12rem)]">
+        {isHovered ? "Add Column" : <BiPlus />}
+      </div>
+    </Button>
+  );
 };
 
 const TaskCardContent = ({
@@ -367,48 +386,57 @@ export default function BoardDetail({
     }),
   );
 
-  if (isLoading) return <div>Loading ...</div>;
+  const isLoadingView = isLoading;
+  const isDragDropView = !isLoading && isMounted;
+  const isStaticView = !isLoading && !isMounted;
+
   return (
     <div className="flex min-h-0 flex-col space-y-6 overflow-hidden">
       <h1 className="font-semibold text-2xl">Board</h1>
 
-      {isMounted ? (
-        <DndContext
-          collisionDetection={closestCorners}
-          onDragEnd={handleDragEnd}
-          onDragOver={handleDragOver}
-          onDragStart={handleDragStart}
-          sensors={sensors}
-        >
-          <SortableContext
-            items={columns.map((column) => getColumnId(column.id))}
-            strategy={horizontalListSortingStrategy}
+      <div className="flex min-h-[calc(100vh-200px)] gap-4 overflow-x-auto overflow-y-hidden px-1 py-4">
+        {isLoadingView && "Loading"}
+
+        {isDragDropView && (
+          <DndContext
+            collisionDetection={closestCorners}
+            onDragEnd={handleDragEnd}
+            onDragOver={handleDragOver}
+            onDragStart={handleDragStart}
+            sensors={sensors}
           >
-            <div className="flex min-h-[calc(100vh-200px)] gap-4 overflow-x-auto overflow-y-hidden px-1 py-4">
+            <SortableContext
+              items={columns.map((column) => getColumnId(column.id))}
+              strategy={horizontalListSortingStrategy}
+            >
               {columns.map((column) => (
                 <TaskBoard key={column.id} column={column} />
               ))}
-            </div>
-          </SortableContext>
+            </SortableContext>
+            <AddNewTaskBoard />
 
-          <DragOverlay adjustScale={false}>
-            {activeTask ? <TaskCardContent data={activeTask} dragging /> : null}
-            {!activeTask && activeColumn ? (
-              <div className="w-[20rem]">
-                <TaskBoardContent column={activeColumn} dragging />
+            <DragOverlay adjustScale={false}>
+              {activeTask && <TaskCardContent data={activeTask} dragging />}
+
+              {!activeTask && activeColumn && (
+                <div className="w-[20rem]">
+                  <TaskBoardContent column={activeColumn} dragging />
+                </div>
+              )}
+            </DragOverlay>
+          </DndContext>
+        )}
+
+        {isStaticView && (
+          <>
+            {columns.map((column) => (
+              <div key={column.id} className="shrink-0">
+                <TaskBoardContent column={column} sortable={false} />
               </div>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
-      ) : (
-        <div className="flex min-h-[calc(100vh-200px)] gap-4 overflow-x-auto overflow-y-hidden px-1 py-4">
-          {columns.map((column) => (
-            <div key={column.id} className="shrink-0">
-              <TaskBoardContent column={column} sortable={false} />
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </>
+        )}
+      </div>
     </div>
   );
 }

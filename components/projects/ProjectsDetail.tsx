@@ -5,6 +5,7 @@ import AddProjectModal from "./AddProjectModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useGetProjects } from "@/hooks/project/useGetProjects";
+import { ProjectToast } from "../toast/ProjectToast";
 
 export default function ProjectsDetail({ userId }: { userId: string }) {
   const queryClient = useQueryClient();
@@ -28,7 +29,7 @@ export default function ProjectsDetail({ userId }: { userId: string }) {
 
   return (
     <div className="flex flex-col gap-4 items-center mt-20 w-full">
-      <div className="flex flex-col gap-4 items-center">
+      <div className="flex flex-col gap-4 items-center w-[53%]">
         <SearchField name="search">
           <SearchField.Group className="h-12 rounded-4xl">
             <SearchField.SearchIcon />
@@ -39,25 +40,26 @@ export default function ProjectsDetail({ userId }: { userId: string }) {
         <div className="self-start">
           <RoleFilter />
         </div>
-        <div className="flex flex-wrap gap-4 w-auto max-w-230">
+        <div className="flex flex-wrap mr-auto gap-4 max-w-230">
           {data?.map((project) => {
             const { id, title, members, owner } = project;
             return (
               <ProjectCard
                 key={id}
+                id={id}
                 title={title}
                 memberCount={members.length}
                 owner={owner.name}
               />
             );
           })}
-
           <AddProjectModal
             userId={userId}
             invalidateProjects={invalidateProjects}
           />
         </div>
       </div>
+      <ProjectToast />
     </div>
   );
 }

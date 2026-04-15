@@ -1,9 +1,9 @@
-import { TaskBoardParamsDTO } from "@/types/taskboard.dto";
+import { UserProjectParamsDTO } from "@/types/taskboard.dto";
 
 export default async function fetchTaskBoard({
   userId,
   projectId,
-}: TaskBoardParamsDTO) {
+}: UserProjectParamsDTO) {
   const res = await fetch(
     `/api/taskboard?project_id=${projectId}&user_id=${userId}`,
   );

@@ -15,6 +15,14 @@ export async function createProjectDTO(data: CreateProjectDTO) {
           role: ERoles.OWNER,
         },
       },
+
+      taskBoards: {
+        create: [
+          { title: "To Do 💻" },
+          { title: "In Progress 🚀" },
+          { title: "Done 👁️" },
+        ],
+      },
     },
     include: {
       members: {

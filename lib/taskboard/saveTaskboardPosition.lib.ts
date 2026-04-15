@@ -1,6 +1,6 @@
-import { TaskBoardParamsDTO } from "@/types/taskboard.dto";
+import { UserProjectParamsDTO } from "@/types/taskboard.dto";
 
-interface Params extends TaskBoardParamsDTO {
+interface Params extends UserProjectParamsDTO {
   orderedTaskBoardIds: string[];
 }
 

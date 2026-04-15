@@ -13,11 +13,11 @@ export interface UpdateTaskBoardPositionDTO {
   orderedTaskBoardIds: string[];
 }
 
-export interface TaskBoardParamsDTO {
+export interface UserProjectParamsDTO {
   userId: string;
   projectId: string;
 }
 
-export interface TaskBoardPositionMutationDTO extends TaskBoardParamsDTO {
+export interface TaskBoardPositionMutationDTO extends UserProjectParamsDTO {
   invalidateTaskBoards: () => Promise<void>;
 }
