@@ -21,35 +21,17 @@ import { CSS } from "@dnd-kit/utilities";
 import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
 import useDragState, { getColumnId, getTaskId } from "./useDragState";
 import { TaskBoardResponseDTO } from "@/types/taskboard.dto";
-import AddTaskModal from "./AddTaskModal";
+import AddTaskModal from "./modal/AddTaskModal";
 import { TaskResponseDTO } from "@/types/task.dto";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetTaskBoard } from "@/hooks/taskboard/useGetTaskBoard";
 import useSaveTaskBoardPositionMutation from "@/hooks/taskboard/useSaveTaskBoardPositionMutation";
 import useSaveTaskPositionMutation from "@/hooks/taskboard/useSaveTaskPositionMutation";
-import { BiPlus } from "react-icons/bi";
-import { Button } from "@heroui/react";
+import AddTaskBoardModal from "./modal/AddTaskBoardModal";
 
 const transition = {
   duration: 220,
   easing: "cubic-bezier(0.2, 1, 0.36, 1)",
-};
-
-const AddNewTaskBoard = () => {
-  const [isHovered, setIsHovered] = useState<boolean>(false);
-
-  return (
-    <Button
-      className="flex h-full min-w-[20rem] max-w-[20rem] flex-col rounded-xl border border-default-200/80 p-1 shadow-none opacity-50 hover:opacity-100"
-      variant="ghost"
-      onMouseOver={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div className="flex items-center justify-center h-[calc(100vh-12rem)]">
-        {isHovered ? "Add Column" : <BiPlus />}
-      </div>
-    </Button>
-  );
 };
 
 const TaskCardContent = ({
@@ -181,7 +163,6 @@ const TaskList = ({
         : column.tasks.map((task) => (
             <StaticTaskCard key={task.id} data={task} />
           ))}
-
       {column.tasks.length === 0 ? (
         <EmptyColumnDropZone columnId={column.id} />
       ) : null}
@@ -394,9 +375,8 @@ export default function BoardDetail({
     <div className="flex min-h-0 flex-col space-y-6 overflow-hidden">
       <h1 className="font-semibold text-2xl">Board</h1>
 
-      <div className="flex min-h-[calc(100vh-200px)] gap-4 overflow-x-auto overflow-y-hidden px-1 py-4">
+      <div className="flex min-h-[calc(100vh-200px)] max-w-350 gap-4 overflow-x-auto overflow-y-hidden px-1 py-4">
         {isLoadingView && "Loading"}
-
         {isDragDropView && (
           <DndContext
             collisionDetection={closestCorners}
@@ -413,7 +393,10 @@ export default function BoardDetail({
                 <TaskBoard key={column.id} column={column} />
               ))}
             </SortableContext>
-            <AddNewTaskBoard />
+            <AddTaskBoardModal
+              invalidateTaskBoards={invalidateTaskBoards}
+              projectId={projectId}
+            />
 
             <DragOverlay adjustScale={false}>
               {activeTask && <TaskCardContent data={activeTask} dragging />}
@@ -426,7 +409,6 @@ export default function BoardDetail({
             </DragOverlay>
           </DndContext>
         )}
-
         {isStaticView && (
           <>
             {columns.map((column) => (

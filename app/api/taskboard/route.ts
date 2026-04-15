@@ -1,4 +1,8 @@
-import { getTaskBoard, updateTaskBoardOrdersDB } from "@/db/taskboard.db";
+import {
+  createTaskBoard,
+  getTaskBoard,
+  updateTaskBoardOrdersDB,
+} from "@/db/taskboard.db";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -32,6 +36,22 @@ export async function PATCH(req: Request) {
     projectId,
     userId,
     orderedTaskBoardIds,
+  });
+
+  return Response.json({ success: true });
+}
+
+export async function POST(req: Request) {
+  const body = await req.json();
+  const { projectId, title } = body;
+
+  if (!projectId || !title) {
+    return Response.json({ error: "Invalid payload" }, { status: 400 });
+  }
+
+  await createTaskBoard({
+    projectId,
+    title,
   });
 
   return Response.json({ success: true });

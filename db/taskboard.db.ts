@@ -3,6 +3,7 @@ import {
   UserProjectParamsDTO,
   TaskBoardResponseDTO,
   UpdateTaskBoardPositionDTO,
+  CreateTaskBoardDTO,
 } from "@/types/taskboard.dto";
 
 export async function getTaskBoard({
@@ -94,4 +95,11 @@ export async function updateTaskBoardOrdersDB({
       }),
     ),
   );
+}
+
+export async function createTaskBoard(data: CreateTaskBoardDTO) {
+  const res = await prisma.taskBoard.create({
+    data,
+  });
+  return res;
 }

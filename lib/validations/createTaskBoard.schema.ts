@@ -1,0 +1,7 @@
+import { z } from "zod";
+
+export const createTaskBoardSchema = z.object({
+  title: z.string().min(3, "Title must be at least 3 characters"),
+});
+
+export type CreateTaskBoardInput = z.infer<typeof createTaskBoardSchema>;

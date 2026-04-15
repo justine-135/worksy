@@ -21,3 +21,8 @@ export interface UserProjectParamsDTO {
 export interface TaskBoardPositionMutationDTO extends UserProjectParamsDTO {
   invalidateTaskBoards: () => Promise<void>;
 }
+
+export interface CreateTaskBoardDTO {
+  title: string;
+  projectId: string;
+}
