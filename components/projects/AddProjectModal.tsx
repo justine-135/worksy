@@ -1,5 +1,4 @@
 import { Button } from "@heroui/react/button";
-import { Modal } from "@heroui/react/modal";
 import {
   TextArea,
   Input,
@@ -8,6 +7,7 @@ import {
   Form,
   Spinner,
   toast,
+  Modal,
 } from "@heroui/react";
 import { BiPlus } from "react-icons/bi";
 import useCreateProjectMutation from "@/hooks/project/useCreateProjectMutation";
@@ -68,14 +68,12 @@ export default function AddProjectModal({ userId, invalidateProjects }: Props) {
           <Modal.Dialog>
             <Modal.CloseTrigger />
             <Modal.Header>
-              <Modal.Heading className="font-semibold">
-                Add Project
-              </Modal.Heading>
+              <div className="font-medium!">Add Project</div>
             </Modal.Header>
             <Form onSubmit={handleSubmit(onSubmit)}>
               <Modal.Body className="space-y-4 p-1">
                 <TextField>
-                  <Label aria-label="Title">Title</Label>
+                  <Label>Title</Label>
                   <Input
                     {...register("title")}
                     placeholder="e.g: Jira-style App"
@@ -83,7 +81,7 @@ export default function AddProjectModal({ userId, invalidateProjects }: Props) {
                   {errors.title && <p>{errors.title.message}</p>}
                 </TextField>
                 <TextField>
-                  <Label aria-label="Title">Description</Label>
+                  <Label>Description</Label>
                   <TextArea {...register("content")} placeholder="(Optional)" />
                 </TextField>
               </Modal.Body>
