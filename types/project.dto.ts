@@ -3,3 +3,15 @@ export interface CreateProjectDTO {
   description?: string;
   ownerId: string;
 }
+
+export interface ProjectsResponseDTO {
+  id: string;
+  title: string;
+  description?: string | null;
+  members: {
+    id: string;
+  }[];
+  owner: {
+    name: string;
+  };
+}

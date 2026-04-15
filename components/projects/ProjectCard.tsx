@@ -1,6 +1,13 @@
 import { Avatar, Card } from "@heroui/react";
 
-export function ProjectCard() {
+interface Props {
+  title: string;
+  memberCount: number;
+  owner: string;
+}
+
+export function ProjectCard({ title, memberCount, owner }: Props) {
+  console.log(memberCount > 1);
   return (
     <Card className="h-auto w-51.25 gap-2 hover:cursor-pointer hover:opacity-80">
       <img
@@ -10,8 +17,10 @@ export function ProjectCard() {
         src="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/docs/demo1.jpg"
       />
       <Card.Header>
-        <Card.Title>Indie Hackers</Card.Title>
-        <Card.Description>148 members</Card.Description>
+        <Card.Title>{title}</Card.Title>
+        <Card.Description>
+          {memberCount} {memberCount > 1 ? "Members" : "Member"}
+        </Card.Description>
       </Card.Header>
       <Card.Footer className="flex gap-2">
         <Avatar aria-label="Martha's profile picture" className="size-5">
@@ -21,7 +30,7 @@ export function ProjectCard() {
           />
           <Avatar.Fallback className="text-xs">IH</Avatar.Fallback>
         </Avatar>
-        <span className="text-xs">By Martha</span>
+        <span className="text-xs">By {owner}</span>
       </Card.Footer>
     </Card>
   );

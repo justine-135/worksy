@@ -6,10 +6,10 @@ export default function useCreateProjectMutation({
 }: {
   invalidateProjects: () => Promise<void>;
 }) {
-  const saveTaskBoardOrderMutation = useMutation({
+  const mutation = useMutation({
     mutationFn: createProjectMutation,
     onSettled: invalidateProjects,
   });
 
-  return { saveTaskBoardOrderMutation };
+  return { mutation };
 }

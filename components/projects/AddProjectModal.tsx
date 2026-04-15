@@ -1,18 +1,69 @@
 import { Button } from "@heroui/react/button";
 import { Modal } from "@heroui/react/modal";
-import { TextArea, Input, Label, TextField } from "@heroui/react";
+import {
+  TextArea,
+  Input,
+  Label,
+  TextField,
+  Form,
+  Spinner,
+  toast,
+} from "@heroui/react";
 import { BiPlus } from "react-icons/bi";
+import useCreateProjectMutation from "@/hooks/project/useCreateProjectMutation";
+import {
+  CreateProjectInput,
+  createProjectSchema,
+} from "@/lib/validations/createProject.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useState } from "react";
 
-export default function AddProjectModal() {
+interface Props {
+  userId: string;
+  invalidateProjects: () => Promise<void>;
+}
+
+export default function AddProjectModal({ userId, invalidateProjects }: Props) {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const { mutation } = useCreateProjectMutation({ invalidateProjects });
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<CreateProjectInput>({
+    resolver: zodResolver(createProjectSchema),
+  });
+
+  const onSubmit = (data: CreateProjectInput) => {
+    mutation.mutate(
+      {
+        ...data,
+        ownerId: userId,
+      },
+      {
+        onSuccess: () => {
+          reset();
+          setIsOpen(false);
+          toast("Project is created");
+        },
+      },
+    );
+  };
+
   return (
-    <Modal>
+    <div>
       <Button
         variant="ghost"
         className="flex flex-col items-center justify-center h-42 w-51.25 gap-2 bg-gray-100 hover:cursor-pointer hover:bg-gray-200"
+        onClick={() => setIsOpen(!isOpen)}
       >
         <BiPlus size={40} fill="gray" />
       </Button>
-      <Modal.Backdrop>
+      <Modal.Backdrop isOpen={isOpen} onOpenChange={setIsOpen}>
         <Modal.Container>
           <Modal.Dialog>
             <Modal.CloseTrigger />
@@ -21,22 +72,39 @@ export default function AddProjectModal() {
                 Add Project
               </Modal.Heading>
             </Modal.Header>
-            <Modal.Body className="space-y-4 p-1">
-              <TextField>
-                <Label>Title</Label>
-                <Input placeholder="Enter title" />
-              </TextField>
-              <TextField>
-                <Label>Description</Label>
-                <TextArea placeholder="Enter description" />
-              </TextField>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button className="font-semibold">Create</Button>
-            </Modal.Footer>
+            <Form onSubmit={handleSubmit(onSubmit)}>
+              <Modal.Body className="space-y-4 p-1">
+                <TextField>
+                  <Label aria-label="Title">Title</Label>
+                  <Input
+                    {...register("title")}
+                    placeholder="e.g: Jira-style App"
+                  />
+                  {errors.title && <p>{errors.title.message}</p>}
+                </TextField>
+                <TextField>
+                  <Label aria-label="Title">Description</Label>
+                  <TextArea {...register("content")} placeholder="(Optional)" />
+                </TextField>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button
+                  className="font-semibold"
+                  type="submit"
+                  isPending={mutation.isPending}
+                >
+                  {({ isPending }) => (
+                    <>
+                      {isPending ? <Spinner color="current" size="sm" /> : null}
+                      {isPending ? "Creating" : "Create"}
+                    </>
+                  )}
+                </Button>
+              </Modal.Footer>
+            </Form>
           </Modal.Dialog>
         </Modal.Container>
       </Modal.Backdrop>
-    </Modal>
+    </div>
   );
 }

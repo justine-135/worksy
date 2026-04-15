@@ -7,6 +7,6 @@ export default async function fetchTaskBoard({
   const res = await fetch(
     `/api/taskboard?project_id=${projectId}&user_id=${userId}`,
   );
-  if (!res.ok) throw new Error("Failed to fetch user");
+  if (!res.ok) throw new Error("Failed to fetch task board");
   return res.json();
 }

@@ -24,7 +24,7 @@ import { TaskBoardResponseDTO } from "@/types/taskboard.dto";
 import AddTaskModal from "./AddTaskModal";
 import { TaskResponseDTO } from "@/types/task.dto";
 import { useQueryClient } from "@tanstack/react-query";
-import { useGetTaskBoard } from "@/hooks/taskboard/useFetchTaskBoard";
+import { useGetTaskBoard } from "@/hooks/taskboard/useGetTaskBoard";
 import useSaveTaskBoardPositionMutation from "@/hooks/taskboard/useSaveTaskBoardPositionMutation";
 import useSaveTaskPositionMutation from "@/hooks/taskboard/useSaveTaskPositionMutation";
 
@@ -288,12 +288,12 @@ export default function BoardDetail({
   projectId: string;
 }) {
   const queryClient = useQueryClient();
+
   const taskBoardQueryKey = useMemo(
     () => ["taskBoard", userId, projectId] as const,
     [projectId, userId],
   );
 
-  // Queries
   const { data, isLoading } = useGetTaskBoard({
     userId,
     projectId,
@@ -314,11 +314,12 @@ export default function BoardDetail({
     [queryClient, taskBoardQueryKey],
   );
 
-  const { saveTaskBoardOrderMutation } = useSaveTaskBoardPositionMutation({
-    userId,
-    projectId,
-    invalidateTaskBoards,
-  });
+  const { mutation: saveTaskBoardOrderMutation } =
+    useSaveTaskBoardPositionMutation({
+      userId,
+      projectId,
+      invalidateTaskBoards,
+    });
 
   const { mutation: saveTaskPosition } = useSaveTaskPositionMutation({
     userId,

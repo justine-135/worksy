@@ -5,7 +5,7 @@ export default async function createProject({
   description,
   ownerId,
 }: CreateProjectDTO) {
-  const response = await fetch("/api/projects", {
+  const response = await fetch("/api/project", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -18,7 +18,7 @@ export default async function createProject({
   });
 
   if (!response.ok) {
-    throw new Error("Failed to save task board order");
+    throw new Error("Failed to create project");
   }
 
   return response.json();
