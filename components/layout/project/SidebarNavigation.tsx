@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { CgBoard } from "react-icons/cg";
 import { FiHome } from "react-icons/fi";
+import { GoPeople } from "react-icons/go";
+
 const routes = [
   {
     icon: FiHome,
@@ -16,6 +18,11 @@ const routes = [
     icon: CgBoard,
     name: "Board",
     path: "board",
+  },
+  {
+    icon: GoPeople,
+    name: "Members",
+    path: "members",
   },
 ];
 

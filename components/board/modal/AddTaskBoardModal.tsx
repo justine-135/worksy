@@ -19,7 +19,7 @@ const AddNewTaskBoard = ({ onClick }: { onClick: () => void }) => {
 
   return (
     <Button
-      className="flex h-full min-w-[20rem] max-w-[20rem] flex-col rounded-xl border border-default-200/80 p-1 shadow-none opacity-50 hover:opacity-100"
+      className="flex h-full w-65 flex-col rounded-xl border border-default-200/80 p-1 shadow-none opacity-50 hover:opacity-100"
       variant="ghost"
       onMouseOver={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

@@ -28,6 +28,7 @@ import { useGetTaskBoard } from "@/hooks/taskboard/useGetTaskBoard";
 import useSaveTaskBoardPositionMutation from "@/hooks/taskboard/useSaveTaskBoardPositionMutation";
 import useSaveTaskPositionMutation from "@/hooks/taskboard/useSaveTaskPositionMutation";
 import AddTaskBoardModal from "./modal/AddTaskBoardModal";
+import { ScrollShadow } from "@heroui/react/scroll-shadow";
 
 const transition = {
   duration: 220,
@@ -197,7 +198,7 @@ const TaskBoardContent = ({
       {...(!dragDisabled ? dragHandleAttributes : {})}
       {...(!dragDisabled ? dragHandleListeners : {})}
       className={[
-        "flex h-full min-h-72 min-w-[20rem] max-w-[20rem] flex-col rounded-xl border border-default-200/80 p-1 shadow-sm",
+        "flex h-full min-h-72 w-65 flex-col rounded-xl border border-default-200/80 p-1 shadow-sm",
         dragDisabled
           ? "bg-content1/95 cursor-default"
           : "bg-content1/95 cursor-grab active:cursor-grabbing hover:bg-gray-200 active:opacity-70",
@@ -372,10 +373,13 @@ export default function BoardDetail({
   const isStaticView = !isLoading && !isMounted;
 
   return (
-    <div className="flex min-h-0 flex-col space-y-6 overflow-hidden">
+    <div className="BoardDetail flex min-h-0 flex-col space-y-6 overflow-hidden">
       <h1 className="font-semibold text-2xl">Board</h1>
 
-      <div className="flex min-h-[calc(100vh-200px)] max-w-350 gap-4 overflow-x-auto overflow-y-hidden px-1 py-4">
+      <ScrollShadow
+        className="TaskBoardContainer flex min-h-[calc(100vh-7.5rem)] w-full gap-4 px-1 py-4 "
+        orientation="horizontal"
+      >
         {isLoadingView && "Loading"}
         {isDragDropView && (
           <DndContext
@@ -397,7 +401,10 @@ export default function BoardDetail({
               invalidateTaskBoards={invalidateTaskBoards}
               projectId={projectId}
             />
-
+            <AddTaskBoardModal
+              invalidateTaskBoards={invalidateTaskBoards}
+              projectId={projectId}
+            />
             <DragOverlay adjustScale={false}>
               {activeTask && <TaskCardContent data={activeTask} dragging />}
 
@@ -418,7 +425,7 @@ export default function BoardDetail({
             ))}
           </>
         )}
-      </div>
+      </ScrollShadow>
     </div>
   );
 }

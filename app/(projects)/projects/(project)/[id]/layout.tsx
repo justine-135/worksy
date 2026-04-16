@@ -37,7 +37,7 @@ export default async function ProjectLayout({
       <div className="flex justify-center">
         <div className="flex w-[90%] max-w-550">
           <SidebarNavigation />
-          <main className="py-8 px-6">{children}</main>
+          <main className="py-8 px-6 flex-1 min-w-0">{children}</main>
         </div>
       </div>
     </div>
