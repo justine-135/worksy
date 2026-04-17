@@ -1,7 +1,7 @@
 export interface CreateProjectDTO {
   title: string;
   description?: string;
-  ownerId: string;
+  ownerId?: string | null;
 }
 
 export interface ProjectsResponseDTO {

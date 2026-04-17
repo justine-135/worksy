@@ -1,12 +1,12 @@
 import { Button, ButtonProps, Spinner } from "@heroui/react";
 import React from "react";
 
-interface Props extends ButtonProps {
+export interface CustomButtonProps extends ButtonProps {
   loadingTitle?: string;
   title: string;
 }
 
-export default function CustomButton(props: Props) {
+export default function CustomButton(props: CustomButtonProps) {
   const { loadingTitle, title, ...rest } = props;
 
   const buttonTitle = loadingTitle || title;

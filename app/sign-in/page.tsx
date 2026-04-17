@@ -1,5 +1,5 @@
 import SignInComponent from "@/components/sign-in/SignInComponent";
-import { authConfig } from "@/lib/auth";
+import { authConfig } from "@/lib/auth/auth";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 

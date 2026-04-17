@@ -401,10 +401,6 @@ export default function BoardDetail({
               invalidateTaskBoards={invalidateTaskBoards}
               projectId={projectId}
             />
-            <AddTaskBoardModal
-              invalidateTaskBoards={invalidateTaskBoards}
-              projectId={projectId}
-            />
             <DragOverlay adjustScale={false}>
               {activeTask && <TaskCardContent data={activeTask} dragging />}
 

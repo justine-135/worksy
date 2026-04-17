@@ -2,9 +2,10 @@ import { Inter } from "next/font/google";
 import "@/app/globals.css";
 import SidebarNavigation from "@/components/layout/project/SidebarNavigation";
 import { getServerSession } from "next-auth";
-import { authConfig } from "@/lib/auth";
+import { authConfig } from "@/lib/auth/auth";
 import { Metadata } from "next";
 import { assertProjectMember } from "@/lib/auth/project-access.lib";
+import SessionHydrator from "@/components/common/SessionHydrator";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -40,6 +41,7 @@ export default async function ProjectLayout({
           <main className="py-8 px-6 flex-1 min-w-0">{children}</main>
         </div>
       </div>
+      <SessionHydrator userId={session?.user.id} />;
     </div>
   );
 }

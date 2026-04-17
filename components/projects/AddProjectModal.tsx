@@ -20,7 +20,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 
 interface Props {
-  userId: string;
+  userId?: string | null;
   invalidateProjects: () => Promise<void>;
 }
 

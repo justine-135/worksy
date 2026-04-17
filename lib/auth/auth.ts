@@ -23,7 +23,7 @@ export const authConfig = {
   callbacks: {
     async session({ session, user }) {
       if (session.user) {
-        session.user.id = user.id; // 🔥 attach id
+        session.user.id = user.id;
       }
       return session;
     },

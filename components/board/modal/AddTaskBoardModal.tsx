@@ -81,9 +81,7 @@ export default function AddTaskBoardModal({
           <Modal.Dialog>
             <Modal.CloseTrigger />
             <Modal.Header>
-              <Modal.Heading className="font-semibold">
-                Add new board
-              </Modal.Heading>
+              <Modal.Heading>Add New Board</Modal.Heading>
             </Modal.Header>
             <Form onSubmit={handleSubmit(onSubmit)}>
               <Modal.Body className="space-y-4 p-1">

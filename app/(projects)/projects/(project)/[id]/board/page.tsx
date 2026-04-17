@@ -1,5 +1,5 @@
 import BoardComponent from "@/components/board/BoardComponent";
-import { authConfig } from "@/lib/auth";
+import { authConfig } from "@/lib/auth/auth";
 import { getServerSession } from "next-auth";
 
 export default async function BoardPage({

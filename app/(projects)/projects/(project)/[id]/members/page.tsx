@@ -1,6 +1,4 @@
 import MembersComponent from "@/components/members/MembersComponent";
-import React from "react";
-
-export default function MembersPage() {
+export default async function MembersPage() {
   return <MembersComponent />;
 }
