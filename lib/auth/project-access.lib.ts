@@ -17,7 +17,7 @@ export async function assertProjectMember({
 export async function assertProjectOwner(userId: string, projectId: string) {
   const member = await getProjectMember({ userId, projectId });
 
-  if (!member || member.role !== "OWNER") {
+  if (!member) {
     throw new Error("Owner only");
   }
 

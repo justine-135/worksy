@@ -1,160 +1,148 @@
 import { prisma } from "@/lib/prisma";
-import { EProjectMember } from "@prisma/client";
+import { PermissionsSeed } from "./permissionsSeed";
 
 async function main() {
-  console.log("🌱 Starting seed...");
+  console.log("DB URL:", process.env.DATABASE_URL);
+  // 1. Create Users
+  const [owner, member1, member2] = await Promise.all([
+    prisma.user.create({
+      data: {
+        email: "owner@test.com",
+        name: "Owner User",
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: "member1@test.com",
+        name: "Member One",
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: "member2@test.com",
+        name: "Member Two",
+      },
+    }),
+  ]);
 
-  // =========================
-  // 1. USERS
-  // =========================
-  const owner = await prisma.user.create({
-    data: {
-      name: "Project Owner",
-      email: "owner@test.com",
-      image: "https://i.pravatar.cc/150?img=1",
-    },
-  });
-
-  const admin = await prisma.user.create({
-    data: {
-      name: "Admin User",
-      email: "admin@test.com",
-      image: "https://i.pravatar.cc/150?img=2",
-    },
-  });
-
-  const member = await prisma.user.create({
-    data: {
-      name: "Member User",
-      email: "member@test.com",
-      image: "https://i.pravatar.cc/150?img=3",
-    },
-  });
-
-  console.log("✅ Users created");
-
-  // =========================
-  // 2. PROJECT
-  // =========================
+  // 2. Create Project
   const project = await prisma.project.create({
     data: {
-      title: "Kanban SaaS Project",
-      description: "Seeded project for development testing",
+      title: "Worksy Project",
+      description: "A realistic seeded project",
       ownerId: owner.id,
     },
   });
 
-  console.log("✅ Project created");
+  // 3. Create Roles
 
-  // =========================
-  // 3. PROJECT MEMBERS
-  // =========================
-  const ownerMember = await prisma.projectMember.create({
+  const ownerRole = await prisma.role.create({
     data: {
-      role: EProjectMember.OWNER,
-      userId: owner.id,
+      name: "Owner",
       projectId: project.id,
+      permissions: {
+        create: PermissionsSeed.map((key) => ({ key })),
+      },
     },
   });
 
-  const adminMember = await prisma.projectMember.create({
+  const memberRole = await prisma.role.create({
     data: {
-      role: EProjectMember.ADMIN,
-      userId: admin.id,
+      name: "Member",
       projectId: project.id,
+      permissions: {
+        create: [
+          "dashboard.view",
+          "board.view",
+          "board.task.create",
+          "board.task.edit",
+          "board.task.status.edit",
+        ].map((key) => ({ key })),
+      },
     },
   });
 
-  const memberUser = await prisma.projectMember.create({
-    data: {
-      role: EProjectMember.MEMBER,
-      userId: member.id,
-      projectId: project.id,
-    },
-  });
+  // 4. Add Members
+  const [ownerPM, member1PM, member2PM] = await Promise.all([
+    prisma.projectMember.create({
+      data: {
+        userId: owner.id,
+        projectId: project.id,
+        roleId: ownerRole.id,
+      },
+    }),
+    prisma.projectMember.create({
+      data: {
+        userId: member1.id,
+        projectId: project.id,
+        roleId: memberRole.id,
+      },
+    }),
+    prisma.projectMember.create({
+      data: {
+        userId: member2.id,
+        projectId: project.id,
+        roleId: memberRole.id,
+      },
+    }),
+  ]);
 
-  console.log("✅ Members created");
+  // 5. Create Boards
+  const [todo, inProgress, done] = await Promise.all([
+    prisma.taskBoard.create({
+      data: { title: "To Do", projectId: project.id },
+    }),
+    prisma.taskBoard.create({
+      data: { title: "In Progress", projectId: project.id },
+    }),
+    prisma.taskBoard.create({
+      data: { title: "Done", projectId: project.id },
+    }),
+  ]);
 
-  // =========================
-  // 4. TASK BOARDS
-  // =========================
-  const todo = await prisma.taskBoard.create({
-    data: {
-      title: "Todo",
-      order: 1,
-      projectId: project.id,
-    },
-  });
-
-  const inProgress = await prisma.taskBoard.create({
-    data: {
-      title: "In Progress",
-      order: 2,
-      projectId: project.id,
-    },
-  });
-
-  const done = await prisma.taskBoard.create({
-    data: {
-      title: "Done",
-      order: 3,
-      projectId: project.id,
-    },
-  });
-
-  console.log("✅ Task boards created");
-
-  // =========================
-  // 5. TASKS
-  // =========================
+  // 6. Create Tasks
   await prisma.task.createMany({
     data: [
       {
-        title: "Setup Next.js project",
-        description: "Initialize frontend structure",
+        title: "Setup project repo",
+        description: "Initialize Git + CI",
         priority: "HIGH",
         taskBoardId: todo.id,
-        assigneeId: ownerMember.id,
+        assigneeId: ownerPM.id,
       },
       {
-        title: "Design database schema",
-        description: "Finalize Prisma models",
-        priority: "HIGH",
+        title: "Design UI",
+        priority: "MEDIUM",
         taskBoardId: todo.id,
-        assigneeId: adminMember.id,
+        assigneeId: member1PM.id,
       },
       {
-        title: "Build authentication system",
-        description: "Implement NextAuth or JWT",
-        priority: "MEDIUM",
+        title: "Build Kanban Board",
+        priority: "HIGH",
         taskBoardId: inProgress.id,
-        assigneeId: memberUser.id,
+        assigneeId: member2PM.id,
       },
       {
-        title: "Create Kanban UI",
-        description: "Drag and drop boards",
-        priority: "MEDIUM",
+        title: "Implement Auth",
+        priority: "HIGH",
         taskBoardId: inProgress.id,
-        assigneeId: memberUser.id,
+        assigneeId: ownerPM.id,
       },
       {
-        title: "Deploy app",
-        description: "Production deployment",
+        title: "Deploy App",
         priority: "LOW",
         taskBoardId: done.id,
-        assigneeId: ownerMember.id,
+        assigneeId: ownerPM.id,
       },
     ],
   });
 
-  console.log("🎉 Seed completed successfully!");
+  console.log("🌱 Seed completed with realistic data");
 }
 
 main()
   .catch((e) => {
-    console.error("❌ Seed error:", e);
+    console.error(e);
     process.exit(1);
   })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  .finally(() => prisma.$disconnect());

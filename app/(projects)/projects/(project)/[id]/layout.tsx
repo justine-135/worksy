@@ -6,6 +6,7 @@ import { authConfig } from "@/lib/auth/auth";
 import { Metadata } from "next";
 import { assertProjectMember } from "@/lib/auth/project-access.lib";
 import SessionHydrator from "@/components/common/SessionHydrator";
+import { redirect } from "next/navigation";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,8 +29,12 @@ export default async function ProjectLayout({
   const { id } = await params;
   const session = await getServerSession(authConfig);
 
+  if (!session || !session.user?.id) {
+    redirect("/sign-in");
+  }
+
   await assertProjectMember({
-    userId: session?.user.id || "",
+    userId: session?.user.id,
     projectId: id,
   });
 
@@ -41,7 +46,7 @@ export default async function ProjectLayout({
           <main className="py-8 px-6 flex-1 min-w-0">{children}</main>
         </div>
       </div>
-      <SessionHydrator userId={session?.user.id} />;
+      <SessionHydrator userId={session?.user.id} projectId={id} />;
     </div>
   );
 }

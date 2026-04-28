@@ -5,8 +5,9 @@ import { Avatar, Button } from "@heroui/react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { CgBoard } from "react-icons/cg";
-import { FiHome } from "react-icons/fi";
+import { FiHome, FiSettings } from "react-icons/fi";
 import { GoPeople } from "react-icons/go";
+import { IoPersonOutline } from "react-icons/io5";
 
 const routes = [
   {
@@ -20,9 +21,19 @@ const routes = [
     path: "board",
   },
   {
-    icon: GoPeople,
+    icon: IoPersonOutline,
     name: "Members",
     path: "members",
+  },
+  {
+    icon: GoPeople,
+    name: "Roles and Permissions",
+    path: "roles",
+  },
+  {
+    icon: FiSettings,
+    name: "Settings",
+    path: "settings",
   },
 ];
 

@@ -11,6 +11,7 @@ export function useGetProjects({ userId }: { userId?: string | null }) {
       fetchProjects({
         userId,
       }),
+    enabled: !!userId,
   });
 
   return { data, error, isLoading };

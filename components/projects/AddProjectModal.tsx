@@ -39,6 +39,11 @@ export default function AddProjectModal({ userId, invalidateProjects }: Props) {
   });
 
   const onSubmit = (data: CreateProjectInput) => {
+    if (!userId) {
+      toast("User not authenticated");
+      return;
+    }
+
     mutation.mutate(
       {
         ...data,
@@ -65,10 +70,10 @@ export default function AddProjectModal({ userId, invalidateProjects }: Props) {
       </Button>
       <Modal.Backdrop isOpen={isOpen} onOpenChange={setIsOpen}>
         <Modal.Container>
-          <Modal.Dialog>
+          <Modal.Dialog aria-label="add project modal">
             <Modal.CloseTrigger />
-            <Modal.Header>
-              <div className="font-medium!">Add Project</div>
+            <Modal.Header slot="title" aria-label="title">
+              Add Project
             </Modal.Header>
             <Form onSubmit={handleSubmit(onSubmit)}>
               <Modal.Body className="space-y-4 p-1">

@@ -1,6 +1,5 @@
 import { UserResponseDTO } from "@/types/user.dto";
 import { Avatar, Surface } from "@heroui/react";
-import React from "react";
 
 interface Props {
   member: UserResponseDTO | undefined;

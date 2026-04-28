@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { authConfig } from "@/lib/auth/auth";
 import "@/app/globals.css";
 import SessionHydrator from "@/components/common/SessionHydrator";
+import ToastLayout from "@/components/layout/project/ToastLayout";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -24,14 +25,16 @@ export default async function ProjectLayout({
 }) {
   const session = await getServerSession(authConfig);
 
-  if (!session) {
+  if (!session || !session.user?.id) {
     redirect("/sign-in");
   }
 
   return (
     <div className={`${inter.className} min-h-screen bg-gray-50`}>
-      {children}
-      <SessionHydrator userId={session?.user.id} />;
+      <ToastLayout>
+        {children}
+        <SessionHydrator userId={session?.user.id} />;
+      </ToastLayout>
     </div>
   );
 }

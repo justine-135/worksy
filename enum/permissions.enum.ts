@@ -11,4 +11,9 @@ export enum Permissions {
   BoardTaskBoardDelete = "board.task.board.delete",
 
   MemberView = "member.view",
+  MemberInvite = "member.invite",
+  MemberEdit = "member.edit",
+  MemberDelete = "member.delete",
+
+  Owner = "owner",
 }

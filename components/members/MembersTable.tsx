@@ -1,242 +1,83 @@
 "use client";
 
-import type { Selection, SortDescriptor } from "@heroui/react";
+import { TableCustom } from "../table/TableCustom";
+import { ColumnDef } from "@/types/table";
+import SortableColumnHeader from "../table/SortableColumn";
+import { useGetProjectMembers } from "@/hooks/member/useGetProjectMembers";
+import { useSessionStore } from "@/store/session.store";
+import { ProjectMemberTableDTO } from "@/types/projectMember.dto";
+import { Button } from "@heroui/react/button";
+import { CgEye } from "react-icons/cg";
+import { BiPencil, BiTrash } from "react-icons/bi";
 
-import { Avatar, Button, Checkbox, Chip, Table, cn } from "@heroui/react";
-import { useMemo, useState } from "react";
-import { BiChevronUp, BiPencil, BiTrash } from "react-icons/bi";
-import { BsEye } from "react-icons/bs";
-import { CgCopy } from "react-icons/cg";
-
-interface User {
-  id: number;
-  name: string;
-  image_url: string;
-  role: string;
-  status: "Active" | "Inactive" | "On Leave";
-  email: string;
-}
-
-const statusColorMap: Record<string, "success" | "danger" | "warning"> = {
-  Active: "success",
-  Inactive: "danger",
-  "On Leave": "warning",
-};
-
-const users: User[] = [
+const columns: ColumnDef<ProjectMemberTableDTO>[] = [
   {
-    email: "kate@acme.com",
-    id: 4586932,
-    image_url:
-      "https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/red.jpg",
-    name: "Kate Moore",
-    role: "Chief Executive Officer",
-    status: "Active",
+    id: "name",
+    isRowHeader: true,
+    header: ({ sortDirection }) => (
+      <SortableColumnHeader sortDirection={sortDirection}>
+        Member
+      </SortableColumnHeader>
+    ),
+    sortable: true,
+    cell: (user) => user.name,
   },
   {
-    email: "john@acme.com",
-    id: 5273849,
-    image_url:
-      "https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/green.jpg",
-    name: "John Smith",
-    role: "Chief Technology Officer",
-    status: "Active",
+    id: "role",
+    header: ({ sortDirection }) => (
+      <SortableColumnHeader sortDirection={sortDirection}>
+        Role
+      </SortableColumnHeader>
+    ),
+    cell: (user) => user.role,
   },
   {
-    email: "sara@acme.com",
-    id: 7492836,
-    image_url:
-      "https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/blue.jpg",
-    name: "Sara Johnson",
-    role: "Chief Marketing Officer",
-    status: "On Leave",
+    id: "email",
+    header: ({ sortDirection }) => (
+      <SortableColumnHeader sortDirection={sortDirection}>
+        Email
+      </SortableColumnHeader>
+    ),
+    sortable: true,
+    cell: (user) => user.email,
   },
   {
-    email: "michael@acme.com",
-    id: 8293746,
-    image_url:
-      "https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/purple.jpg",
-    name: "Michael Brown",
-    role: "Chief Financial Officer",
-    status: "Active",
+    id: "createdAt",
+    sortable: true,
+    header: ({ sortDirection }) => (
+      <SortableColumnHeader sortDirection={sortDirection}>
+        Joined at
+      </SortableColumnHeader>
+    ),
+    cell: (user) => <>{user.createdAt}</>,
   },
   {
-    email: "emily@acme.com",
-    id: 1234567,
-    image_url:
-      "https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/orange.jpg",
-    name: "Emily Davis",
-    role: "Product Manager",
-    status: "Inactive",
+    id: "actions",
+    header: "Actions",
+    cell: () => (
+      <div className="flex items-center gap-1">
+        <Button isIconOnly size="sm" variant="tertiary">
+          <CgEye />
+        </Button>
+        <Button isIconOnly size="sm" variant="tertiary">
+          <BiPencil />
+        </Button>
+        <Button isIconOnly size="sm" variant="danger-soft">
+          <BiTrash />
+        </Button>
+      </div>
+    ),
   },
 ];
 
-function SortableColumnHeader({
-  children,
-  sortDirection,
-}: {
-  children: React.ReactNode;
-  sortDirection?: "ascending" | "descending";
-}) {
-  return (
-    <span className="flex items-center justify-between">
-      {children}
-      {!!sortDirection && (
-        <BiChevronUp
-          className={cn(
-            "size-3 transform transition-transform duration-100 ease-out",
-            sortDirection === "descending" ? "rotate-180" : "",
-          )}
-        />
-      )}
-    </span>
-  );
-}
-
 export function MembersTable() {
-  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
-  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
-    column: "name",
-    direction: "ascending",
+  const projectId = useSessionStore((s) => s.projectId);
+
+  const { data } = useGetProjectMembers({
+    projectId,
   });
 
-  const sortedUsers = useMemo(() => {
-    return [...users].sort((a, b) => {
-      const col = sortDescriptor.column as keyof User;
-      const first = String(a[col]);
-      const second = String(b[col]);
-      let cmp = first.localeCompare(second);
-
-      if (sortDescriptor.direction === "descending") {
-        cmp *= -1;
-      }
-
-      return cmp;
-    });
-  }, [sortDescriptor]);
-
   return (
-    <Table>
-      <Table.ScrollContainer>
-        <Table.Content
-          aria-label="Table with custom cells"
-          className="min-w-[800px]"
-          selectedKeys={selectedKeys}
-          selectionMode="multiple"
-          sortDescriptor={sortDescriptor}
-          onSelectionChange={setSelectedKeys}
-          onSortChange={setSortDescriptor}
-        >
-          <Table.Header>
-            <Table.Column className="pr-0">
-              <Checkbox aria-label="Select all" slot="selection">
-                <Checkbox.Control>
-                  <Checkbox.Indicator />
-                </Checkbox.Control>
-              </Checkbox>
-            </Table.Column>
-            <Table.Column
-              allowsSorting
-              isRowHeader
-              className="after:hidden"
-              id="id"
-            >
-              {({ sortDirection }) => (
-                <SortableColumnHeader sortDirection={sortDirection}>
-                  Worker ID
-                </SortableColumnHeader>
-              )}
-            </Table.Column>
-            <Table.Column allowsSorting id="name">
-              {({ sortDirection }) => (
-                <SortableColumnHeader sortDirection={sortDirection}>
-                  Member
-                </SortableColumnHeader>
-              )}
-            </Table.Column>
-            <Table.Column allowsSorting id="role">
-              {({ sortDirection }) => (
-                <SortableColumnHeader sortDirection={sortDirection}>
-                  Role
-                </SortableColumnHeader>
-              )}
-            </Table.Column>
-            <Table.Column allowsSorting id="status">
-              {({ sortDirection }) => (
-                <SortableColumnHeader sortDirection={sortDirection}>
-                  Status
-                </SortableColumnHeader>
-              )}
-            </Table.Column>
-            <Table.Column className="text-end">Actions</Table.Column>
-          </Table.Header>
-          <Table.Body>
-            {sortedUsers.map((user) => (
-              <Table.Row key={user.id} id={user.id}>
-                <Table.Cell className="pr-0">
-                  <Checkbox
-                    aria-label={`Select ${user.name}`}
-                    slot="selection"
-                    variant="secondary"
-                  >
-                    <Checkbox.Control>
-                      <Checkbox.Indicator />
-                    </Checkbox.Control>
-                  </Checkbox>
-                </Table.Cell>
-                <Table.Cell className="font-medium">
-                  <div className="flex items-center gap-2">
-                    #{user.id.toString()}{" "}
-                    <Button isIconOnly size="sm" variant="ghost">
-                      <CgCopy className="size-4 text-muted" />
-                    </Button>
-                  </div>
-                </Table.Cell>
-                <Table.Cell>
-                  <div className="flex items-center gap-3">
-                    <Avatar size="sm">
-                      <Avatar.Image src={user.image_url} />
-                      <Avatar.Fallback>
-                        {user.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </Avatar.Fallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                      <span className="text-xs">{user.name}</span>
-                      <span className="text-xs text-muted">{user.email}</span>
-                    </div>
-                  </div>
-                </Table.Cell>
-                <Table.Cell className="min-w-52">{user.role}</Table.Cell>
-                <Table.Cell className="min-w-25">
-                  <Chip
-                    color={statusColorMap[user.status]}
-                    size="sm"
-                    variant="soft"
-                  >
-                    {user.status}
-                  </Chip>
-                </Table.Cell>
-                <Table.Cell>
-                  <div className="flex items-center gap-1">
-                    <Button isIconOnly size="sm" variant="tertiary">
-                      <BsEye className="size-4" />
-                    </Button>
-                    <Button isIconOnly size="sm" variant="tertiary">
-                      <BiPencil className="size-4" />
-                    </Button>
-                    <Button isIconOnly size="sm" variant="danger-soft">
-                      <BiTrash className="size-4" />
-                    </Button>
-                  </div>
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table.Content>
-      </Table.ScrollContainer>
-    </Table>
+    <TableCustom data={data || []} columns={columns} getRowId={(u) => u.id} />
   );
 }

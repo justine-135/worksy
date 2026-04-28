@@ -27,12 +27,12 @@ export function UserComboBox({ setMember }: Props) {
   const mentionMatch = query.match(/@([^\s@]*)$/);
   const mentionQuery = mentionMatch ? mentionMatch[1] : "";
 
-  const debouncedQuery = useDebounce(mentionQuery, 200);
+  const debouncedQuery = useDebounce(mentionQuery, 100);
 
   const { data } = useSearchUser({ query: debouncedQuery, currentId: userId });
 
   return (
-    <ComboBox menuTrigger="input">
+    <ComboBox aria-label="search for users to invite" menuTrigger="input">
       <ComboBox.InputGroup>
         <Input
           placeholder="Type @ to mention someone..."
@@ -55,12 +55,7 @@ export function UserComboBox({ setMember }: Props) {
           "
               onClick={() => {
                 if (!mentionMatch) return;
-
-                const beforeMention = query.slice(0, mentionMatch.index);
-
-                const newValue = beforeMention + `@${user.name} `;
-
-                setQuery(newValue);
+                setQuery("");
                 setMember(user);
               }}
             >

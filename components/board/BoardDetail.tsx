@@ -29,6 +29,7 @@ import useSaveTaskBoardPositionMutation from "@/hooks/taskboard/useSaveTaskBoard
 import useSaveTaskPositionMutation from "@/hooks/taskboard/useSaveTaskPositionMutation";
 import AddTaskBoardModal from "./modal/AddTaskBoardModal";
 import { ScrollShadow } from "@heroui/react/scroll-shadow";
+import { useSessionStore } from "@/store/session.store";
 
 const transition = {
   duration: 220,
@@ -281,14 +282,10 @@ const TaskBoard = ({ column }: { column: TaskBoardResponseDTO }) => {
   );
 };
 
-export default function BoardDetail({
-  userId,
-  projectId,
-}: {
-  userId: string;
-  projectId: string;
-}) {
+export default function BoardDetail() {
   const queryClient = useQueryClient();
+  const userId = useSessionStore((s) => s.userId);
+  const projectId = useSessionStore((s) => s.projectId);
 
   const taskBoardQueryKey = useMemo(
     () => ["taskBoard", userId, projectId] as const,
@@ -296,8 +293,8 @@ export default function BoardDetail({
   );
 
   const { data, isLoading } = useGetTaskBoard({
-    userId,
-    projectId,
+    userId: userId || "",
+    projectId: projectId || "",
   });
 
   const invalidateTaskBoards = async () => {
@@ -317,14 +314,14 @@ export default function BoardDetail({
 
   const { mutation: saveTaskBoardOrderMutation } =
     useSaveTaskBoardPositionMutation({
-      userId,
-      projectId,
+      userId: userId || "",
+      projectId: projectId || "",
       invalidateTaskBoards,
     });
 
   const { mutation: saveTaskPosition } = useSaveTaskPositionMutation({
-    userId,
-    projectId,
+    userId: userId || "",
+    projectId: projectId || "",
     invalidateTaskBoards,
   });
 
@@ -399,7 +396,7 @@ export default function BoardDetail({
             </SortableContext>
             <AddTaskBoardModal
               invalidateTaskBoards={invalidateTaskBoards}
-              projectId={projectId}
+              projectId={projectId || ""}
             />
             <DragOverlay adjustScale={false}>
               {activeTask && <TaskCardContent data={activeTask} dragging />}

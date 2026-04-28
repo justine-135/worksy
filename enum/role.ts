@@ -1,5 +1,5 @@
 export enum ERoles {
-  OWNER = "OWNER",
+  OWNER = "owner",
   MEMBER = "MEMBER",
   ADMIN = "ADMIN",
 }

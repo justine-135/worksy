@@ -1,39 +1,62 @@
-import { ERoles } from "@/enum/role";
+import { ROLE_PRESETS } from "@/constant/role";
 import { prisma } from "@/lib/prisma";
 import { CreateProjectDTO, ProjectsResponseDTO } from "@/types/project.dto";
 
 export async function createProjectDTO(data: CreateProjectDTO) {
-  const project = await prisma.project.create({
-    data: {
-      title: data.title,
-      description: data.description,
-      ownerId: data.ownerId,
+  return await prisma.$transaction(async (tx) => {
+    const project = await tx.project.create({
+      data: {
+        title: data.title,
+        description: data.description,
+        ownerId: data.ownerId,
 
-      members: {
-        create: {
-          userId: data.ownerId,
-          role: ERoles.OWNER,
+        taskBoards: {
+          create: [
+            { title: "To Do 💻" },
+            { title: "In Progress 🚀" },
+            { title: "Done 👁️" },
+          ],
         },
       },
+    });
 
-      taskBoards: {
-        create: [
-          { title: "To Do 💻" },
-          { title: "In Progress 🚀" },
-          { title: "Done 👁️" },
-        ],
+    // 2. Create Roles (Owner + Member)
+    const roles = await Promise.all(
+      Object.values(ROLE_PRESETS).map((preset) =>
+        tx.role.create({
+          data: {
+            name: preset.name,
+            projectId: project.id,
+            permissions: {
+              create: preset.permissions.map((key) => ({ key })),
+            },
+          },
+        }),
+      ),
+    );
+
+    // 3. Find Owner role
+    const ownerRole = roles.find((r) => r.name === "Owner");
+
+    if (!ownerRole) {
+      throw new Error("Owner role not created");
+    }
+
+    // 4. Assign creator as ProjectMember (Owner)
+    const member = await tx.projectMember.create({
+      data: {
+        userId: data.ownerId,
+        projectId: project.id,
+        roleId: ownerRole.id,
       },
-    },
-    include: {
-      members: {
-        select: {
-          id: true,
-        },
-      },
-    },
+      select: { id: true },
+    });
+
+    return {
+      ...project,
+      members: [member],
+    };
   });
-
-  return project;
 }
 
 export async function getProjects({ userId }: { userId: string }) {
@@ -41,7 +64,7 @@ export async function getProjects({ userId }: { userId: string }) {
     where: {
       ownerId: userId,
       members: {
-        every: {
+        some: {
           userId,
         },
       },

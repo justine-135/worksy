@@ -15,7 +15,7 @@ export async function getTaskBoard({
       project: {
         id: projectId,
         members: {
-          every: {
+          some: {
             userId,
           },
         },
