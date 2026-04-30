@@ -1,11 +1,25 @@
 import createProjectMutation from "@/lib/project/createProject.lib";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMemo } from "react";
 
 export default function useCreateProjectMutation({
-  invalidateProjects,
+  userId,
 }: {
-  invalidateProjects: () => Promise<void>;
+  userId?: string | null;
 }) {
+  const queryClient = useQueryClient();
+
+  const taskBoardQueryKey = useMemo(
+    () => ["projects", userId] as const,
+    [userId],
+  );
+
+  const invalidateProjects = async () => {
+    await queryClient.invalidateQueries({
+      queryKey: taskBoardQueryKey,
+    });
+  };
+
   const mutation = useMutation({
     mutationFn: createProjectMutation,
     onSettled: invalidateProjects,

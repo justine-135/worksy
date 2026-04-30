@@ -2,18 +2,18 @@ export enum Permissions {
   DashboardView = "dashboard.view",
 
   BoardView = "board.view",
-  BoardTaskCreate = "board.task.create",
-  BoardTaskEdit = "board.task.edit",
-  BoardTaskStatusEdit = "board.task.status.edit",
-  BoardTaskDelete = "board.task.delete",
-  BoardTaskBoardCreate = "board.task.board.create",
-  BoardTaskBoardEdit = "board.task.board.edit",
-  BoardTaskBoardDelete = "board.task.board.delete",
+  BoardCreate = "board.create",
+  BoardEdit = "board.edit",
+  BoardStatusEdit = "board.status.edit",
+  BoardDelete = "board.delete",
+
+  TaskView = "task.view",
+  TaskCreate = "task.create",
+  TaskEdit = "task.edit",
+  TaskDelete = "task.delete",
 
   MemberView = "member.view",
   MemberInvite = "member.invite",
   MemberEdit = "member.edit",
   MemberDelete = "member.delete",
-
-  Owner = "owner",
 }

@@ -25,7 +25,5 @@ export interface ProjectMemberTableDTO {
   name: string;
   email: string;
   role?: string | null;
-  image: string | null;
   createdAt: string;
-  updatedAt: string;
 }

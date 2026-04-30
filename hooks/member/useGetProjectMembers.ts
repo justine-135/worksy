@@ -28,9 +28,7 @@ export function useGetProjectMembers({
       name: member.user.name,
       email: member.user.email,
       role: member?.role?.name || "Unassigned",
-      image: member.user.image,
       createdAt: member.createdAt as unknown as string,
-      updatedAt: member.updatedAt as unknown as string,
     }));
   };
 

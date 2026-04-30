@@ -9,6 +9,7 @@
     "lint": "eslint",
     "db:push": "dotenv -e .env.local -- npx prisma db push",
     "db:seed": "dotenv -e .env.local -- npx prisma db seed",
+    "db:reset": "dotenv -e .env.local -- npx prisma migrate reset",
     "studio": "dotenv -e .env.local -- npx prisma studio"
   },
   "dependencies": {

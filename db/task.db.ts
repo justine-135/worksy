@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { CreateTaskDTO, UpdateTaskPositionDTO } from "@/types/task.dto";
+import type { Prisma } from "@prisma/client";
 
 export async function createTaskDB(data: CreateTaskDTO) {
   const lastTask = await prisma.task.findFirst({
@@ -75,7 +76,7 @@ export async function updateTaskPositionsDB({
     throw new Error("Task is inaccessible");
   }
 
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     await tx.task.update({
       where: {
         id: taskId,

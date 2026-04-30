@@ -1,8 +1,6 @@
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { RoleFilter } from "./RoleFilter";
 import AddProjectModal from "./AddProjectModal";
-import { useQueryClient } from "@tanstack/react-query";
-import { useMemo } from "react";
 import { useGetProjects } from "@/hooks/project/useGetProjects";
 import { ProjectToast } from "../toast/ProjectToast";
 import CustomSearchField from "../fields/CustomSearchField";
@@ -11,22 +9,9 @@ import { useSessionStore } from "@/store/session.store";
 export default function ProjectsDetail() {
   const userId = useSessionStore((s) => s.userId);
 
-  const queryClient = useQueryClient();
-
-  const taskBoardQueryKey = useMemo(
-    () => ["projects", userId] as const,
-    [userId],
-  );
-
   const { data, isLoading } = useGetProjects({
     userId,
   });
-
-  const invalidateProjects = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: taskBoardQueryKey,
-    });
-  };
 
   if (isLoading) return "Loading";
 
@@ -50,10 +35,7 @@ export default function ProjectsDetail() {
               />
             );
           })}
-          <AddProjectModal
-            userId={userId}
-            invalidateProjects={invalidateProjects}
-          />
+          <AddProjectModal userId={userId} />
         </div>
       </div>
       <ProjectToast />

@@ -1,41 +1,36 @@
+import { Permissions } from "@/enum/permissions.enum";
 import { ERoles } from "@/enum/role";
-
-export const RoleLabel = {
-  [ERoles.OWNER]: "Project Owner",
-  [ERoles.MEMBER]: "Member",
-  [ERoles.ADMIN]: "Admin",
-};
 
 export const ROLE_PRESETS = {
   OWNER: {
-    name: "Owner",
+    name: ERoles.OWNER,
     permissions: [
-      "dashboard.view",
+      Permissions.DashboardView,
 
-      "board.view",
-      "board.task.create",
-      "board.task.edit",
-      "board.task.status.edit",
-      "board.task.delete",
-      "board.task.board.create",
-      "board.task.board.edit",
-      "board.task.board.delete",
+      Permissions.BoardView,
+      Permissions.BoardCreate,
+      Permissions.BoardEdit,
+      Permissions.BoardStatusEdit,
+      Permissions.BoardDelete,
 
-      "member.view",
-      "member.invite",
-      "member.edit",
-      "member.delete",
+      Permissions.TaskView,
+      Permissions.TaskCreate,
+      Permissions.TaskEdit,
+      Permissions.TaskDelete,
+
+      Permissions.MemberView,
+      Permissions.MemberInvite,
+      Permissions.MemberEdit,
+      Permissions.MemberDelete,
     ],
   },
 
   MEMBER: {
-    name: "Member",
+    name: ERoles.MEMBER,
     permissions: [
-      "dashboard.view",
-      "board.view",
-      "board.task.create",
-      "board.task.edit",
-      "board.task.status.edit",
+      Permissions.DashboardView,
+      Permissions.BoardView,
+      Permissions.BoardStatusEdit,
     ],
   },
 } as const;

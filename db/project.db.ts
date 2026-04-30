@@ -1,9 +1,10 @@
 import { ROLE_PRESETS } from "@/constant/role";
 import { prisma } from "@/lib/prisma";
 import { CreateProjectDTO, ProjectsResponseDTO } from "@/types/project.dto";
+import type { Prisma } from "@prisma/client";
 
 export async function createProjectDTO(data: CreateProjectDTO) {
-  return await prisma.$transaction(async (tx) => {
+  return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const project = await tx.project.create({
       data: {
         title: data.title,
@@ -20,7 +21,6 @@ export async function createProjectDTO(data: CreateProjectDTO) {
       },
     });
 
-    // 2. Create Roles (Owner + Member)
     const roles = await Promise.all(
       Object.values(ROLE_PRESETS).map((preset) =>
         tx.role.create({
@@ -35,14 +35,12 @@ export async function createProjectDTO(data: CreateProjectDTO) {
       ),
     );
 
-    // 3. Find Owner role
     const ownerRole = roles.find((r) => r.name === "Owner");
 
     if (!ownerRole) {
       throw new Error("Owner role not created");
     }
 
-    // 4. Assign creator as ProjectMember (Owner)
     const member = await tx.projectMember.create({
       data: {
         userId: data.ownerId,

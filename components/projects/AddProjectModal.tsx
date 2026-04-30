@@ -21,13 +21,12 @@ import { useState } from "react";
 
 interface Props {
   userId?: string | null;
-  invalidateProjects: () => Promise<void>;
 }
 
-export default function AddProjectModal({ userId, invalidateProjects }: Props) {
+export default function AddProjectModal({ userId }: Props) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const { mutation } = useCreateProjectMutation({ invalidateProjects });
+  const { mutation } = useCreateProjectMutation({ userId });
 
   const {
     register,
