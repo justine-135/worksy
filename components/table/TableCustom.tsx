@@ -14,6 +14,7 @@ interface Props<T> {
   data: T[];
   getRowId?: (row: T) => string | number;
   tableContentProps?: Omit<TableContentProps, "children">;
+  isLoading: boolean;
 }
 
 export function TableCustom<T>({
@@ -21,6 +22,7 @@ export function TableCustom<T>({
   data,
   getRowId,
   tableContentProps,
+  isLoading,
 }: Props<T>) {
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
@@ -48,6 +50,28 @@ export function TableCustom<T>({
     return sorted;
   }, [data, sortDescriptor]);
 
+  const renderLoadingRows = () => {
+    return Array.from({ length: 5 }).map((_, idx) => (
+      <Table.Row key={`loading-${idx}`}>
+        {columns.map((col) => (
+          <Table.Cell key={col.id}>
+            <div className="h-4 w-full animate-pulse rounded bg-gray-200" />
+          </Table.Cell>
+        ))}
+      </Table.Row>
+    ));
+  };
+
+  const renderEmptyState = () => (
+    <Table.Row>
+      <Table.Cell colSpan={columns.length}>
+        <div className="py-6 text-center text-sm text-gray-500">
+          No data available
+        </div>
+      </Table.Cell>
+    </Table.Row>
+  );
+
   return (
     <Table>
       <Table.ScrollContainer>
@@ -74,15 +98,18 @@ export function TableCustom<T>({
             ))}
           </Table.Header>
 
-          {/* BODY */}
           <Table.Body>
-            {sortedData.map((row) => (
-              <Table.Row key={getRowId?.(row)}>
-                {columns.map((col) => (
-                  <Table.Cell key={col.id}>{col.cell(row)}</Table.Cell>
-                ))}
-              </Table.Row>
-            ))}
+            {isLoading
+              ? renderLoadingRows()
+              : sortedData.length > 0
+                ? sortedData.map((row) => (
+                    <Table.Row key={getRowId?.(row)}>
+                      {columns.map((col) => (
+                        <Table.Cell key={col.id}>{col.cell(row)}</Table.Cell>
+                      ))}
+                    </Table.Row>
+                  ))
+                : renderEmptyState()}
           </Table.Body>
         </Table.Content>
       </Table.ScrollContainer>

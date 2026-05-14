@@ -7,13 +7,14 @@ import { RolesTableDTO } from "@/types/roles.dto";
 export default function RolesTable() {
   const projectId = useSessionStore((s) => s.projectId);
   const { columns } = rolesTableColumns();
-  const { data } = useGetRoles({ projectId });
+  const { data, isLoading } = useGetRoles({ projectId });
 
   return (
     <TableCustom
       data={(data as unknown as RolesTableDTO[]) || []}
       columns={columns}
       getRowId={(u) => u.id}
+      isLoading={isLoading}
     />
   );
 }

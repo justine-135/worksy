@@ -8,7 +8,7 @@ import memberTableColumns from "./memberTableColumns";
 
 export function MembersTable() {
   const projectId = useSessionStore((s) => s.projectId);
-  const { data } = useGetProjectMembers({
+  const { data, isLoading } = useGetProjectMembers({
     projectId,
   });
   const { columns } = memberTableColumns();
@@ -19,6 +19,7 @@ export function MembersTable() {
       columns={columns}
       getRowId={(u) => u.id}
       tableContentProps={{ selectionMode: "none" }}
+      isLoading={isLoading}
     />
   );
 }
