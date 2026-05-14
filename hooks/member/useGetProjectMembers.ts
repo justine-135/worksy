@@ -1,5 +1,6 @@
 "use client";
 
+import { QUERY_KEYS } from "@/constant/queryKeys";
 import fetchProjectMembers from "@/lib/members/fetchProjectMembers";
 import {
   ProjectMemberResponseDTO,
@@ -13,7 +14,7 @@ export function useGetProjectMembers({
   projectId?: string | null;
 }) {
   const { data, error, isLoading } = useQuery<ProjectMemberResponseDTO[]>({
-    queryKey: ["projects", projectId],
+    queryKey: QUERY_KEYS.PROJECT_MEMBERS(projectId),
     queryFn: () =>
       fetchProjectMembers({
         projectId,
@@ -27,8 +28,12 @@ export function useGetProjectMembers({
       id: member.id,
       name: member.user.name,
       email: member.user.email,
-      role: member?.role?.name || "Unassigned",
+      role: {
+        name: member?.role?.name,
+        id: member?.role?.id,
+      },
       createdAt: member.createdAt as unknown as string,
+      status: member.status,
     }));
   };
 

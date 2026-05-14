@@ -1,5 +1,4 @@
 import { ProjectCard } from "@/components/projects/ProjectCard";
-import { RoleFilter } from "./RoleFilter";
 import AddProjectModal from "./AddProjectModal";
 import { useGetProjects } from "@/hooks/project/useGetProjects";
 import { ProjectToast } from "../toast/ProjectToast";
@@ -19,9 +18,6 @@ export default function ProjectsDetail() {
     <div className="flex flex-col gap-4 items-center mt-20 w-full">
       <div className="flex flex-col gap-4 items-center w-[53%]">
         <CustomSearchField />
-        <div className="self-start">
-          <RoleFilter />
-        </div>
         <div className="flex flex-wrap mr-auto gap-4 max-w-230">
           {data?.map((project) => {
             const { id, title, members, owner } = project;

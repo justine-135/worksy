@@ -1,4 +1,5 @@
 import { ROLE_PRESETS } from "@/constant/role";
+import { StatusDTO } from "@/enum/member";
 import { prisma } from "@/lib/prisma";
 import { CreateProjectDTO, ProjectsResponseDTO } from "@/types/project.dto";
 import type { Prisma } from "@prisma/client";
@@ -46,6 +47,7 @@ export async function createProjectDTO(data: CreateProjectDTO) {
         userId: data.ownerId,
         projectId: project.id,
         roleId: ownerRole.id,
+        status: StatusDTO.active,
       },
       select: { id: true },
     });

@@ -76,6 +76,12 @@ model Permission {
   @@map("permission")
 }
 
+enum ProjectMemberStatus {
+  active
+  pending
+  inactive
+}
+
 model ProjectMember {
   id        String  @id @default(cuid())
   userId    String  @map("user_id")
@@ -84,6 +90,7 @@ model ProjectMember {
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   role      Role?   @relation(fields: [roleId], references: [id])
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    ProjectMemberStatus  
   tasks     Task[]
   createdAt   DateTime        @default(now()) @map("created_at")
   updatedAt   DateTime        @updatedAt @map("updated_at")

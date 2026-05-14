@@ -23,12 +23,12 @@ const InviteMemberButton = ({ onClick }: { onClick: () => void }) => {
   return <Button onClick={onClick}>Invite Member</Button>;
 };
 
-export default function InviteMemberDrawer() {
+export default function InviteMemberModal() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [member, setMember] = useState<UserResponseDTO | undefined>(undefined);
   const projectId = useSessionStore((s) => s.projectId);
 
-  const { mutation } = useInviteMember({ invalidateMembers: async () => {} });
+  const { mutation } = useInviteMember({ projectId });
 
   const handleOpenChange = () => {
     if (!isOpen) {

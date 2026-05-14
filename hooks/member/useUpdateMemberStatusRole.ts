@@ -1,28 +1,28 @@
 import { QUERY_KEYS } from "@/constant/queryKeys";
-import inviteMember from "@/lib/members/inviteMember.lib";
+import editMemberStatusRole from "@/lib/members/editMemberStatusRole";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 
-export default function useInviteMember({
+export default function useUpdateMemberStatusRole({
   projectId,
 }: {
   projectId?: string | null;
 }) {
   const queryClient = useQueryClient();
 
-  const rolesQueryKey = useMemo(
+  const memberQueryKey = useMemo(
     () => QUERY_KEYS.PROJECT_MEMBERS(projectId),
     [projectId],
   );
 
   const invalidateMembers = async () => {
     await queryClient.invalidateQueries({
-      queryKey: rolesQueryKey,
+      queryKey: memberQueryKey,
     });
   };
 
   const mutation = useMutation({
-    mutationFn: inviteMember,
+    mutationFn: editMemberStatusRole,
     onSettled: invalidateMembers,
   });
 

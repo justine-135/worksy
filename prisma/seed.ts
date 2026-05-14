@@ -69,6 +69,7 @@ async function main() {
         userId: owner.id,
         projectId: project.id,
         roleId: ownerRole.id,
+        status: "active",
       },
     }),
     prisma.projectMember.create({
@@ -76,6 +77,7 @@ async function main() {
         userId: member1.id,
         projectId: project.id,
         roleId: memberRole.id,
+        status: "active",
       },
     }),
     prisma.projectMember.create({
@@ -83,6 +85,7 @@ async function main() {
         userId: member2.id,
         projectId: project.id,
         roleId: memberRole.id,
+        status: "active",
       },
     }),
   ]);

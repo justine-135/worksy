@@ -24,3 +24,30 @@ export async function createRole({ name, permissions, projectId }: AddRoleDTO) {
 
   return role as RolesResponseDTO;
 }
+
+export async function getRoleSearch({
+  query,
+  projectId,
+}: {
+  query: string;
+  projectId: string;
+}) {
+  if (!query.trim()) {
+    return [];
+  }
+
+  return prisma.role.findMany({
+    where: {
+      projectId, // Standard shorthand for { projectId: projectId }
+      OR: [
+        {
+          name: {
+            contains: query,
+            mode: "insensitive",
+          },
+        },
+      ],
+    },
+    take: 10,
+  });
+}

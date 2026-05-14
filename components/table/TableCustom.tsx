@@ -56,6 +56,7 @@ export function TableCustom<T>({
           sortDescriptor={sortDescriptor}
           onSelectionChange={setSelectedKeys}
           onSortChange={setSortDescriptor}
+          aria-label="table"
           {...tableContentProps}
         >
           {/* HEADER */}

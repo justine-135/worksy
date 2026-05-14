@@ -16,4 +16,9 @@ export enum Permissions {
   MemberInvite = "member.invite",
   MemberEdit = "member.edit",
   MemberDelete = "member.delete",
+
+  RolesView = "roles.view",
+  RolesEdit = "roles.edit",
+  RolesDelete = "roles.delete",
+  RolesCreate = "roles.create",
 }

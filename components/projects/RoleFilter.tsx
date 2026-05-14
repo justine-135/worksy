@@ -1,6 +1,5 @@
 "use client";
 
-import { RoleLabel } from "@/constant/role";
 import { ERoles } from "@/enum/role";
 import type { Selection } from "@heroui/react";
 

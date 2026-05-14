@@ -30,6 +30,7 @@ import useSaveTaskPositionMutation from "@/hooks/taskboard/useSaveTaskPositionMu
 import AddTaskBoardModal from "./modal/AddTaskBoardModal";
 import { ScrollShadow } from "@heroui/react/scroll-shadow";
 import { useSessionStore } from "@/store/session.store";
+import { QUERY_KEYS } from "@/constant/queryKeys";
 
 const transition = {
   duration: 220,
@@ -288,7 +289,7 @@ export default function BoardDetail() {
   const projectId = useSessionStore((s) => s.projectId);
 
   const taskBoardQueryKey = useMemo(
-    () => ["taskBoard", userId, projectId] as const,
+    () => QUERY_KEYS.TASK_BOARDS(projectId, userId),
     [projectId, userId],
   );
 

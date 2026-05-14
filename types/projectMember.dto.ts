@@ -1,3 +1,5 @@
+import { StatusDTO } from "@/enum/member";
+
 export interface CreateProjectMemberDTO {
   userId: string;
   projectId: string;
@@ -5,9 +7,9 @@ export interface CreateProjectMemberDTO {
 
 export interface ProjectMemberResponseDTO {
   id: string;
-  roleId?: string | null;
   createdAt: Date;
   updatedAt: Date;
+  status: StatusDTO;
   user: {
     id: string;
     name: string;
@@ -24,6 +26,16 @@ export interface ProjectMemberTableDTO {
   id: string;
   name: string;
   email: string;
-  role?: string | null;
+  role: {
+    id: string;
+    name: string;
+  };
   createdAt: string;
+  status: StatusDTO;
+}
+
+export interface EditMemberStatusRoleDTO {
+  userId: string;
+  roleId: string;
+  status: StatusDTO;
 }

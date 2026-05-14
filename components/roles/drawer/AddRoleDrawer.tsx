@@ -30,7 +30,7 @@ const AddRoleButton = ({ onClick }: { onClick: () => void }) => {
   return <Button onClick={onClick}>Add Role</Button>;
 };
 
-export default function AddRoleModal() {
+export default function AddRoleDrawer() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const projectId = useSessionStore((s) => s.projectId);
 
@@ -49,7 +49,6 @@ export default function AddRoleModal() {
   const selectedPermissions = watch("permissions") || [];
 
   const onSubmit = (data: CreateRoleInput) => {
-    console.log(data);
     mutation.mutate(
       {
         ...data,
@@ -109,7 +108,6 @@ export default function AddRoleModal() {
                           name="permissions"
                           value={selectedPermissions}
                           onChange={(values) => {
-                            console.log(values);
                             setValue("permissions", values);
                           }}
                         >

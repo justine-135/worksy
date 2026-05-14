@@ -1,3 +1,4 @@
+import { QUERY_KEYS } from "@/constant/queryKeys";
 import addRole from "@/lib/role/addRole.lib";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
@@ -9,10 +10,7 @@ export default function useAddRoleMutation({
 }) {
   const queryClient = useQueryClient();
 
-  const rolesQueryKey = useMemo(
-    () => ["roles", projectId] as const,
-    [projectId],
-  );
+  const rolesQueryKey = useMemo(() => QUERY_KEYS.ROLES(projectId), [projectId]);
 
   const invalidateRoles = async () => {
     await queryClient.invalidateQueries({

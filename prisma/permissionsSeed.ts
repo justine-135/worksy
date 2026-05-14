@@ -14,4 +14,9 @@ export const PermissionsSeed = [
   "member.invite",
   "member.edit",
   "member.delete",
+
+  "roles.view",
+  "roles.edit",
+  "roles.delete",
+  "roles.create",
 ] as const;
