@@ -5,7 +5,6 @@ import {
   Label,
   TextField,
   Form,
-  Spinner,
   toast,
   Modal,
 } from "@heroui/react";
@@ -18,6 +17,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
+import CustomButton from "../button/CustomButton";
 
 interface Props {
   userId?: string | null;
@@ -90,18 +90,11 @@ export default function AddProjectModal({ userId }: Props) {
                 </TextField>
               </Modal.Body>
               <Modal.Footer>
-                <Button
-                  className="font-semibold"
-                  type="submit"
+                <CustomButton
                   isPending={mutation.isPending}
-                >
-                  {({ isPending }) => (
-                    <>
-                      {isPending ? <Spinner color="current" size="sm" /> : null}
-                      {isPending ? "Creating" : "Create"}
-                    </>
-                  )}
-                </Button>
+                  loadingTitle="Creating"
+                  title="Create"
+                />
               </Modal.Footer>
             </Form>
           </Modal.Dialog>

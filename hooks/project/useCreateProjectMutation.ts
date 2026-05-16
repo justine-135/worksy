@@ -6,7 +6,7 @@ import { useMemo } from "react";
 export default function useCreateProjectMutation({
   userId,
 }: {
-  userId: string | null;
+  userId?: string | null;
 }) {
   const queryClient = useQueryClient();
 
