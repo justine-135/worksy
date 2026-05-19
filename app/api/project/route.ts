@@ -1,18 +1,24 @@
 import { createProjectDTO, getProjects } from "@/db/project.db";
+import { createProjectSchema } from "@/lib/validations/createProject.schema";
+import { z } from "zod";
+
+const createProjectRequestSchema = createProjectSchema.extend({
+  ownerId: z.string().min(1, "Owner is required"),
+});
 
 export async function POST(req: Request) {
   const body = await req.json();
-  const { title, description, ownerId } = body;
 
-  if (!title || !ownerId) {
-    return Response.json({ error: "Invalid payload" }, { status: 400 });
+  const parsed = createProjectRequestSchema.safeParse(body);
+
+  if (!parsed.success) {
+    return Response.json(
+      { error: parsed.error.flatten().fieldErrors },
+      { status: 400 },
+    );
   }
 
-  const data = await createProjectDTO({
-    title,
-    description,
-    ownerId,
-  });
+  const data = await createProjectDTO(parsed.data);
 
   return Response.json({ success: true, data });
 }

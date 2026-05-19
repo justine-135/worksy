@@ -20,7 +20,7 @@ export default function ProjectsDetail() {
         <CustomSearchField />
         <div className="flex flex-wrap mr-auto gap-4 max-w-230">
           {data?.map((project) => {
-            const { id, title, members, owner } = project;
+            const { id, title, members, owner, imageUrl } = project;
             return (
               <ProjectCard
                 key={id}
@@ -28,6 +28,7 @@ export default function ProjectsDetail() {
                 title={title}
                 memberCount={members.length}
                 owner={owner.name}
+                imageUrl={imageUrl}
               />
             );
           })}

@@ -1,4 +1,5 @@
 import { Avatar, Card } from "@heroui/react";
+import Image from "next/image";
 import Link from "next/link";
 
 interface Props {
@@ -6,18 +7,31 @@ interface Props {
   title: string;
   memberCount: number;
   owner: string;
+  imageUrl?: string | null;
 }
 
-export function ProjectCard({ id, title, memberCount, owner }: Props) {
+const PROJECT_IMAGE_PLACEHOLDER =
+  "https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/docs/demo1.jpg";
+
+export function ProjectCard({
+  id,
+  title,
+  memberCount,
+  owner,
+  imageUrl,
+}: Props) {
   return (
     <Link href={`/projects/${id}`}>
       <Card className="h-auto w-51.25 gap-2 hover:cursor-pointer hover:opacity-80">
-        <img
-          alt="Indie Hackers community"
-          className="pointer-events-none aspect-square w-14 rounded-2xl object-cover select-none"
-          loading="lazy"
-          src="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/docs/demo1.jpg"
-        />
+        <div className="relative aspect-square w-14 overflow-hidden rounded-2xl">
+          <Image
+            alt={`${title} project icon`}
+            className="pointer-events-none object-cover select-none"
+            fill
+            sizes="56px"
+            src={imageUrl || PROJECT_IMAGE_PLACEHOLDER}
+          />
+        </div>
         <Card.Header>
           <Card.Title>{title}</Card.Title>
           <Card.Description>

@@ -4,6 +4,7 @@ export default async function createProject({
   title,
   description,
   ownerId,
+  imageUrl,
 }: CreateProjectDTO) {
   const response = await fetch("/api/project", {
     method: "POST",
@@ -14,6 +15,7 @@ export default async function createProject({
       title,
       description,
       ownerId,
+      imageUrl,
     }),
   });
 

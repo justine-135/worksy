@@ -18,6 +18,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import CustomButton from "../button/CustomButton";
+import ImageDropZone from "../fields/ImageDropZone";
+import uploadProjectImage from "@/lib/project/uploadProjectImage.lib";
+import deleteProjectImage from "@/lib/project/deleteProjectImage.lib";
+import {
+  PROJECT_IMAGE_MAX_SIZE_BYTES,
+  formatFileSize,
+} from "@/lib/blob/projectImage";
 
 interface Props {
   userId?: string | null;
@@ -25,6 +32,8 @@ interface Props {
 
 export default function AddProjectModal({ userId }: Props) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [projectImage, setProjectImage] = useState<File | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
 
   const { mutation } = useCreateProjectMutation({ userId });
 
@@ -37,25 +46,63 @@ export default function AddProjectModal({ userId }: Props) {
     resolver: zodResolver(createProjectSchema),
   });
 
-  const onSubmit = (data: CreateProjectInput) => {
+  const handleOpenChange = (nextOpen: boolean) => {
+    setIsOpen(nextOpen);
+
+    if (!nextOpen) {
+      reset();
+      setProjectImage(null);
+    }
+  };
+
+  const onSubmit = async (data: CreateProjectInput) => {
     if (!userId) {
       toast("User not authenticated");
       return;
     }
 
-    mutation.mutate(
-      {
+    let uploadedImageUrl: string | undefined;
+
+    try {
+      if (projectImage) {
+        setIsUploadingImage(true);
+
+        const blob = await uploadProjectImage({
+          file: projectImage,
+          userId,
+        });
+
+        uploadedImageUrl = blob.url;
+      }
+
+      await mutation.mutateAsync({
         ...data,
         ownerId: userId,
-      },
-      {
-        onSuccess: () => {
-          reset();
-          setIsOpen(false);
-          toast("Project is created");
-        },
-      },
-    );
+        imageUrl: uploadedImageUrl,
+      });
+
+      reset();
+      setProjectImage(null);
+      setIsOpen(false);
+      toast("Project is created");
+    } catch (error) {
+      if (uploadedImageUrl) {
+        try {
+          await deleteProjectImage(uploadedImageUrl);
+        } catch (cleanupError) {
+          console.error(
+            "Failed to clean up uploaded project image",
+            cleanupError,
+          );
+        }
+      }
+
+      toast(
+        error instanceof Error ? error.message : "Failed to create project",
+      );
+    } finally {
+      setIsUploadingImage(false);
+    }
   };
 
   return (
@@ -67,7 +114,7 @@ export default function AddProjectModal({ userId }: Props) {
       >
         <BiPlus size={40} fill="gray" />
       </Button>
-      <Modal.Backdrop isOpen={isOpen} onOpenChange={setIsOpen}>
+      <Modal.Backdrop isOpen={isOpen} onOpenChange={handleOpenChange}>
         <Modal.Container>
           <Modal.Dialog aria-label="add project modal">
             <Modal.CloseTrigger />
@@ -86,12 +133,21 @@ export default function AddProjectModal({ userId }: Props) {
                 </TextField>
                 <TextField>
                   <Label>Description</Label>
-                  <TextArea {...register("content")} placeholder="(Optional)" />
+                  <TextArea
+                    {...register("description")}
+                    placeholder="(Optional)"
+                  />
                 </TextField>
+                <ImageDropZone
+                  value={projectImage}
+                  onChange={setProjectImage}
+                  label="Project icon"
+                  description={`Optional. Upload one JPG, PNG, WEBP, or SVG image up to ${formatFileSize(PROJECT_IMAGE_MAX_SIZE_BYTES)}.`}
+                />
               </Modal.Body>
               <Modal.Footer>
                 <CustomButton
-                  isPending={mutation.isPending}
+                  isPending={mutation.isPending || isUploadingImage}
                   loadingTitle="Creating"
                   title="Create"
                 />

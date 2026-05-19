@@ -10,6 +10,7 @@ export async function createProjectDTO(data: CreateProjectDTO) {
       data: {
         title: data.title,
         description: data.description,
+        imageUrl: data.imageUrl,
         ownerId: data.ownerId,
 
         taskBoards: {
@@ -73,6 +74,7 @@ export async function getProjects({ userId }: { userId: string }) {
       id: true,
       title: true,
       description: true,
+      imageUrl: true,
       members: {
         select: {
           id: true,

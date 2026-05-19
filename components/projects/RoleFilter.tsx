@@ -6,6 +6,12 @@ import type { Selection } from "@heroui/react";
 import { Button, Dropdown, Header, Label } from "@heroui/react";
 import { useState } from "react";
 
+const ROLE_LABELS: Record<ERoles, string> = {
+  [ERoles.OWNER]: "Project Owner",
+  [ERoles.ADMIN]: "Admin",
+  [ERoles.MEMBER]: "Member",
+};
+
 export function RoleFilter() {
   const [selected, setSelected] = useState<Selection>(new Set([ERoles.OWNER]));
 
@@ -26,11 +32,11 @@ export function RoleFilter() {
               return (
                 <Dropdown.Item
                   id={role}
-                  textValue={RoleLabel[role as ERoles]}
+                  textValue={ROLE_LABELS[role as ERoles]}
                   key={idx}
                 >
                   <Dropdown.ItemIndicator />
-                  <Label>{RoleLabel[role as ERoles]}</Label>
+                  <Label>{ROLE_LABELS[role as ERoles]}</Label>
                 </Dropdown.Item>
               );
             })}

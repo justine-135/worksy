@@ -10,6 +10,7 @@ model Project {
   id          String          @id @default(cuid())
   title       String
   description String?
+  imageUrl    String?         @map("image_url")
   ownerId     String          @map("owner_id")
   createdAt   DateTime        @default(now()) @map("created_at")
   updatedAt   DateTime        @updatedAt @map("updated_at")
@@ -17,6 +18,7 @@ model Project {
   members     ProjectMember[]
   roles       Role[]
   taskBoards  TaskBoard[]
+  invites ProjectInvite[]
 
   @@map("project")
 }
@@ -98,6 +100,26 @@ model ProjectMember {
   @@map("project_member")
 }
 
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model ProjectInvite {
+  id            String          @id @default(cuid())
+  senderId      String          @map("sender_id")
+  receiverId    String          @map("receiver_id")
+  projectId     String          @map("project_id")
+  status        InviteStatus    @default(PENDING)
+  project       Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userSender    User            @relation("ProjectSender", fields: [senderId], references: [id], onDelete: Cascade)
+  userReceiver  User            @relation("ProjectReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  @@map("project_invite")
+}
+
 model Account {
   id                String  @id @default(cuid())
   userId            String  @map("user_id")
@@ -128,15 +150,17 @@ model Session {
 }
 
 model User {
-  id            String          @id @default(cuid())
-  name          String?
-  email         String?         @unique
-  emailVerified DateTime?       @map("email_verified")
-  image         String?
-  accounts      Account[]
-  ownedProjects Project[]       @relation("ProjectOwner") 
-  memberships   ProjectMember[]
-  sessions      Session[]
+  id              String          @id @default(cuid())
+  name            String?
+  email           String?         @unique
+  emailVerified   DateTime?       @map("email_verified")
+  image           String?
+  accounts        Account[]
+  ownedProjects   Project[]       @relation("ProjectOwner") 
+  memberships     ProjectMember[]
+  sessions        Session[]
+  sentInvites     ProjectInvite[] @relation("ProjectSender")
+  receivedInvites ProjectInvite[] @relation("ProjectReceiver")
 
   @@map("users")
 }
