@@ -1,13 +1,11 @@
-import DashboardCard from "@/components/dashboard/DashboardCard";
+import React from "react";
+import DashboardCard from "./DashboardCard";
 
-export default function ProjectPage() {
+export default function DashboardDetail() {
   return (
     <div className="flex flex-col space-y-6">
-      <div>
-        <h1 className="font-semibold text-2xl">Hello, Justine</h1>
-      </div>
       <section>
-        <div className="flex space-x-2">
+        <div className="flex flex-wrap space-x-2">
           <DashboardCard title="Total" content="12" />
           <DashboardCard title="Total" content="12" />
           <DashboardCard title="Total" content="12" />

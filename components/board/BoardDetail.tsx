@@ -372,10 +372,8 @@ export default function BoardDetail() {
 
   return (
     <div className="BoardDetail flex min-h-0 flex-col space-y-6 overflow-hidden">
-      <h1 className="font-semibold text-2xl">Board</h1>
-
       <ScrollShadow
-        className="TaskBoardContainer flex min-h-[calc(100vh-7.5rem)] w-full gap-4 px-1 py-4 "
+        className="TaskBoardContainer flex min-h-[calc(100vh-5.5rem)] w-full gap-4"
         orientation="horizontal"
       >
         {isLoadingView && "Loading"}

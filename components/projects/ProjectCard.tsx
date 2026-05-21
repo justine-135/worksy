@@ -10,7 +10,7 @@ interface Props {
   imageUrl?: string | null;
 }
 
-const PROJECT_IMAGE_PLACEHOLDER =
+export const PROJECT_IMAGE_PLACEHOLDER =
   "https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/docs/demo1.jpg";
 
 export function ProjectCard({
@@ -21,7 +21,7 @@ export function ProjectCard({
   imageUrl,
 }: Props) {
   return (
-    <Link href={`/projects/${id}`}>
+    <Link href={`/projects/${id}/dashboard`}>
       <Card className="h-auto w-51.25 gap-2 hover:cursor-pointer hover:opacity-80">
         <div className="relative aspect-square w-14 overflow-hidden rounded-2xl">
           <Image
@@ -39,9 +39,9 @@ export function ProjectCard({
           </Card.Description>
         </Card.Header>
         <Card.Footer className="flex gap-2">
-          <Avatar aria-label="Martha's profile picture" className="size-5">
+          <Avatar aria-label="User's profile picture" className="size-5">
             <Avatar.Image
-              alt="Martha's avatar"
+              alt="User's avatar"
               src="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/red.jpg"
             />
             <Avatar.Fallback className="text-xs">IH</Avatar.Fallback>

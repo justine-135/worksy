@@ -1,9 +1,9 @@
-import { updateMemberStatusRole } from "@/db/projectMember.db";
+import { getUserById } from "@/db/user.db";
 import { authConfig } from "@/lib/auth/auth";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
-export async function PATCH(
+export async function GET(
   req: Request,
   { params }: { params: Promise<{ userId: string }> },
 ) {
@@ -12,21 +12,13 @@ export async function PATCH(
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-
   const { userId } = await params;
 
-  const body = await req.json();
-  const { role_id, status } = body;
-
-  if (!role_id || !status) {
-    return Response.json({ error: "Invalid payload" }, { status: 400 });
+  if (!userId) {
+    return Response.json({ error: "Missing user id" }, { status: 400 });
   }
 
-  const data = await updateMemberStatusRole({
-    userId,
-    roleId: role_id,
-    status,
-  });
+  const data = await getUserById({ userId });
 
-  return Response.json({ success: true, data });
+  return Response.json(data);
 }

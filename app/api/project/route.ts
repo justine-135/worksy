@@ -1,5 +1,8 @@
 import { createProjectDTO, getProjects } from "@/db/project.db";
+import { authConfig } from "@/lib/auth/auth";
 import { createProjectSchema } from "@/lib/validations/createProject.schema";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 
 const createProjectRequestSchema = createProjectSchema.extend({
@@ -7,6 +10,12 @@ const createProjectRequestSchema = createProjectSchema.extend({
 });
 
 export async function POST(req: Request) {
+  const session = await getServerSession(authConfig);
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await req.json();
 
   const parsed = createProjectRequestSchema.safeParse(body);

@@ -1,4 +1,4 @@
-export default async function fetchUser({
+export default async function fetchUserSearch({
   query,
   currentId,
 }: {

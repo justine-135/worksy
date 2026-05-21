@@ -6,4 +6,5 @@ export const QUERY_KEYS = {
     ["boards", projectId, userId] as const,
   PROJECTS: (userId?: string | null) => ["projects", userId] as const,
   USER: (userId: string | null) => ["user", userId] as const,
+  USER_SEARCH: (query: string) => ["user", "search", query] as const,
 };

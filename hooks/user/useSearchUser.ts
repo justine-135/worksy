@@ -1,6 +1,7 @@
 "use client";
 
-import fetchUser from "@/lib/user/fetchUser.lib";
+import { QUERY_KEYS } from "@/constant/queryKeys";
+import fetchUserSearch from "@/lib/user/fetchUserSearch.lib";
 import { UserResponseDTO } from "@/types/user.dto";
 import { useQuery } from "@tanstack/react-query";
 
@@ -12,9 +13,9 @@ export function useSearchUser({
   currentId?: string | null;
 }) {
   const { data, error, isLoading } = useQuery<UserResponseDTO[]>({
-    queryKey: ["user", query],
+    queryKey: QUERY_KEYS.USER_SEARCH(query),
     queryFn: () =>
-      fetchUser({
+      fetchUserSearch({
         query,
         currentId,
       }),

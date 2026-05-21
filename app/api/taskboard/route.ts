@@ -3,8 +3,17 @@ import {
   getTaskBoard,
   updateTaskBoardOrdersDB,
 } from "@/db/taskboard.db";
+import { authConfig } from "@/lib/auth/auth";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
+  const session = await getServerSession(authConfig);
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(req.url);
 
   const user_id = searchParams.get("user_id");
@@ -20,6 +29,12 @@ export async function GET(req: Request) {
 }
 
 export async function PATCH(req: Request) {
+  const session = await getServerSession(authConfig);
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await req.json();
   const { projectId, userId, orderedTaskBoardIds } = body;
 
@@ -42,6 +57,12 @@ export async function PATCH(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const session = await getServerSession(authConfig);
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await req.json();
   const { projectId, title } = body;
 

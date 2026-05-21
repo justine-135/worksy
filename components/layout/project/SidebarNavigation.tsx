@@ -1,98 +1,75 @@
 "use client";
 
-import SignOutButton from "@/components/button/SignOutButton";
-import { Avatar, Button } from "@heroui/react";
+import { useGetProjects } from "@/hooks/project/useGetProjects";
+import { useSessionStore } from "@/store/session.store";
+import { Button } from "@heroui/react/button";
 import Link from "next/link";
-import { useParams, usePathname } from "next/navigation";
-import { CgBoard } from "react-icons/cg";
-import { FiHome, FiSettings } from "react-icons/fi";
-import { GoPeople } from "react-icons/go";
-import { IoPersonOutline } from "react-icons/io5";
+import { Skeleton } from "@heroui/react/skeleton";
+import { useParams } from "next/navigation";
+import { PATHS } from "./TabRoutesNav";
+import SidebarUserSurface from "./SidebarUserSurface";
+const SkeletonItem = () => (
+  <Skeleton className="h-9 w-40 rounded-full ml-3 pr-18" />
+);
 
-const routes = [
-  {
-    icon: FiHome,
-    name: "Dashboard",
-    path: "/",
-  },
-  {
-    icon: CgBoard,
-    name: "Board",
-    path: "board",
-  },
-  {
-    icon: IoPersonOutline,
-    name: "Members",
-    path: "members",
-  },
-  {
-    icon: GoPeople,
-    name: "Roles and Permissions",
-    path: "roles",
-  },
-  {
-    icon: FiSettings,
-    name: "Settings",
-    path: "settings",
-  },
-];
+const SkeletonComponent = () => {
+  return (
+    <>
+      <SkeletonItem />
+      <SkeletonItem />
+      <SkeletonItem />
+      <SkeletonItem />
+    </>
+  );
+};
 
 export default function SidebarNavigation() {
-  const params = useParams();
-  const pathname = usePathname();
+  const userId = useSessionStore((s) => s.userId);
+  const { data, isLoading } = useGetProjects({
+    userId,
+  });
 
-  const projectId = params?.id;
-  const projectBase = `/projects/${projectId}`;
+  const params = useParams();
 
   return (
-    <nav className="SidebarNavigation h-screen px-6 space-y-6 border-r-gray-200 border-r pt-8">
-      <div className="flex space-x-2">
-        <Button className="p-1 h-auto" variant="ghost">
-          <Link href="/projects">
-            <Avatar>
-              <Avatar.Image
-                alt="Blue"
-                src="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/blue.jpg"
-              />
-              <Avatar.Fallback>B</Avatar.Fallback>
-            </Avatar>
-          </Link>
-        </Button>
-        <div className="flex flex-col ">
-          <span className="font-semibold">Justine</span>
-          <span className="text-muted text-sm">Owner</span>
+    <nav className="SidebarNavigation px-6 space-y-6 pt-4 fixed border-r border-color-border min-h-screen">
+      <div className="flex flex-col space-y-2">
+        <div>
+          <Button
+            className="flex flex-col items-start w-full p-0"
+            variant="ghost"
+          >
+            <Link href={PATHS.projects} className="w-full pl-3 pr-18">
+              <div className="flex items-center space-x-2">
+                <span>New project</span>
+              </div>
+            </Link>
+          </Button>
         </div>
-      </div>
-
-      <div className="flex flex-col space-y-2 h-[90%]">
-        {routes.map((route) => {
-          const Icon = route.icon;
-
-          const href = `/projects/${projectId}/${route.path}`;
-
-          const isActive =
-            route.path === "/"
-              ? pathname === projectBase || pathname === `${projectBase}/`
-              : pathname === `${projectBase}/${route.path}`;
+        {isLoading && <SkeletonComponent />}
+        {data?.map((route) => {
+          const isActive = route.id === params.id;
 
           return (
-            <div key={route.name}>
+            <div key={route.id}>
               <Button
-                variant={isActive ? "tertiary" : "ghost"}
-                className="flex flex-col items-start w-full p-0"
+                className={`flex flex-col items-start w-full p-0 ${isActive ? "bg-white shadow-xl/10" : ""}`}
+                variant="ghost"
               >
-                <Link href={href} className="w-full pl-3 pr-18">
+                <Link
+                  href={`${PATHS.projects}/${route.id}/${params.section || "dashboard"}`}
+                  className="w-full pl-3 pr-23.5"
+                >
                   <div className="flex items-center space-x-2">
-                    <Icon />
-                    <span>{route.name}</span>
+                    <span>{route.title}</span>
                   </div>
                 </Link>
               </Button>
             </div>
           );
         })}
-        <SignOutButton />
       </div>
+      <SidebarUserSurface />
     </nav>
   );
 }

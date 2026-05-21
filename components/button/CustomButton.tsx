@@ -3,7 +3,7 @@ import React from "react";
 
 export interface CustomButtonProps extends ButtonProps {
   loadingTitle?: string;
-  title: string;
+  title: React.ReactNode;
 }
 
 export default function CustomButton(props: CustomButtonProps) {

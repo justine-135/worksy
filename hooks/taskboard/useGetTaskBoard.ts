@@ -16,6 +16,7 @@ export function useGetTaskBoard({ userId, projectId }: UserProjectParamsDTO) {
         userId,
         projectId,
       }),
+    enabled: !!userId && !!projectId,
   });
 
   return { data, error, isLoading };

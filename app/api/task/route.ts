@@ -1,8 +1,18 @@
 import { updateTaskPositionsDB } from "@/db/task.db";
+import { authConfig } from "@/lib/auth/auth";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 
 export async function PATCH(req: Request) {
+  const session = await getServerSession(authConfig);
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await req.json();
-  const { projectId, userId, taskId, taskBoardId, orderedTaskIdsByBoard } = body;
+  const { projectId, userId, taskId, taskBoardId, orderedTaskIdsByBoard } =
+    body;
 
   if (
     !projectId ||
