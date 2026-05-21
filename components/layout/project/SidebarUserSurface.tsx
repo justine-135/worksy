@@ -14,7 +14,7 @@ export default function SidebarUserSurface() {
 
   return (
     <Surface
-      className="flex items-center space-x-1 p-2 rounded-xl"
+      className="flex items-center space-x-1 p-2 rounded-xl mt-auto"
       variant="secondary"
     >
       <Avatar size="sm">

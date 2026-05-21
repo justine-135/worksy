@@ -17,3 +17,5 @@ export interface ProjectsResponseDTO {
     name: string;
   };
 }
+
+export type TProjectFilter = "all" | "owned" | "shared";

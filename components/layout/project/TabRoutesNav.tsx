@@ -14,6 +14,7 @@ export const PATHS = {
   members: "/members",
   roles: "/roles",
   settings: "/settings",
+  invites: "/invites",
 };
 
 export const ROUTES = [
@@ -64,12 +65,12 @@ export default function TabRoutesNav() {
           return (
             <div key={route.name}>
               <div
-                className={`flex flex-col items-start w-full py-1 ${isActive ? "border-b-2 border-primary" : ""}`}
+                className={`flex flex-col items-start w-full py-1 ${isActive ? "border-b-2 border-primary opacity-100" : "opacity-40"}`}
               >
                 <Link href={href} className="w-full ">
-                  <div className="flex items-center space-x-2">
-                    <Icon />
-                    <span className="text-sm">{route.name}</span>
+                  <div className="flex items-center space-x-1">
+                    <Icon size={16} className="-translate-y-px" />
+                    <span className="text-sm font-medium">{route.name}</span>
                   </div>
                 </Link>
               </div>

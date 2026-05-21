@@ -1,26 +1,22 @@
-import { ProjectCard } from "@/components/projects/ProjectCard";
-import AddProjectModal from "./AddProjectModal";
+"use client";
+
 import { useGetProjects } from "@/hooks/project/useGetProjects";
-import { ProjectToast } from "../toast/ProjectToast";
 import CustomSearchField from "../fields/CustomSearchField";
 import { useSessionStore } from "@/store/session.store";
 import { Typography } from "@heroui/react";
-import ProjectFilter from "./ProjectFilter";
-import { useState } from "react";
-import { TProjectFilter } from "@/types/project.dto";
+import EmptyCustom from "../empty/EmptyCustom";
 
-export default function ProjectsDetail() {
-  const [filter, setFilter] = useState<TProjectFilter>("all");
+export default function InviteDetail() {
   const userId = useSessionStore((s) => s.userId);
 
-  const { data, isLoading } = useGetProjects({
+  const { isLoading } = useGetProjects({
     userId,
   });
 
   if (isLoading) return "Loading";
 
   return (
-    <div className="ProjectDetail flex flex-col space-y-6">
+    <div className="InvitesDetail flex flex-col space-y-6">
       <section>
         <div className="flex flex-col gap-4 items-center mt-20 w-full">
           <div className="flex flex-col gap-4 w-[53%] max-w-217.25">
@@ -29,15 +25,13 @@ export default function ProjectsDetail() {
                 level={1}
                 className="font-extralight text-2xl"
               >
-                Projects
+                Invites
               </Typography.Heading>
               <CustomSearchField />
             </div>
-            <div className="my-7">
-              <ProjectFilter filter={filter} setFilter={setFilter} />
-            </div>
+
             <div className="flex flex-wrap mr-auto gap-4 max-w-230">
-              {data?.map((project) => {
+              {/* {data?.map((project) => {
                 const { id, title, members, owner, imageUrl } = project;
                 return (
                   <ProjectCard
@@ -49,11 +43,10 @@ export default function ProjectsDetail() {
                     imageUrl={imageUrl}
                   />
                 );
-              })}
-              <AddProjectModal userId={userId} />
+              })} */}
             </div>
+            <EmptyCustom title="No Invites Yet" message="" />
           </div>
-          <ProjectToast />
         </div>
       </section>
     </div>

@@ -42,7 +42,7 @@ export default async function ProjectLayout({
           </div>
           <main className="flex-1 min-w-0">{children}</main>
         </div>
-        <SessionHydrator userId={session?.user.id} projectId={id} />;
+        <SessionHydrator userId={session?.user.id} projectId={id} />
       </ToastLayout>
     </div>
   );
