@@ -12,6 +12,7 @@ import { Avatar } from "@heroui/react/avatar";
 import { ProjectsResponseDTO } from "@/types/project.dto";
 import useInviteMember from "@/hooks/member/useInviteMember";
 import { useSessionStore } from "@/store/session.store";
+import { toast } from "@heroui/react";
 
 const InviteInformationTypography = ({
   children,
@@ -43,9 +44,16 @@ const InviteInformation = ({
 
   const handleAcceptInvite = () => {
     if (!userId) return;
-    inviteMemberMutation.mutate({
-      inviteId: invite.id,
-    });
+    inviteMemberMutation.mutate(
+      {
+        inviteId: invite.id,
+      },
+      {
+        onSuccess: () => {
+          toast("Invite accepted");
+        },
+      },
+    );
   };
 
   return (

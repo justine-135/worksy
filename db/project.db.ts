@@ -1,7 +1,7 @@
 import { ROLE_PRESETS } from "@/constant/role";
 import { StatusDTO } from "@/enum/member";
 import { prisma } from "@/lib/prisma";
-import { CreateProjectDTO, ProjectsResponseDTO } from "@/types/project.dto";
+import { CreateProjectDTO, TProjectFilter } from "@/types/project.dto";
 import type { Prisma } from "@prisma/client";
 
 export async function createProjectDTO(data: CreateProjectDTO) {
@@ -60,15 +60,39 @@ export async function createProjectDTO(data: CreateProjectDTO) {
   });
 }
 
-export async function getProjects({ userId }: { userId: string }) {
-  const projects = await prisma.project.findMany({
-    where: {
-      members: {
-        some: {
-          userId,
-        },
-      },
-    },
+export async function getProjects({
+  userId,
+  filter = "all",
+}: {
+  userId: string;
+  filter?: TProjectFilter;
+}) {
+  const where =
+    filter === "owned"
+      ? {
+          ownerId: userId,
+        }
+      : filter === "shared"
+        ? {
+            NOT: {
+              ownerId: userId,
+            },
+            members: {
+              some: {
+                userId,
+              },
+            },
+          }
+        : {
+            members: {
+              some: {
+                userId,
+              },
+            },
+          };
+
+  return prisma.project.findMany({
+    where,
     select: {
       id: true,
       title: true,
@@ -86,6 +110,4 @@ export async function getProjects({ userId }: { userId: string }) {
       },
     },
   });
-
-  return projects as ProjectsResponseDTO[];
 }

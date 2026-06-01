@@ -15,6 +15,7 @@ export default function ProjectsDetail() {
 
   const { data, isLoading } = useGetProjects({
     userId,
+    filter,
   });
 
   if (isLoading) return "Loading";

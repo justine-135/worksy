@@ -18,7 +18,15 @@ export async function GET(
     return NextResponse.json({ error: "Invalid session id" }, { status: 400 });
   }
 
-  const data = await getProjects({ userId });
+  const { searchParams } = new URL(req.url);
+
+  const filter =
+    (searchParams.get("filter") as "all" | "owned" | "shared") ?? "all";
+
+  const data = await getProjects({
+    userId,
+    filter,
+  });
 
   return Response.json(data);
 }
