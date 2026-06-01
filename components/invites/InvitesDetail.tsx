@@ -1,16 +1,16 @@
 "use client";
 
-import { useGetProjects } from "@/hooks/project/useGetProjects";
 import CustomSearchField from "../fields/CustomSearchField";
 import { useSessionStore } from "@/store/session.store";
 import { Typography } from "@heroui/react";
-import EmptyCustom from "../empty/EmptyCustom";
+import { useGetInvites } from "@/hooks/invite/useGetInvites";
+import InvitesList from "./InvitesList";
 
 export default function InviteDetail() {
   const userId = useSessionStore((s) => s.userId);
 
-  const { isLoading } = useGetProjects({
-    userId,
+  const { data, isLoading } = useGetInvites({
+    receiverId: userId,
   });
 
   if (isLoading) return "Loading";
@@ -29,23 +29,7 @@ export default function InviteDetail() {
               </Typography.Heading>
               <CustomSearchField />
             </div>
-
-            <div className="flex flex-wrap mr-auto gap-4 max-w-230">
-              {/* {data?.map((project) => {
-                const { id, title, members, owner, imageUrl } = project;
-                return (
-                  <ProjectCard
-                    key={id}
-                    id={id}
-                    title={title}
-                    memberCount={members.length}
-                    owner={owner.name}
-                    imageUrl={imageUrl}
-                  />
-                );
-              })} */}
-            </div>
-            <EmptyCustom title="No Invites Yet" message="" />
+            <InvitesList data={data} />
           </div>
         </div>
       </section>

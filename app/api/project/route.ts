@@ -1,4 +1,4 @@
-import { createProjectDTO, getProjects } from "@/db/project.db";
+import { createProjectDTO } from "@/db/project.db";
 import { authConfig } from "@/lib/auth/auth";
 import { createProjectSchema } from "@/lib/validations/createProject.schema";
 import { getServerSession } from "next-auth";
@@ -30,18 +30,4 @@ export async function POST(req: Request) {
   const data = await createProjectDTO(parsed.data);
 
   return Response.json({ success: true, data });
-}
-
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-
-  const user_id = searchParams.get("user_id");
-
-  if (!user_id) {
-    return Response.json({ error: "Invalid session id" }, { status: 400 });
-  }
-
-  const data = await getProjects({ userId: user_id });
-
-  return Response.json(data);
 }

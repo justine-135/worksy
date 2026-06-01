@@ -6,7 +6,7 @@ import { Button } from "@heroui/react/button";
 import Link from "next/link";
 import { Skeleton } from "@heroui/react/skeleton";
 import { useParams } from "next/navigation";
-import { PATHS } from "./TabRoutesNav";
+import { PATHS } from "./project/TabRoutesNav";
 import SidebarUserSurface from "./SidebarUserSurface";
 import ProjectRoutes from "./ProjectRoutes";
 

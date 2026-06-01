@@ -5,8 +5,8 @@ import { authConfig } from "@/lib/auth/auth";
 import { Metadata } from "next";
 import SessionHydrator from "@/components/common/SessionHydrator";
 import { redirect } from "next/navigation";
-import ToastLayout from "@/components/layout/project/ToastLayout";
-import SidebarNavigation from "@/components/layout/project/SidebarNavigation";
+import ToastLayout from "@/components/layout/ToastLayout";
+import SidebarNavigation from "@/components/layout/SidebarNavigation";
 
 const inter = Inter({
   subsets: ["latin"],

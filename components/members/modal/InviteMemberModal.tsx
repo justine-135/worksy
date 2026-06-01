@@ -8,7 +8,6 @@ import { UserResponseDTO } from "@/types/user.dto";
 import { useEffect, useState } from "react";
 import UserSurface from "./UserSurface";
 import { Modal } from "@heroui/react/modal";
-import useInviteMember from "@/hooks/member/useInviteMember";
 import { useForm } from "react-hook-form";
 import {
   InviteMemberInput,
@@ -18,6 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "@heroui/react/toast";
 import { Form } from "@heroui/react/form";
 import { useSessionStore } from "@/store/session.store";
+import useCreateInvite from "@/hooks/invite/useCreateInvite";
 
 const InviteMemberButton = ({ onClick }: { onClick: () => void }) => {
   return <Button onClick={onClick}>Invite Member</Button>;
@@ -27,8 +27,9 @@ export default function InviteMemberModal() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [member, setMember] = useState<UserResponseDTO | undefined>(undefined);
   const projectId = useSessionStore((s) => s.projectId);
+  const userId = useSessionStore((s) => s.userId);
 
-  const { mutation } = useInviteMember({ projectId });
+  const { mutation } = useCreateInvite({ receiverId: member?.id });
 
   const handleOpenChange = () => {
     if (!isOpen) {
@@ -50,27 +51,32 @@ export default function InviteMemberModal() {
 
   useEffect(() => {
     if (member) {
-      setValue("userId", member.id);
+      setValue("receiverId", member.id);
     } else {
-      setValue("userId", "");
+      setValue("receiverId", "");
     }
   }, [member, setValue]);
 
   const onSubmit = (data: InviteMemberInput) => {
+    if (!userId) {
+      toast.danger("User not authenticated");
+      return;
+    }
     mutation.mutate(
       {
         ...data,
+        senderId: userId,
       },
       {
         onSuccess: () => {
           reset();
           setIsOpen(false);
-          toast("Member invited successfully");
+          toast("Invite sent successfully");
         },
         onError: () => {
           reset();
           setIsOpen(false);
-          toast.danger("Failed to invite member");
+          toast.danger("Failed to send invite");
         },
       },
     );
@@ -96,7 +102,7 @@ export default function InviteMemberModal() {
                   value={projectId as string}
                 />
                 {errors.projectId && <p>{errors.projectId.message}</p>}
-                {errors.userId && <p>{errors.userId.message}</p>}
+                {errors.receiverId && <p>{errors.receiverId.message}</p>}
               </Modal.Body>
               <Modal.Footer>
                 <CustomButton
