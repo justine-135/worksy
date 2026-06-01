@@ -9,10 +9,10 @@ import { useParams } from "next/navigation";
 import { PATHS } from "./project/TabRoutesNav";
 import SidebarUserSurface from "./SidebarUserSurface";
 import ProjectRoutes from "./ProjectRoutes";
+import { TbColumns2 } from "react-icons/tb";
+import { BsBoxFill } from "react-icons/bs";
 
-const SkeletonItem = () => (
-  <Skeleton className="h-9 w-53.5 rounded-full ml-3 pr-18" />
-);
+const SkeletonItem = () => <Skeleton className="h-9 w-53.5 rounded-full" />;
 
 const SkeletonComponent = () => {
   return (
@@ -34,11 +34,20 @@ export default function SidebarNavigation() {
   const params = useParams();
 
   return (
-    <nav className="SidebarNavigation flex flex-col p-2 fixed border-r border-color-border min-h-screen">
+    <nav className="SidebarNavigation flex flex-col p-4 fixed border-r border-color-border min-h-screen">
       <div className="flex flex-col">
+        <div className="flex items-center justify-between mb-4">
+          <BsBoxFill />
+          <TbColumns2 />
+        </div>
         <ProjectRoutes />
         {isLoading && <SkeletonComponent />}
-        <div className="flex flex-col space-y-1">
+        <div className="flex flex-col mt-4 space-y-1">
+          {data?.length && (
+            <span className="text-sm font-medium text-default-500">
+              Projects
+            </span>
+          )}
           {data?.map((route) => {
             const isActive = route.id === params.id;
 

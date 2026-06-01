@@ -37,7 +37,7 @@ export default async function ProjectLayout({
     <div className={`${inter.className} font-project`}>
       <ToastLayout>
         <div className="flex">
-          <div className="w-57.5">
+          <div className="w-61.5">
             <SidebarNavigation />
           </div>
           <main className="flex-1 min-w-0">{children}</main>

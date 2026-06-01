@@ -1,6 +1,5 @@
 import { ProjectInviteResponseDTO } from "@/types/projectInvite.dto";
 import { Typography } from "@heroui/react/typography";
-import EmptyCustom from "../empty/EmptyCustom";
 import { Surface } from "@heroui/react/surface";
 import Image from "next/image";
 import { PROJECT_IMAGE_PLACEHOLDER } from "../projects/ProjectCard";
@@ -57,7 +56,10 @@ const InviteInformation = ({
   };
 
   return (
-    <div className="flex items-center gap-4">
+    <Surface
+      className="flex items-center gap-4 p-2 rounded-3xl"
+      variant="secondary"
+    >
       <div className="relative aspect-square w-14 overflow-hidden rounded-2xl">
         <Image
           alt={`${project.title} project icon`}
@@ -73,7 +75,7 @@ const InviteInformation = ({
         </Typography.Paragraph>
         <div className="flex items-center gap-5">
           <InviteInformationTypography>
-            <Avatar size="sm">
+            <Avatar className="size-5">
               <Avatar.Image
                 alt={`${invite.userSender.name || "User"} project icon`}
                 className="pointer-events-none object-cover select-none"
@@ -103,7 +105,7 @@ const InviteInformation = ({
         />
         <CustomButton variant="outline" title="Decline" />
       </div>
-    </div>
+    </Surface>
   );
 };
 
@@ -112,16 +114,14 @@ interface InvitesListProps {
 }
 
 export default function InvitesList({ data }: InvitesListProps) {
-  if (!data?.length) return <EmptyCustom message="No invites yet" />;
-
   return (
     <div className="flex flex-wrap w-full">
       {data?.map((invite) => {
         const { id, project } = invite;
         return (
-          <Surface key={id} className="w-full p-2">
+          <div key={id} className="w-full p-2 space-y-2">
             <InviteInformation project={project} invite={invite} />
-          </Surface>
+          </div>
         );
       })}
     </div>
