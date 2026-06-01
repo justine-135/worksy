@@ -1,17 +1,11 @@
-import { CreateProjectMemberDTO } from "@/types/projectMember.dto";
-
-export default async function inviteMember({
-  userId,
-  projectId,
-}: CreateProjectMemberDTO) {
+export default async function inviteMember({ inviteId }: { inviteId: string }) {
   const response = await fetch("/api/member/invite", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      user_id: userId,
-      project_id: projectId,
+      invite_id: inviteId,
     }),
   });
 

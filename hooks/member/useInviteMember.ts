@@ -4,15 +4,15 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 
 export default function useInviteMember({
-  projectId,
+  receiverId,
 }: {
-  projectId?: string | null;
+  receiverId?: string | null;
 }) {
   const queryClient = useQueryClient();
 
   const rolesQueryKey = useMemo(
-    () => QUERY_KEYS.PROJECT_MEMBERS(projectId),
-    [projectId],
+    () => QUERY_KEYS.INVITES(receiverId),
+    [receiverId],
   );
 
   const invalidateMembers = async () => {

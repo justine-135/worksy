@@ -1,3 +1,5 @@
+import { StatusDTO } from "@/enum/member";
+import { InviteStatusDTO } from "@/enum/projectInvite.enum";
 import { prisma } from "@/lib/prisma";
 import { CreateProjectInviteDTO } from "@/types/projectInvite.dto";
 
@@ -25,6 +27,7 @@ export async function getProjectInvitesByReceiverId({
   return prisma.projectInvite.findMany({
     where: {
       receiverId,
+      status: "PENDING",
     },
     select: {
       id: true,
@@ -44,5 +47,43 @@ export async function getProjectInvitesByReceiverId({
       },
       createdAt: true,
     },
+  });
+}
+
+export async function acceptInvite(inviteId: string) {
+  return prisma.$transaction(async (tx) => {
+    const invite = await tx.projectInvite.findUniqueOrThrow({
+      where: {
+        id: inviteId,
+        status: InviteStatusDTO.PENDING,
+      },
+    });
+
+    const member = await tx.projectMember.create({
+      data: {
+        user: {
+          connect: {
+            id: invite.receiverId,
+          },
+        },
+        project: {
+          connect: {
+            id: invite.projectId,
+          },
+        },
+        status: StatusDTO.pending,
+      },
+    });
+
+    await tx.projectInvite.update({
+      where: {
+        id: inviteId,
+      },
+      data: {
+        status: InviteStatusDTO.ACCEPTED,
+      },
+    });
+
+    return member;
   });
 }

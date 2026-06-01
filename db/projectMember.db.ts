@@ -1,9 +1,5 @@
-import { StatusDTO } from "@/enum/member";
 import { prisma } from "@/lib/prisma";
-import {
-  CreateProjectMemberDTO,
-  EditMemberStatusRoleDTO,
-} from "@/types/projectMember.dto";
+import { EditMemberStatusRoleDTO } from "@/types/projectMember.dto";
 import { UserProjectParamsDTO } from "@/types/taskboard.dto";
 
 export async function getProjectMembers({ projectId }: { projectId: string }) {
@@ -35,20 +31,6 @@ export async function getProjectMember({
         userId,
         projectId,
       },
-    },
-  });
-}
-
-export async function createMember(data: CreateProjectMemberDTO) {
-  return prisma.projectMember.create({
-    data: {
-      user: {
-        connect: { id: data.userId },
-      },
-      project: {
-        connect: { id: data.projectId },
-      },
-      status: StatusDTO.pending,
     },
   });
 }

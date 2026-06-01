@@ -9,6 +9,9 @@ import CustomButton from "../button/CustomButton";
 import { MdPerson } from "react-icons/md";
 import { GoClock } from "react-icons/go";
 import { Avatar } from "@heroui/react/avatar";
+import { ProjectsResponseDTO } from "@/types/project.dto";
+import useInviteMember from "@/hooks/member/useInviteMember";
+import { useSessionStore } from "@/store/session.store";
 
 const InviteInformationTypography = ({
   children,
@@ -25,6 +28,77 @@ const InviteInformationTypography = ({
   );
 };
 
+const InviteInformation = ({
+  project,
+  invite,
+}: {
+  project: Omit<ProjectsResponseDTO, "owner">;
+  invite: ProjectInviteResponseDTO;
+}) => {
+  const userId = useSessionStore((state) => state.userId);
+  const { mutation: inviteMemberMutation } = useInviteMember({
+    receiverId: userId,
+  });
+  const membersCount = project.members.length || 0;
+
+  const handleAcceptInvite = () => {
+    if (!userId) return;
+    inviteMemberMutation.mutate({
+      inviteId: invite.id,
+    });
+  };
+
+  return (
+    <div className="flex items-center gap-4">
+      <div className="relative aspect-square w-14 overflow-hidden rounded-2xl">
+        <Image
+          alt={`${project.title} project icon`}
+          className="pointer-events-none object-cover select-none"
+          fill
+          sizes="56px"
+          src={project.imageUrl || PROJECT_IMAGE_PLACEHOLDER}
+        />
+      </div>
+      <div>
+        <Typography.Paragraph weight="medium">
+          {project.title}
+        </Typography.Paragraph>
+        <div className="flex items-center gap-5">
+          <InviteInformationTypography>
+            <Avatar size="sm">
+              <Avatar.Image
+                alt={`${invite.userSender.name || "User"} project icon`}
+                className="pointer-events-none object-cover select-none"
+                src={invite.userSender.image || PROJECT_IMAGE_PLACEHOLDER}
+              />
+              <Avatar.Fallback>B</Avatar.Fallback>
+            </Avatar>
+            {invite.userSender.name}
+          </InviteInformationTypography>
+          <InviteInformationTypography>
+            <MdPerson />
+            {membersCount} {membersCount === 1 ? "member" : "members"}
+          </InviteInformationTypography>
+          <InviteInformationTypography>
+            <GoClock />
+            {timeAgo(invite.createdAt)}
+          </InviteInformationTypography>
+        </div>
+      </div>
+      <div className="ml-auto flex gap-2">
+        <CustomButton
+          variant="outline"
+          title="Accept"
+          onClick={handleAcceptInvite}
+          isPending={inviteMemberMutation.isPending}
+          loadingTitle="Accepting"
+        />
+        <CustomButton variant="outline" title="Decline" />
+      </div>
+    </div>
+  );
+};
+
 interface InvitesListProps {
   data?: ProjectInviteResponseDTO[];
 }
@@ -36,52 +110,9 @@ export default function InvitesList({ data }: InvitesListProps) {
     <div className="flex flex-wrap w-full">
       {data?.map((invite) => {
         const { id, project } = invite;
-        const membersCount = project.members.length || 0;
         return (
           <Surface key={id} className="w-full p-2">
-            <div className="flex items-center gap-4">
-              <div className="relative aspect-square w-14 overflow-hidden rounded-2xl">
-                <Image
-                  alt={`${project.title} project icon`}
-                  className="pointer-events-none object-cover select-none"
-                  fill
-                  sizes="56px"
-                  src={project.imageUrl || PROJECT_IMAGE_PLACEHOLDER}
-                />
-              </div>
-              <div>
-                <Typography.Paragraph weight="medium">
-                  {project.title}
-                </Typography.Paragraph>
-                <div className="flex items-center gap-5">
-                  <InviteInformationTypography>
-                    <Avatar size="sm">
-                      <Avatar.Image
-                        alt={`${invite.userSender.name || "User"} project icon`}
-                        className="pointer-events-none object-cover select-none"
-                        src={
-                          invite.userSender.image || PROJECT_IMAGE_PLACEHOLDER
-                        }
-                      />
-                      <Avatar.Fallback>B</Avatar.Fallback>
-                    </Avatar>
-                    {invite.userSender.name}
-                  </InviteInformationTypography>
-                  <InviteInformationTypography>
-                    <MdPerson />
-                    {membersCount} {membersCount === 1 ? "member" : "members"}
-                  </InviteInformationTypography>
-                  <InviteInformationTypography>
-                    <GoClock />
-                    {timeAgo(invite.createdAt)}
-                  </InviteInformationTypography>
-                </div>
-              </div>
-              <div className="ml-auto flex gap-2">
-                <CustomButton variant="outline" title="Accept" />
-                <CustomButton variant="outline" title="Decline" />
-              </div>
-            </div>
+            <InviteInformation project={project} invite={invite} />
           </Surface>
         );
       })}

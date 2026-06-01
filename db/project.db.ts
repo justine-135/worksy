@@ -63,7 +63,6 @@ export async function createProjectDTO(data: CreateProjectDTO) {
 export async function getProjects({ userId }: { userId: string }) {
   const projects = await prisma.project.findMany({
     where: {
-      ownerId: userId,
       members: {
         some: {
           userId,
