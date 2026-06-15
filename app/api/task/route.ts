@@ -44,19 +44,12 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
-  const { title, assignees, description, task_board_id, priority } = body;
+  const { title, assignees, description, task_board_id, priority, project_id } =
+    body;
 
-  if (!title || !task_board_id) {
+  if (!title || !task_board_id || !project_id) {
     return Response.json({ error: "Invalid payload" }, { status: 400 });
   }
-
-  console.log("Creating task with data:", {
-    title,
-    assignees,
-    description,
-    task_board_id,
-    priority,
-  });
 
   await createTaskDB({
     title,
@@ -64,6 +57,7 @@ export async function POST(req: Request) {
     description,
     taskBoardId: task_board_id,
     priority,
+    projectId: project_id,
   });
 
   return Response.json({ success: true });

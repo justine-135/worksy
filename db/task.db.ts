@@ -17,7 +17,9 @@ export async function createTaskDB(data: CreateTaskDTO) {
 
   const lastTicket = await prisma.task.findFirst({
     where: {
-      taskBoardId: data.taskBoardId,
+      taskBoard: {
+        projectId: data.projectId,
+      },
     },
     select: {
       ticketNumber: true,

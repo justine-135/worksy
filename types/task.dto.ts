@@ -19,6 +19,7 @@ export interface CreateTaskDTO {
   priority: string;
   taskBoardId: string;
   assignees?: string[];
+  projectId: string;
 }
 
 export type UpdateTaskDTO = Partial<CreateTaskDTO>;
