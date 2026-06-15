@@ -9,6 +9,7 @@ import { StatusDTO } from "@/enum/member";
 import ViewMemberDrawer from "./drawer/ViewMemberDrawer";
 import { timeAgo } from "@/utils/timeAgo";
 import EditMember from "./modal/EditMember";
+import { useSessionStore } from "@/store/session.store";
 
 const StatusChip = ({ status }: { status: StatusDTO }) => {
   if (status === StatusDTO.active) {
@@ -33,6 +34,9 @@ const StatusChip = ({ status }: { status: StatusDTO }) => {
 };
 
 export default function memberTableColumns() {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const userId = useSessionStore((state) => state.userId);
+
   const columns: ColumnDef<ProjectMemberTableDTO>[] = [
     {
       id: "name",
@@ -43,7 +47,16 @@ export default function memberTableColumns() {
         </SortableColumnHeader>
       ),
       sortable: true,
-      cell: (user) => user.name,
+      cell: (member) => {
+        return (
+          <>
+            {member.name}
+            {member.user.id === userId && (
+              <span className="text-muted text-xs ml-2">(You)</span>
+            )}
+          </>
+        );
+      },
     },
     {
       id: "role",
@@ -52,7 +65,7 @@ export default function memberTableColumns() {
           Role
         </SortableColumnHeader>
       ),
-      cell: (user) => user.role.name ?? "Unassigned",
+      cell: (member) => member.role.name ?? "Unassigned",
     },
     {
       id: "email",
@@ -62,11 +75,11 @@ export default function memberTableColumns() {
         </SortableColumnHeader>
       ),
       sortable: true,
-      cell: (user) => (
+      cell: (member) => (
         <div className="flex flex-col">
-          <span>{user.email}</span>
+          <span>{member.email}</span>
           <span className="text-muted text-xs mt-1">
-            Joined {timeAgo(user.createdAt)}
+            Joined {timeAgo(member.createdAt)}
           </span>
         </div>
       ),
@@ -79,20 +92,20 @@ export default function memberTableColumns() {
         </SortableColumnHeader>
       ),
       sortable: true,
-      cell: (user) => <StatusChip status={user.status} />,
+      cell: (member) => <StatusChip status={member.status} />,
     },
     {
       id: "actions",
       header: "Actions",
-      cell: (user) => {
+      cell: (member) => {
         return (
           <div className="flex items-center gap-1">
             <EditMember
-              status={user.status}
-              role={user.role}
-              userId={user.id}
+              status={member.status}
+              role={member.role}
+              userId={member.id}
             />
-            <ViewMemberDrawer userId={user.id} />
+            <ViewMemberDrawer userId={member.id} />
             <Button isIconOnly size="sm" variant="danger-soft">
               <BiTrash />
             </Button>

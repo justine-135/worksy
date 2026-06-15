@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import {
   UserProjectParamsDTO,
-  TaskBoardResponseDTO,
   UpdateTaskBoardPositionDTO,
   CreateTaskBoardDTO,
 } from "@/types/taskboard.dto";
@@ -34,25 +33,18 @@ export async function getTaskBoard({
         },
         select: {
           id: true,
+          ticketNumber: true,
           title: true,
           description: true,
           priority: true,
-          assignee: {
-            select: {
-              user: {
-                select: {
-                  name: true,
-                  image: true,
-                  id: true,
-                },
-              },
-            },
-          },
+          createdAt: true,
+          updatedAt: true,
+          assignees: true,
         },
       },
     },
   });
-  return data as TaskBoardResponseDTO[];
+  return data;
 }
 
 export async function updateTaskBoardOrdersDB({

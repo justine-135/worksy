@@ -17,8 +17,8 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import CustomButton from "../button/CustomButton";
-import ImageDropZone from "../fields/ImageDropZone";
+import CustomButton from "../../button/CustomButton";
+import ImageDropZone from "../../fields/ImageDropZone";
 import uploadProjectImage from "@/lib/project/uploadProjectImage.lib";
 import deleteProjectImage from "@/lib/project/deleteProjectImage.lib";
 import {

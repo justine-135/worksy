@@ -1,6 +1,7 @@
 export interface TaskResponseDTO {
   id: string;
   title: string;
+  ticketNumber: number;
   description?: string | null;
   priority?: string | null;
   assignee?: {
@@ -17,7 +18,7 @@ export interface CreateTaskDTO {
   description?: string;
   priority: string;
   taskBoardId: string;
-  assigneeId: string;
+  assignees?: string[];
 }
 
 export type UpdateTaskDTO = Partial<CreateTaskDTO>;

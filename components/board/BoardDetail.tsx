@@ -18,7 +18,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useState, useSyncExternalStore } from "react";
 import useDragState, { getColumnId, getTaskId } from "./useDragState";
 import { TaskBoardResponseDTO } from "@/types/taskboard.dto";
 import AddTaskModal from "./modal/AddTaskModal";
@@ -30,7 +30,7 @@ import useSaveTaskPositionMutation from "@/hooks/taskboard/useSaveTaskPositionMu
 import AddTaskBoardModal from "./modal/AddTaskBoardModal";
 import { ScrollShadow } from "@heroui/react/scroll-shadow";
 import { useSessionStore } from "@/store/session.store";
-import { QUERY_KEYS } from "@/constant/queryKeys";
+import useInvalidateQuery from "@/hooks/taskboard/useInvalidateQuery";
 
 const transition = {
   duration: 220,
@@ -44,7 +44,7 @@ const TaskCardContent = ({
   data: TaskResponseDTO;
   dragging?: boolean;
 }) => {
-  const { title, id, assignee } = data;
+  const { title, ticketNumber, assignee } = data;
 
   return (
     <Card
@@ -58,7 +58,7 @@ const TaskCardContent = ({
     >
       <Card.Header className="min-w-0">
         <Card.Title className="truncate">{title}</Card.Title>
-        <Card.Description>#{id}</Card.Description>
+        <Card.Description>#{ticketNumber}</Card.Description>
       </Card.Header>
 
       <Card.Footer className="flex min-w-0 gap-2">
@@ -183,6 +183,7 @@ const TaskBoardContent = ({
   onTaskDetailEnter,
   onTaskDetailLeave,
   sortable = true,
+  projectId,
 }: {
   column: TaskBoardResponseDTO;
   dragging?: boolean;
@@ -193,6 +194,7 @@ const TaskBoardContent = ({
   onTaskDetailEnter?: () => void;
   onTaskDetailLeave?: () => void;
   sortable?: boolean;
+  projectId?: string | null;
 }) => {
   return (
     <Card
@@ -220,7 +222,7 @@ const TaskBoardContent = ({
             </div>
           </div>
           <div className="ml-auto">
-            <AddTaskModal />
+            <AddTaskModal projectId={projectId} taskBoardID={column.id} />
           </div>
         </div>
 
@@ -240,7 +242,13 @@ const TaskBoardContent = ({
   );
 };
 
-const TaskBoard = ({ column }: { column: TaskBoardResponseDTO }) => {
+const TaskBoard = ({
+  column,
+  projectId,
+}: {
+  column: TaskBoardResponseDTO;
+  projectId?: string | null;
+}) => {
   const [isTaskDetailHovered, setIsTaskDetailHovered] = useState(false);
   const {
     attributes,
@@ -278,6 +286,7 @@ const TaskBoard = ({ column }: { column: TaskBoardResponseDTO }) => {
         setDragHandleRef={setActivatorNodeRef}
         onTaskDetailEnter={() => setIsTaskDetailHovered(true)}
         onTaskDetailLeave={() => setIsTaskDetailHovered(false)}
+        projectId={projectId}
       />
     </div>
   );
@@ -288,21 +297,16 @@ export default function BoardDetail() {
   const userId = useSessionStore((s) => s.userId);
   const projectId = useSessionStore((s) => s.projectId);
 
-  const taskBoardQueryKey = useMemo(
-    () => QUERY_KEYS.TASK_BOARDS(projectId, userId),
-    [projectId, userId],
+  const { taskBoardQueryKey, invalidateTaskBoards } = useInvalidateQuery(
+    projectId,
+    userId,
+    queryClient,
   );
 
   const { data, isLoading } = useGetTaskBoard({
     userId: userId || "",
     projectId: projectId || "",
   });
-
-  const invalidateTaskBoards = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: taskBoardQueryKey,
-    });
-  };
 
   const columns: TaskBoardResponseDTO[] = data ?? [];
 
@@ -390,7 +394,11 @@ export default function BoardDetail() {
               strategy={horizontalListSortingStrategy}
             >
               {columns.map((column) => (
-                <TaskBoard key={column.id} column={column} />
+                <TaskBoard
+                  key={column.id}
+                  column={column}
+                  projectId={projectId}
+                />
               ))}
             </SortableContext>
             <AddTaskBoardModal

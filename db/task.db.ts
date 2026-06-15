@@ -15,10 +15,33 @@ export async function createTaskDB(data: CreateTaskDTO) {
     },
   });
 
+  const lastTicket = await prisma.task.findFirst({
+    where: {
+      taskBoardId: data.taskBoardId,
+    },
+    select: {
+      ticketNumber: true,
+    },
+  });
+
   return prisma.task.create({
     data: {
-      ...data,
+      title: data.title,
+      ticketNumber: (lastTicket?.ticketNumber ?? 0) + 1,
+      description: data.description,
+      priority: data.priority,
+      taskBoardId: data.taskBoardId,
       order: (lastTask?.order ?? 0) + 1,
+      assignees: {
+        createMany: {
+          data: (data.assignees ?? []).map((memberId) => ({
+            projectMemberId: memberId,
+          })),
+        },
+      },
+    },
+    include: {
+      assignees: true,
     },
   });
 }

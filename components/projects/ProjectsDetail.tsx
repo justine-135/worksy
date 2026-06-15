@@ -1,5 +1,5 @@
 import { ProjectCard } from "@/components/projects/ProjectCard";
-import AddProjectModal from "./AddProjectModal";
+import AddProjectModal from "./modal/AddProjectModal";
 import { useGetProjects } from "@/hooks/project/useGetProjects";
 import { ProjectToast } from "../toast/ProjectToast";
 import CustomSearchField from "../fields/CustomSearchField";

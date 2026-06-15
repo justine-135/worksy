@@ -30,6 +30,12 @@ export interface ProjectMemberTableDTO {
     id: string;
     name: string;
   };
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    image: string | null;
+  };
   createdAt: string;
   status: StatusDTO;
 }

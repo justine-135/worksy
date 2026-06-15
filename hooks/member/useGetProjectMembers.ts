@@ -32,6 +32,7 @@ export function useGetProjectMembers({
         name: member?.role?.name,
         id: member?.role?.id,
       },
+      user: member.user,
       createdAt: member.createdAt as unknown as string,
       status: member.status,
     }));

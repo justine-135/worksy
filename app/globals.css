@@ -23,6 +23,7 @@
   --font-fredoka: var(--font-fredoka);
   --font-inter: var(--font-inter);
 }
+
 body {
   /* @apply bg-background text-foreground; */
   background: var(--background);
