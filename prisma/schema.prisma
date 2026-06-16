@@ -7,19 +7,21 @@ datasource db {
 }
 
 model Project {
-  id          String          @id @default(cuid())
-  title       String
-  description String?
-  imageUrl    String?         @map("image_url")
-  ownerId     String          @map("owner_id")
-  createdAt   DateTime        @default(now()) @map("created_at")
-  updatedAt   DateTime        @updatedAt @map("updated_at")
-  owner       User            @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-  members     ProjectMember[]
-  roles       Role[]
-  taskBoards  TaskBoard[]
-  invites ProjectInvite[]
-
+  id            String          @id                 @default(cuid())
+  title         String
+  description   String?
+  imageUrl      String?         @map("image_url")
+  ownerId       String          @map("owner_id")
+  ticketCounter Int             @default(0)         @map("ticket_counter") 
+  createdAt     DateTime        @default(now())     @map("created_at")
+  updatedAt     DateTime        @updatedAt          @map("updated_at")
+  owner         User            @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members       ProjectMember[]
+  roles         Role[]
+  taskBoards    TaskBoard[]
+  invites       ProjectInvite[]
+  tasks         Task[]   
+         
   @@map("project")
 }
 
@@ -38,16 +40,20 @@ model TaskBoard {
 
 model Task {
   id            String                @id @default(cuid())
-  ticketNumber  Int                   @default(autoincrement()) @map("ticket_number")
+  ticketNumber  Int                   @map("ticket_number")
   title         String
   description   String?
   priority      String?
   taskBoardId   String                @map("task_board_id")
+  projectId     String                @map("project_id")     
   createdAt     DateTime              @default(now()) @map("created_at")
   updatedAt     DateTime              @updatedAt @map("updated_at")
   order         Int                   @default(autoincrement())
   taskBoard     TaskBoard             @relation(fields: [taskBoardId], references: [id], onDelete: Cascade)
   assignees     TaskAssignment[]      
+  project       Project               @relation(fields: [projectId], references: [id], onDelete: Cascade) 
+
+  @@unique([projectId, ticketNumber]) 
   @@map("task")
 }
 
