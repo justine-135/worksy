@@ -37,7 +37,10 @@ export async function POST(req: Request) {
     return Response.json({ error: "Invalid payload" }, { status: 400 });
   }
 
-  await createRole({ name, permissions, projectId });
+  const data = await createRole({ name, permissions, projectId });
 
-  return Response.json({ success: true });
+  return Response.json({
+    success: true,
+    data,
+  });
 }

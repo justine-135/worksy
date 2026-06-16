@@ -1,14 +1,24 @@
 import { prisma } from "@/lib/prisma";
-import { AddRoleDTO, RolesResponseDTO } from "@/types/roles.dto";
+import { AddRoleDTO, EditRoleDTO } from "@/types/roles.dto";
 
 export async function getRoles({ projectId }: { projectId: string }) {
   const roles = await prisma.role.findMany({
     where: {
       projectId,
     },
+    select: {
+      id: true,
+      name: true,
+      createdAt: true,
+      permissions: {
+        select: {
+          key: true,
+        },
+      },
+    },
   });
 
-  return roles as RolesResponseDTO[];
+  return roles;
 }
 
 export async function createRole({ name, permissions, projectId }: AddRoleDTO) {
@@ -22,7 +32,7 @@ export async function createRole({ name, permissions, projectId }: AddRoleDTO) {
     },
   });
 
-  return role as RolesResponseDTO;
+  return role;
 }
 
 export async function getRoleSearch({
@@ -38,7 +48,7 @@ export async function getRoleSearch({
 
   return prisma.role.findMany({
     where: {
-      projectId, // Standard shorthand for { projectId: projectId }
+      projectId,
       OR: [
         {
           name: {
@@ -50,4 +60,29 @@ export async function getRoleSearch({
     },
     take: 10,
   });
+}
+
+export async function updateRole({ data }: { data: EditRoleDTO }) {
+  const newRole = await prisma.role.update({
+    where: {
+      id: data.roleId,
+    },
+    data: {
+      name: data.name,
+      permissions: {
+        deleteMany: {},
+
+        createMany: {
+          data: data.permissions.map((key) => ({
+            key: key,
+          })),
+        },
+      },
+    },
+    include: {
+      permissions: true,
+    },
+  });
+
+  return newRole;
 }

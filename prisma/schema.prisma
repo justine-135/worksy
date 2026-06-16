@@ -21,7 +21,7 @@ model Project {
   taskBoards    TaskBoard[]
   invites       ProjectInvite[]
   tasks         Task[]   
-         
+
   @@map("project")
 }
 
@@ -84,12 +84,12 @@ model Role {
 }
 
 model Permission {
-  id     String @id @default(cuid())
-  key    String
-  roleId String @map("role_id")
-  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  createdAt   DateTime        @default(now()) @map("created_at")
-  updatedAt   DateTime        @updatedAt @map("updated_at")
+  id          String    @id @default(cuid())
+  key         String
+  roleId      String    @map("role_id")
+  role        Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt      @map("updated_at")
 
   @@unique([key, roleId])
   @@map("permission")

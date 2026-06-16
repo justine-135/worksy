@@ -1,0 +1,25 @@
+import { EditRoleInput } from "@/types/roles.dto";
+
+export default async function editRole({
+  name,
+  permissions,
+  roleId,
+}: EditRoleInput) {
+  const response = await fetch(`/api/role/${roleId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name,
+      permissions,
+      role_id: roleId,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to create role");
+  }
+
+  return response.json();
+}
