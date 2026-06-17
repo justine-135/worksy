@@ -16,35 +16,22 @@ export async function PUT(
   const { id } = await params;
 
   const body = await req.json();
-  const { name, permissions, project_id, role_id } = body;
+  const { name, permissions } = body;
 
-  //   if (!role_id || !status) {
-  //     return Response.json({ error: "Invalid payload" }, { status: 400 });
-  //   }
-
-  console.log(id, name, permissions, project_id, role_id);
-
-  //   const data = await updateMemberStatusRole({
-  //     userId,
-  //     roleId: role_id,
-  //     status,
-  //   });
+  if (!name || !id) {
+    return Response.json({ error: "Invalid payload" }, { status: 400 });
+  }
 
   const data = await updateRole({
     data: {
       name,
-      roleId: role_id,
+      roleId: id,
       permissions,
     },
   });
 
   return Response.json({
     success: true,
-    id,
-    name,
-    permissions,
-    project_id,
-    role_id,
     data,
   });
 }

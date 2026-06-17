@@ -13,7 +13,6 @@ export default async function editRole({
     body: JSON.stringify({
       name,
       permissions,
-      role_id: roleId,
     }),
   });
 

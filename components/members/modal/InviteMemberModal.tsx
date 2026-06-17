@@ -1,7 +1,5 @@
 "use client";
 
-import { Button } from "@heroui/react/button";
-
 import CustomButton from "@/components/button/CustomButton";
 import { UserComboBox } from "./UserComboBox";
 import { UserResponseDTO } from "@/types/user.dto";
@@ -18,14 +16,16 @@ import { toast } from "@heroui/react/toast";
 import { Form } from "@heroui/react/form";
 import { useSessionStore } from "@/store/session.store";
 import useCreateInvite from "@/hooks/invite/useCreateInvite";
-
-const InviteMemberButton = ({ onClick }: { onClick: () => void }) => {
-  return <Button onClick={onClick}>Invite Member</Button>;
-};
+import { Permissions } from "@/enum/permissions.enum";
+import { usePermission } from "@/hooks/permission/usePermission";
 
 export default function InviteMemberModal() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [member, setMember] = useState<UserResponseDTO | undefined>(undefined);
+
+  const { hasPermission, isLoadingPermission } = usePermission();
+  const isPermission = hasPermission(Permissions.MemberInvite);
+
   const projectId = useSessionStore((s) => s.projectId);
   const userId = useSessionStore((s) => s.userId);
 
@@ -84,7 +84,12 @@ export default function InviteMemberModal() {
 
   return (
     <div>
-      <InviteMemberButton onClick={handleOpenChange} />
+      <CustomButton
+        onClick={handleOpenChange}
+        title="Invite member"
+        hidden={!isPermission}
+        isPending={isLoadingPermission}
+      />
       <Modal.Backdrop isOpen={isOpen} onOpenChange={setIsOpen}>
         <Modal.Container>
           <Modal.Dialog>

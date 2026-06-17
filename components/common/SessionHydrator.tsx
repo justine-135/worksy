@@ -12,11 +12,15 @@ export default function SessionHydrator({
 }) {
   const setUserId = useSessionStore((s) => s.setUserId);
   const setProjectId = useSessionStore((s) => s.setProjectId);
+  const fetchPermissions = useSessionStore((s) => s.fetchPermissions);
 
   useEffect(() => {
     if (userId) setUserId(userId);
-    if (projectId) setProjectId(projectId);
-  }, [userId, setUserId, projectId, setProjectId]);
+    if (projectId) {
+      setProjectId(projectId);
+      fetchPermissions(projectId, userId);
+    }
+  }, [userId, setUserId, projectId, setProjectId, fetchPermissions]);
 
   return null;
 }

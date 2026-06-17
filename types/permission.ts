@@ -1,6 +1,6 @@
 import { Permissions } from "@/enum/permissions.enum";
 
-export interface PermissionReponseDTO {
+export interface PermissionResponseDTO {
   id: string;
   key: string;
 }
