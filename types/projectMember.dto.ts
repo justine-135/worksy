@@ -1,4 +1,5 @@
 import { StatusDTO } from "@/enum/member";
+import { UserResponseDTO } from "./user.dto";
 
 export interface CreateProjectMemberDTO {
   userId: string;
@@ -10,12 +11,7 @@ export interface ProjectMemberResponseDTO {
   createdAt: Date;
   updatedAt: Date;
   status: StatusDTO;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    image: string | null;
-  };
+  user: UserResponseDTO;
   role: {
     id: string;
     name: string;
@@ -30,12 +26,7 @@ export interface ProjectMemberTableDTO {
     id: string;
     name: string;
   };
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    image: string | null;
-  };
+  user: UserResponseDTO;
   createdAt: string;
   status: StatusDTO;
 }

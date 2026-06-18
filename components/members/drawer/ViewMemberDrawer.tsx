@@ -34,7 +34,7 @@ const Detail = ({ label, value }: { label: string; value: string }) => {
   );
 };
 
-export default function ViewMemberDrawer({ userId }: { userId: string }) {
+export default function ViewMemberDrawer() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const projectId = useSessionStore((s) => s.projectId);
 

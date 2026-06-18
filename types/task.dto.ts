@@ -1,16 +1,16 @@
+import { UserResponseDTO } from "./user.dto";
+
 export interface TaskResponseDTO {
   id: string;
   title: string;
   ticketNumber: number;
   description?: string | null;
   priority?: string | null;
-  assignee?: {
-    user: {
-      name: string;
-      image: string;
-      id: string;
+  assignees?: {
+    projectMember: {
+      user: UserResponseDTO;
     };
-  };
+  }[];
 }
 
 export interface CreateTaskDTO {

@@ -1,0 +1,24 @@
+import { getTaskDetail } from "@/db/task.db";
+import { authConfig } from "@/lib/auth/auth";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
+
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const session = await getServerSession(authConfig);
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const { id } = await params;
+
+  if (!id) {
+    return Response.json({ error: "Missing id" }, { status: 400 });
+  }
+
+  const data = await getTaskDetail(id);
+
+  return Response.json(data);
+}

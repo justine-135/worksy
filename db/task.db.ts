@@ -134,3 +134,33 @@ export async function updateTaskPositionsDB({
     }
   });
 }
+
+export async function getTaskDetail(id: string) {
+  return await prisma.task.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      title: true,
+      description: true,
+      createdAt: true,
+      updatedAt: true,
+      priority: true,
+      assignees: {
+        select: {
+          projectMember: {
+            select: {
+              user: {
+                select: {
+                  image: true,
+                  name: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+}

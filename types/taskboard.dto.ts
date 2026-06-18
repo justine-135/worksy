@@ -5,6 +5,9 @@ export interface TaskBoardResponseDTO {
   title: string;
   order: number;
   tasks: TaskResponseDTO[];
+  project: {
+    title: string;
+  };
 }
 
 export interface UpdateTaskBoardPositionDTO {

@@ -39,7 +39,25 @@ export async function getTaskBoard({
           priority: true,
           createdAt: true,
           updatedAt: true,
-          assignees: true,
+          assignees: {
+            select: {
+              projectMember: {
+                select: {
+                  user: {
+                    select: {
+                      image: true,
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      project: {
+        select: {
+          title: true,
         },
       },
     },
