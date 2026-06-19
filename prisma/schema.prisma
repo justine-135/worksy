@@ -15,25 +15,32 @@ model Project {
   ticketCounter Int             @default(0)         @map("ticket_counter") 
   createdAt     DateTime        @default(now())     @map("created_at")
   updatedAt     DateTime        @updatedAt          @map("updated_at")
+  
   owner         User            @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
   members       ProjectMember[]
   roles         Role[]
   taskBoards    TaskBoard[]
   invites       ProjectInvite[]
   tasks         Task[]   
+  activityLog   ActivityLog[]
 
   @@map("project")
 }
 
 model TaskBoard {
-  id        String   @id @default(cuid())
-  title     String
-  order     Int      @default(autoincrement())
-  projectId String   @map("project_id")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  tasks     Task[]
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id                String              @id @default(cuid())
+  title             String
+  order             Int                 @default(autoincrement())
+  createdAt         DateTime            @default(now()) @map("created_at")
+  updatedAt         DateTime            @updatedAt @map("updated_at")
+  projectId         String              @map("project_id")
+  
+  project           Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  tasks             Task[]
+  fromStatusChanges StatusChangeDetail[] @relation("FromBoard")
+  toStatusChanges   StatusChangeDetail[] @relation("ToBoard")
 
   @@map("task_board")
 }
@@ -44,16 +51,20 @@ model Task {
   title         String
   description   String?
   priority      String?
+  order         Int                   @default(autoincrement())
+  createdAt     DateTime              @default(now())         @map("created_at")
+  updatedAt     DateTime              @updatedAt              @map("updated_at")
+
   taskBoardId   String                @map("task_board_id")
   projectId     String                @map("project_id")     
   creatorId     String                @map("creator_id")      
-  createdAt     DateTime              @default(now())         @map("created_at")
-  updatedAt     DateTime              @updatedAt              @map("updated_at")
-  order         Int                   @default(autoincrement())
-  taskBoard     TaskBoard             @relation(fields: [taskBoardId], references: [id], onDelete: Cascade)
+
   assignees     TaskAssignment[]      
+  activityLog   ActivityLog[]
+
+  taskBoard     TaskBoard             @relation(fields: [taskBoardId], references: [id], onDelete: Cascade)
   project       Project               @relation(fields: [projectId], references: [id], onDelete: Cascade) 
-  createdBy     ProjectMember         @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  createdBy     ProjectMember         @relation("createdBy", fields: [creatorId], references: [id], onDelete: Cascade)
 
   @@unique([projectId, ticketNumber]) 
   @@map("task")
@@ -104,19 +115,22 @@ enum ProjectMemberStatus {
 }
 
 model ProjectMember {
-  id                String  @id @default(cuid())
-  userId            String  @map("user_id")
-  projectId         String  @map("project_id")
-  roleId            String? @map("role_id")
-  project           Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  role              Role?   @relation(fields: [roleId], references: [id])
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String                @id @default(cuid())
+  userId            String                @map("user_id")
+  projectId         String                @map("project_id")
+  roleId            String?               @map("role_id")
+  createdAt         DateTime              @default(now()) @map("created_at")
+  updatedAt         DateTime              @updatedAt @map("updated_at")
+  
+  project           Project               @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  role              Role?                 @relation(fields: [roleId], references: [id])
+  user              User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
   status            ProjectMemberStatus  
   taskAssignments   TaskAssignment[]
-  createdTasks      Task[]
-  createdAt         DateTime        @default(now()) @map("created_at")
-  updatedAt         DateTime        @updatedAt @map("updated_at")
-  
+  createdTasks      Task[]                @relation("createdBy")
+  activityLog       ActivityLog[]
+
   @@unique([userId, projectId])
   @@map("project_member")
 }
@@ -139,6 +153,44 @@ model ProjectInvite {
   createdAt     DateTime        @default(now()) @map("created_at")
   updatedAt     DateTime        @updatedAt @map("updated_at")
   @@map("project_invite")
+}
+
+enum ActivityType {
+  STATUS_CHANGE
+  COMMENT
+  // Add types later like: TASK_CREATE, TASK_EDIT, ASSIGNEE_CHANGE
+}
+
+model ActivityLog {
+  id              String         @id @default(cuid())
+  type            ActivityType
+  taskId          String         @map("task_id")
+  projectId       String         @map("project_id")
+  actorId         String         @map("actor_id") 
+  createdAt       DateTime       @default(now()) @map("created_at")
+  
+  task            Task           @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  project         Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  actor           ProjectMember  @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  
+  // Optional sub-payloads (Only one will be filled depending on the ActivityType)
+  statusChange    StatusChangeDetail?
+  // comment         CommentDetail?
+
+  @@map("activity_log")
+}
+
+model StatusChangeDetail {
+  id              String      @id @default(cuid())
+  activityLogId   String      @unique @map("activity_log_id")
+  fromBoardId     String      @map("from_board_id")
+  toBoardId       String      @map("to_board_id")
+  
+  activityLog     ActivityLog @relation(fields: [activityLogId], references: [id], onDelete: Cascade)
+  fromBoard       TaskBoard   @relation("FromBoard", fields: [fromBoardId], references: [id], onDelete: Cascade)
+  toBoard         TaskBoard   @relation("ToBoard", fields: [toBoardId], references: [id], onDelete: Cascade)
+
+  @@map("status_change_detail")
 }
 
 model Account {

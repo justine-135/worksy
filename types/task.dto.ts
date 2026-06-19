@@ -1,4 +1,5 @@
 import { UserResponseDTO } from "./user.dto";
+import { ActivityLogResponseDTO } from "./activityLog.dto";
 
 export interface TaskResponseDTO {
   id: string;
@@ -11,6 +12,11 @@ export interface TaskResponseDTO {
       user: UserResponseDTO;
     };
   }[];
+  createdBy: {
+    user: UserResponseDTO;
+  };
+  createdAt: string;
+  activityLog: ActivityLogResponseDTO[];
 }
 
 export interface CreateTaskDTO {

@@ -1,7 +1,7 @@
 import { formatDistanceToNow } from "date-fns";
 
 export const timeAgo = (
-  date: string | Date | number,
+  date?: string | Date | number,
   options?: {
     addSuffix?: boolean;
   },

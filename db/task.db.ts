@@ -1,3 +1,4 @@
+import { ActivityLog } from "@/enum/activityLog.enum";
 import { prisma } from "@/lib/prisma";
 import { CreateTaskDTO, UpdateTaskPositionDTO } from "@/types/task.dto";
 import type { Prisma } from "@prisma/client";
@@ -82,15 +83,11 @@ export async function updateTaskPositionsDB({
       projectId,
       project: {
         members: {
-          some: {
-            userId,
-          },
+          some: { userId },
         },
       },
     },
-    select: {
-      id: true,
-    },
+    select: { id: true },
   });
 
   if (accessibleBoards.length !== orderedTaskIdsByBoard.length) {
@@ -103,16 +100,13 @@ export async function updateTaskPositionsDB({
       taskBoard: {
         projectId,
         project: {
-          members: {
-            some: {
-              userId,
-            },
-          },
+          members: { some: { userId } },
         },
       },
     },
     select: {
       id: true,
+      taskBoardId: true,
     },
   });
 
@@ -120,22 +114,46 @@ export async function updateTaskPositionsDB({
     throw new Error("Task is inaccessible");
   }
 
+  const currentMember = await prisma.projectMember.findUnique({
+    where: {
+      userId_projectId: { userId, projectId },
+    },
+    select: { id: true },
+  });
+
+  if (!currentMember) {
+    throw new Error("User is not a member of this project");
+  }
+
   await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    const isStatusChanged = task.taskBoardId !== taskBoardId;
+
+    if (isStatusChanged) {
+      await tx.activityLog.create({
+        data: {
+          type: ActivityLog.STATUS_CHANGE,
+          taskId: task.id,
+          projectId,
+          actorId: currentMember.id,
+          statusChange: {
+            create: {
+              fromBoardId: task.taskBoardId,
+              toBoardId: taskBoardId,
+            },
+          },
+        },
+      });
+    }
+
     await tx.task.update({
-      where: {
-        id: taskId,
-      },
-      data: {
-        taskBoardId,
-      },
+      where: { id: taskId },
+      data: { taskBoardId },
     });
 
     for (const board of orderedTaskIdsByBoard) {
       for (const [index, orderedTaskId] of board.taskIds.entries()) {
         await tx.task.update({
-          where: {
-            id: orderedTaskId,
-          },
+          where: { id: orderedTaskId },
           data: {
             taskBoardId: board.taskBoardId,
             order: index + 1,
@@ -180,6 +198,39 @@ export async function getTaskDetail(id: string) {
               image: true,
             },
           },
+        },
+      },
+      activityLog: {
+        select: {
+          type: true,
+          actor: {
+            select: {
+              user: {
+                select: {
+                  name: true,
+                  image: true,
+                },
+              },
+            },
+          },
+          statusChange: {
+            select: {
+              fromBoard: {
+                select: {
+                  title: true,
+                },
+              },
+              toBoard: {
+                select: {
+                  title: true,
+                },
+              },
+            },
+          },
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: "asc",
         },
       },
     },

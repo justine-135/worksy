@@ -5,6 +5,33 @@ import { useState } from "react";
 
 import { Card, Drawer } from "@heroui/react";
 import { useGetTaskDetail } from "@/hooks/task/useGetTaskDetail";
+import CustomAvatar from "@/components/avatar/CustomAvatar";
+import { timeAgo } from "@/utils/timeAgo";
+import { ActivityLog } from "@/enum/activityLog.enum";
+import { ActivityLogResponseDTO } from "@/types/activityLog.dto";
+
+const ActivityLogComponent = ({ log }: { log: ActivityLogResponseDTO }) => {
+  const { name, image } = log.actor.user;
+  const { fromBoard, toBoard } = log.statusChange;
+  return (
+    <div className="flex gap-4">
+      <CustomAvatar
+        avatarProps={{ className: "size-10" }}
+        avatarImageProps={{
+          src: image || "",
+          alt: name,
+        }}
+        avatarFallbackProps={{ className: "text-xs" }}
+        fallback={name}
+      />
+      <div className="flex flex-col w-full">
+        {log.type === ActivityLog.STATUS_CHANGE && (
+          <span className="mt-2">{`${name} moved from ${fromBoard?.title} to ${toBoard?.title}`}</span>
+        )}
+      </div>
+    </div>
+  );
+};
 
 interface TaskDetailDrawerProps {
   id: string;
@@ -16,10 +43,13 @@ export default function TaskDetailDrawer({ id, title }: TaskDetailDrawerProps) {
 
   const { data, isLoading } = useGetTaskDetail({ id, isOpen });
 
-  console.log(data);
-
   const handleOpenChange = () => {
     setIsOpen(!isOpen);
+  };
+
+  const createdBy = {
+    src: data?.createdBy.user.image,
+    name: data?.createdBy.user.name || "",
   };
 
   if (isLoading) return "Loading";
@@ -43,13 +73,36 @@ export default function TaskDetailDrawer({ id, title }: TaskDetailDrawerProps) {
                   value={data?.description || ""}
                   onChange={setDescription}
                 /> */}
-                <Card>
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: data?.description || "",
+                <div className="flex gap-4">
+                  <CustomAvatar
+                    avatarProps={{ className: "size-10" }}
+                    avatarImageProps={{
+                      src: createdBy.src || "",
+                      alt: createdBy.name,
                     }}
+                    avatarFallbackProps={{ className: "text-xs" }}
+                    fallback={createdBy.name}
                   />
-                </Card>
+                  <div className="flex flex-col w-full">
+                    <span>
+                      Opened by {createdBy.name} {timeAgo(data?.createdAt)}
+                    </span>
+                    <Card className="w-full">
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: data?.description || "",
+                        }}
+                      />
+                    </Card>
+                  </div>
+                </div>
+                {data?.activityLog.map((log, idx) => {
+                  return (
+                    <div key={idx}>
+                      <ActivityLogComponent log={log} />
+                    </div>
+                  );
+                })}
               </Drawer.Body>
               <Drawer.Footer className="mt-auto">
                 <CustomButton
