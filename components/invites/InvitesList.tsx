@@ -7,11 +7,11 @@ import { timeAgo } from "@/utils/timeAgo";
 import CustomButton from "../button/CustomButton";
 import { MdPerson } from "react-icons/md";
 import { GoClock } from "react-icons/go";
-import { Avatar } from "@heroui/react/avatar";
 import { ProjectsResponseDTO } from "@/types/project.dto";
 import useInviteMember from "@/hooks/member/useInviteMember";
 import { useSessionStore } from "@/store/session.store";
 import { toast } from "@heroui/react";
+import CustomAvatar from "../avatar/CustomAvatar";
 
 const InviteInformationTypography = ({
   children,
@@ -75,14 +75,14 @@ const InviteInformation = ({
         </Typography.Paragraph>
         <div className="flex items-center gap-5">
           <InviteInformationTypography>
-            <Avatar className="size-5">
-              <Avatar.Image
-                alt={`${invite.userSender.name || "User"} project icon`}
-                className="pointer-events-none object-cover select-none"
-                src={invite.userSender.image || PROJECT_IMAGE_PLACEHOLDER}
-              />
-              <Avatar.Fallback>B</Avatar.Fallback>
-            </Avatar>
+            <CustomAvatar
+              avatarProps={{ className: "size-5" }}
+              avatarImageProps={{
+                src: invite.userSender.image || PROJECT_IMAGE_PLACEHOLDER,
+                alt: invite.userSender.name,
+              }}
+              fallback={invite.userSender.name}
+            />
             {invite.userSender.name}
           </InviteInformationTypography>
           <InviteInformationTypography>

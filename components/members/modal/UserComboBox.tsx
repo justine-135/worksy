@@ -1,20 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import {
-  ComboBox,
-  Input,
-  Avatar,
-  AvatarImage,
-  AvatarFallback,
-  Label,
-  Description,
-} from "@heroui/react";
+import { ComboBox, Input, Label, Description } from "@heroui/react";
 
 import { useDebounce } from "@/hooks/common/useDebounce";
 import { useSearchUser } from "@/hooks/user/useSearchUser";
 import { UserResponseDTO } from "@/types/user.dto";
 import { useSessionStore } from "@/store/session.store";
+import CustomAvatar from "@/components/avatar/CustomAvatar";
 
 interface Props {
   setMember: (user: UserResponseDTO) => void;
@@ -59,11 +52,15 @@ export function UserComboBox({ setMember }: Props) {
                 setMember(user);
               }}
             >
-              <Avatar size="sm">
-                <AvatarImage src={user.image} />
-                <AvatarFallback>{user.name?.[0]}</AvatarFallback>
-              </Avatar>
-
+              <CustomAvatar
+                avatarProps={{ size: "sm" }}
+                avatarImageProps={{
+                  src: user?.image || "",
+                  alt: user?.name || "User",
+                }}
+                avatarFallbackProps={{ className: "text-xs" }}
+                fallback={user?.name || ""}
+              />
               <div className="flex flex-col">
                 <Label className="text-sm font-medium">{user.name}</Label>
                 <Description className="text-xs text-default-500">

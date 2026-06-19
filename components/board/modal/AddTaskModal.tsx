@@ -69,7 +69,7 @@ export default function AddTaskModal({
   };
 
   const onSubmit = (data: CreateTaskInput) => {
-    if (!projectId) return;
+    if (!projectId || !userId) return;
     mutation.mutate(
       {
         ...data,
@@ -78,6 +78,7 @@ export default function AddTaskModal({
         taskBoardId: taskBoardID,
         assignees: selectedAssignees,
         projectId,
+        userId,
       },
       {
         onSuccess: () => {

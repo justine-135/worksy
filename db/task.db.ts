@@ -30,6 +30,16 @@ export async function createTaskDB(data: CreateTaskDTO) {
 
     const currentTicketNumber = updatedProject.ticketCounter - 1;
 
+    const member = await tx.projectMember.findFirst({
+      where: {
+        projectId: data.projectId,
+        userId: data.userId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
     const res = await tx.task.create({
       data: {
         title: data.title,
@@ -46,6 +56,7 @@ export async function createTaskDB(data: CreateTaskDTO) {
             })),
           },
         },
+        creatorId: member?.id || "",
       },
       include: {
         assignees: true,
@@ -157,6 +168,16 @@ export async function getTaskDetail(id: string) {
                   email: true,
                 },
               },
+            },
+          },
+        },
+      },
+      createdBy: {
+        select: {
+          user: {
+            select: {
+              name: true,
+              image: true,
             },
           },
         },

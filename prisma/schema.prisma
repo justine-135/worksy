@@ -46,12 +46,14 @@ model Task {
   priority      String?
   taskBoardId   String                @map("task_board_id")
   projectId     String                @map("project_id")     
-  createdAt     DateTime              @default(now()) @map("created_at")
-  updatedAt     DateTime              @updatedAt @map("updated_at")
+  creatorId     String                @map("creator_id")      
+  createdAt     DateTime              @default(now())         @map("created_at")
+  updatedAt     DateTime              @updatedAt              @map("updated_at")
   order         Int                   @default(autoincrement())
   taskBoard     TaskBoard             @relation(fields: [taskBoardId], references: [id], onDelete: Cascade)
   assignees     TaskAssignment[]      
   project       Project               @relation(fields: [projectId], references: [id], onDelete: Cascade) 
+  createdBy     ProjectMember         @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
   @@unique([projectId, ticketNumber]) 
   @@map("task")
@@ -111,8 +113,10 @@ model ProjectMember {
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   status            ProjectMemberStatus  
   taskAssignments   TaskAssignment[]
+  createdTasks      Task[]
   createdAt         DateTime        @default(now()) @map("created_at")
   updatedAt         DateTime        @updatedAt @map("updated_at")
+  
   @@unique([userId, projectId])
   @@map("project_member")
 }

@@ -7,6 +7,7 @@ export default async function createTask({
   taskBoardId,
   assignees,
   projectId,
+  userId,
 }: CreateTaskDTO) {
   const response = await fetch("/api/task", {
     method: "POST",
@@ -20,6 +21,7 @@ export default async function createTask({
       task_board_id: taskBoardId,
       assignees,
       project_id: projectId,
+      user_id: userId,
     }),
   });
 

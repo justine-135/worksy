@@ -1,6 +1,7 @@
-import { Avatar, Card } from "@heroui/react";
+import { Card } from "@heroui/react";
 import Image from "next/image";
 import Link from "next/link";
+import CustomAvatar from "../avatar/CustomAvatar";
 
 interface Props {
   id: string;
@@ -39,13 +40,18 @@ export function ProjectCard({
           </Card.Description>
         </Card.Header>
         <Card.Footer className="flex gap-2">
-          <Avatar aria-label="User's profile picture" className="size-5">
-            <Avatar.Image
-              alt="User's avatar"
-              src="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/red.jpg"
-            />
-            <Avatar.Fallback className="text-xs">IH</Avatar.Fallback>
-          </Avatar>
+          <CustomAvatar
+            avatarProps={{
+              "aria-label": "User's profile picture",
+              className: "size-5",
+            }}
+            avatarImageProps={{
+              src: "https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/red.jpg",
+              alt: title,
+            }}
+            fallback={title || ""}
+          />
+
           <span className="text-xs">By {owner}</span>
         </Card.Footer>
       </Card>

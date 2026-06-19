@@ -1,6 +1,5 @@
 "use client";
 
-import { Avatar } from "@heroui/react/avatar";
 import { Card } from "@heroui/react/card";
 import {
   closestCorners,
@@ -32,6 +31,7 @@ import { ScrollShadow } from "@heroui/react/scroll-shadow";
 import { useSessionStore } from "@/store/session.store";
 import useInvalidateQuery from "@/hooks/taskboard/useInvalidateQuery";
 import TaskDetailDrawer from "./drawer/TaskDetailDrawer";
+import CustomAvatar from "../avatar/CustomAvatar";
 
 const transition = {
   duration: 220,
@@ -50,8 +50,6 @@ const TaskCardContent = ({
   const { id, title, ticketNumber, assignees } = data;
 
   const fullTicketId = `${projectTitle}-${String(ticketNumber).padStart(4, "0")}`;
-
-  // const imageUrl = assignees?.
 
   return (
     <Card
@@ -74,15 +72,13 @@ const TaskCardContent = ({
             const imageUrl = assignee.projectMember.user.image;
             const name = assignee.projectMember.user.name;
             return (
-              <Avatar className="size-6 shrink-0" key={idx}>
-                <Avatar.Image src={imageUrl || ""} alt={name} />
-                <Avatar.Fallback className="text-xs">
-                  {name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
-                </Avatar.Fallback>
-              </Avatar>
+              <CustomAvatar
+                key={idx}
+                avatarProps={{ className: "size-6 shrink-0" }}
+                avatarImageProps={{ src: imageUrl || "", alt: name }}
+                avatarFallbackProps={{ className: "text-xs" }}
+                fallback={name}
+              />
             );
           })}
         </div>
