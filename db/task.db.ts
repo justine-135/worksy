@@ -1,7 +1,8 @@
+import type { Prisma } from "@prisma/client";
+
 import { EActivityLog } from "@/enum/activityLog.enum";
 import { prisma } from "@/lib/prisma";
 import { CreateTaskDTO, UpdateTaskPositionDTO } from "@/types/task.dto";
-import type { Prisma } from "@prisma/client";
 
 export async function createTaskDB(data: CreateTaskDTO) {
   return prisma.$transaction(async (tx) => {

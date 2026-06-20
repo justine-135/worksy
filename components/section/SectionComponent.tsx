@@ -1,10 +1,11 @@
 "use client";
 
+import { useParams } from "next/navigation";
+
 import BoardComponent from "@/components/board/BoardComponent";
 import DashboardComponent from "@/components/dashboard/DashboardComponent";
 import MembersComponent from "@/components/members/MembersComponent";
 import RolesComponent from "@/components/roles/RolesComponent";
-import { useParams } from "next/navigation";
 
 const sectionMap: Record<string, React.ReactNode> = {
   dashboard: <DashboardComponent />,

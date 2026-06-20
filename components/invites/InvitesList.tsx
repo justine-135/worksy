@@ -1,17 +1,19 @@
-import { ProjectInviteResponseDTO } from "@/types/projectInvite.dto";
-import { Typography } from "@heroui/react/typography";
+import { toast } from "@heroui/react";
 import { Surface } from "@heroui/react/surface";
+import { Typography } from "@heroui/react/typography";
 import Image from "next/image";
-import { PROJECT_IMAGE_PLACEHOLDER } from "../projects/ProjectCard";
-import { timeAgo } from "@/utils/timeAgo";
-import CustomButton from "../common/custom/CustomButton";
-import { MdPerson } from "react-icons/md";
 import { GoClock } from "react-icons/go";
-import { ProjectsResponseDTO } from "@/types/project.dto";
+import { MdPerson } from "react-icons/md";
+
 import useInviteMember from "@/hooks/member/useInviteMember";
 import { useSessionStore } from "@/store/session.store";
-import { toast } from "@heroui/react";
+import { ProjectsResponseDTO } from "@/types/project.dto";
+import { ProjectInviteResponseDTO } from "@/types/projectInvite.dto";
+import { timeAgo } from "@/utils/timeAgo";
+
 import CustomAvatar from "../common/custom/CustomAvatar";
+import CustomButton from "../common/custom/CustomButton";
+import { PROJECT_IMAGE_PLACEHOLDER } from "../projects/ProjectCard";
 
 const InviteInformationTypography = ({
   children,

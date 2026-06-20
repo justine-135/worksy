@@ -1,5 +1,6 @@
-import { StatusDTO } from "@/enum/member";
 import { z } from "zod";
+
+import { StatusDTO } from "@/enum/member";
 
 export const editMemberSchema = z.object({
   status: z.enum(Object.values(StatusDTO)),

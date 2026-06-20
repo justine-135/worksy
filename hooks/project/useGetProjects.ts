@@ -1,9 +1,10 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+
 import { QUERY_KEYS } from "@/constant/queryKeys";
 import fetchProjects from "@/lib/project/fetchProjects.lib";
 import { ProjectsResponseDTO, TProjectFilter } from "@/types/project.dto";
-import { useQuery } from "@tanstack/react-query";
 
 export function useGetProjects({
   userId,

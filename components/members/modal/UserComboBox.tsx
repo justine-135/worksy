@@ -1,13 +1,13 @@
 "use client";
 
+import { ComboBox, Description,Input, Label } from "@heroui/react";
 import { useState } from "react";
-import { ComboBox, Input, Label, Description } from "@heroui/react";
 
+import CustomAvatar from "@/components/common/custom/CustomAvatar";
 import { useDebounce } from "@/hooks/common/useDebounce";
 import { useSearchUser } from "@/hooks/user/useSearchUser";
-import { UserResponseDTO } from "@/types/user.dto";
 import { useSessionStore } from "@/store/session.store";
-import CustomAvatar from "@/components/common/custom/CustomAvatar";
+import { UserResponseDTO } from "@/types/user.dto";
 
 interface Props {
   setMember: (user: UserResponseDTO) => void;

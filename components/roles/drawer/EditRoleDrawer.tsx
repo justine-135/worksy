@@ -2,12 +2,14 @@
 
 import { Button, Drawer, Separator } from "@heroui/react";
 import { toast } from "@heroui/react/toast";
-import { useSessionStore } from "@/store/session.store";
-import RoleForm from "./RoleForm";
-import { CreateRoleInput } from "@/lib/validations/addRole.schema";
-import useEditRoleMutation from "@/hooks/role/useEditRoleMutation";
 import { useState } from "react";
 import { BiPencil } from "react-icons/bi";
+
+import useEditRoleMutation from "@/hooks/role/useEditRoleMutation";
+import { CreateRoleInput } from "@/lib/validations/addRole.schema";
+import { useSessionStore } from "@/store/session.store";
+
+import RoleForm from "./RoleForm";
 
 interface EditRoleDrawerProps {
   onClose?: () => void;

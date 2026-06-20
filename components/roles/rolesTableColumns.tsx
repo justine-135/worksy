@@ -1,12 +1,13 @@
-import { ColumnDef } from "@/types/table";
-import SortableColumnHeader from "../common/custom/table/SortableColumn";
-
+import { Chip } from "@heroui/react";
 import { Button } from "@heroui/react/button";
 import { BiTrash } from "react-icons/bi";
+
 import { RolesTableDTO } from "@/types/roles.dto";
+import { ColumnDef } from "@/types/table";
 import { timeAgo } from "@/utils/timeAgo";
-import { Chip } from "@heroui/react";
 import { formatPermission } from "@/utils/transform-permissions";
+
+import SortableColumnHeader from "../common/custom/table/SortableColumn";
 import EditRoleDrawer from "./drawer/EditRoleDrawer";
 
 export default function rolesTableColumns() {

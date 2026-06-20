@@ -1,16 +1,18 @@
 "use client";
 
+import { Button } from "@heroui/react/button";
+import { Skeleton } from "@heroui/react/skeleton";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { BsBoxFill } from "react-icons/bs";
+import { TbColumns2 } from "react-icons/tb";
+
 import { useGetProjects } from "@/hooks/project/useGetProjects";
 import { useSessionStore } from "@/store/session.store";
-import { Button } from "@heroui/react/button";
-import Link from "next/link";
-import { Skeleton } from "@heroui/react/skeleton";
-import { useParams } from "next/navigation";
+
 import { PATHS } from "./project/TabRoutesNav";
-import SidebarUserSurface from "./SidebarUserSurface";
 import ProjectRoutes from "./ProjectRoutes";
-import { TbColumns2 } from "react-icons/tb";
-import { BsBoxFill } from "react-icons/bs";
+import SidebarUserSurface from "./SidebarUserSurface";
 
 const SkeletonItem = () => <Skeleton className="h-9 w-53.5 rounded-full" />;
 

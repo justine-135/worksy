@@ -1,9 +1,10 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+
 import { QUERY_KEYS } from "@/constant/queryKeys";
 import fetchUserSearch from "@/lib/user/fetchUserSearch.lib";
 import { UserResponseDTO } from "@/types/user.dto";
-import { useQuery } from "@tanstack/react-query";
 
 export function useSearchUser({
   query,

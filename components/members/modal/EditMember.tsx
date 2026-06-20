@@ -1,29 +1,27 @@
 "use client";
 
+import { ComboBox, Input, Label, ListBox, Select } from "@heroui/react";
 import { Button } from "@heroui/react/button";
+import { Form } from "@heroui/react/form";
+import { Modal } from "@heroui/react/modal";
+import { toast } from "@heroui/react/toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Key, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { BiPencil } from "react-icons/bi";
 
 import CustomButton from "@/components/common/custom/CustomButton";
-
-import { Modal } from "@heroui/react/modal";
-import { Controller, useForm } from "react-hook-form";
-
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "@heroui/react/toast";
-import { Form } from "@heroui/react/form";
-import { useSessionStore } from "@/store/session.store";
-import { BiPencil } from "react-icons/bi";
-import { ComboBox, Input, Label, ListBox, Select } from "@heroui/react";
-import { StatusDTO } from "@/enum/member";
 import { STATUS_LABEL } from "@/constant/member";
+import { StatusDTO } from "@/enum/member";
+import useUpdateMemberStatusRole from "@/hooks/member/useUpdateMemberStatusRole";
+import { useGetRoles } from "@/hooks/role/useGetRoles";
 import {
   EditMemberInput,
   editMemberSchema,
 } from "@/lib/validations/editMember.schema";
-import { Key, useState } from "react";
+import { useSessionStore } from "@/store/session.store";
 import { ProjectMemberTableDTO } from "@/types/projectMember.dto";
-import { useGetRoles } from "@/hooks/role/useGetRoles";
 import { RolesResponseDTO } from "@/types/roles.dto";
-import useUpdateMemberStatusRole from "@/hooks/member/useUpdateMemberStatusRole";
 
 const EditMemberButton = ({ onClick }: { onClick: () => void }) => {
   return (

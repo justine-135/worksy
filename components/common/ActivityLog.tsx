@@ -1,6 +1,8 @@
+import React from "react";
+
 import { EActivityLog } from "@/enum/activityLog.enum";
 import { ActivityLogResponseDTO } from "@/types/activityLog.dto";
-import React from "react";
+
 import CustomAvatar from "./custom/CustomAvatar";
 
 const LogItem = ({ log }: { log: ActivityLogResponseDTO }) => {

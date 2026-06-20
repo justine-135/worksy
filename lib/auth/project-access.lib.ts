@@ -1,5 +1,6 @@
-import { getProjectMember } from "@/db/projectMember.db";
 import { redirect } from "next/navigation";
+
+import { getProjectMember } from "@/db/projectMember.db";
 
 export async function assertProjectMember({
   userId,

@@ -1,6 +1,7 @@
+import { Surface } from "@heroui/react";
+
 import CustomAvatar from "@/components/common/custom/CustomAvatar";
 import { UserResponseDTO } from "@/types/user.dto";
-import { Surface } from "@heroui/react";
 
 interface Props {
   member: UserResponseDTO | undefined;

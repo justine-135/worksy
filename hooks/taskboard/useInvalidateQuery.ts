@@ -1,6 +1,7 @@
-import { QUERY_KEYS } from "@/constant/queryKeys";
 import { QueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
+
+import { QUERY_KEYS } from "@/constant/queryKeys";
 
 export default function useInvalidateQuery(
   projectId?: string | null,

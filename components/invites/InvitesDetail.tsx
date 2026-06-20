@@ -1,12 +1,14 @@
 "use client";
 
-import CustomSearchField from "../common/custom/CustomSearchField";
-import { useSessionStore } from "@/store/session.store";
 import { Skeleton, Surface, Typography } from "@heroui/react";
+
 import { useGetInvites } from "@/hooks/invite/useGetInvites";
-import InvitesList from "./InvitesList";
+import { useSessionStore } from "@/store/session.store";
 import { ProjectInviteResponseDTO } from "@/types/projectInvite.dto";
+
 import CustomEmpty from "../common/custom/CustomEmpty";
+import CustomSearchField from "../common/custom/CustomSearchField";
+import InvitesList from "./InvitesList";
 
 const SkeletonInviteInformation = () => {
   return (

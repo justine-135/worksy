@@ -1,13 +1,13 @@
 "use client";
 
-import CustomButton from "@/components/common/custom/CustomButton";
+import { Card, Drawer } from "@heroui/react";
 import { useState } from "react";
 
-import { Card, Drawer } from "@heroui/react";
-import { useGetTaskDetail } from "@/hooks/task/useGetTaskDetail";
-import CustomAvatar from "@/components/common/custom/CustomAvatar";
-import { timeAgo } from "@/utils/timeAgo";
 import ActivityLog from "@/components/common/ActivityLog";
+import CustomAvatar from "@/components/common/custom/CustomAvatar";
+import CustomButton from "@/components/common/custom/CustomButton";
+import { useGetTaskDetail } from "@/hooks/task/useGetTaskDetail";
+import { timeAgo } from "@/utils/timeAgo";
 
 interface TaskDetailDrawerProps {
   id: string;

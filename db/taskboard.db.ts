@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import {
-  UserProjectParamsDTO,
-  UpdateTaskBoardPositionDTO,
   CreateTaskBoardDTO,
+  UpdateTaskBoardPositionDTO,
+  UserProjectParamsDTO,
 } from "@/types/taskboard.dto";
 
 export async function getTaskBoard({

@@ -1,9 +1,9 @@
 "use client";
 
-import { CustomTable } from "../common/custom/table/CustomTable";
-
 import { useGetProjectMembers } from "@/hooks/member/useGetProjectMembers";
 import { useSessionStore } from "@/store/session.store";
+
+import { CustomTable } from "../common/custom/table/CustomTable";
 import memberTableColumns from "./memberTableColumns";
 
 export function MembersTable() {

@@ -1,9 +1,10 @@
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { z } from "zod";
+
 import { createProjectDTO } from "@/db/project.db";
 import { authConfig } from "@/lib/auth/auth";
 import { createProjectSchema } from "@/lib/validations/createProject.schema";
-import { getServerSession } from "next-auth";
-import { NextResponse } from "next/server";
-import { z } from "zod";
 
 const createProjectRequestSchema = createProjectSchema.extend({
   ownerId: z.string().min(1, "Owner is required"),

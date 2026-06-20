@@ -1,4 +1,5 @@
 import { ActivityLog } from "@/enum/activityLog.enum";
+
 import { UserResponseDTO } from "./user.dto";
 
 export interface ActivityLogResponseDTO {

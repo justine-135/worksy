@@ -1,8 +1,9 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+
 import fetchPermissions from "@/lib/permission/fetchPermissions";
 import { PermissionResponseDTO } from "@/types/permission";
-import { useQuery } from "@tanstack/react-query";
 
 export function useGetPermissions() {
   const { data, error, isLoading } = useQuery<PermissionResponseDTO[]>({

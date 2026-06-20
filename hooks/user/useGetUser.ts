@@ -1,10 +1,11 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+
 import { QUERY_KEYS } from "@/constant/queryKeys";
 import fetchUserById from "@/lib/user/fetchUserByID";
 import { UserBasicInfoDTO } from "@/types/user.dto";
-import { useQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
 
 export function useGetUser({ userId }: { userId: string | null }) {
   const { data, error, isLoading } = useQuery<UserBasicInfoDTO>({

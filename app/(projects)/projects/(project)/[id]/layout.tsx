@@ -1,10 +1,12 @@
 import "@/app/globals.css";
+
+import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
+
+import SessionHydrator from "@/components/common/SessionHydrator";
+import TabRoutesNav from "@/components/layout/project/TabRoutesNav";
 import { authConfig } from "@/lib/auth/auth";
 import { assertProjectMember } from "@/lib/auth/project-access.lib";
-import SessionHydrator from "@/components/common/SessionHydrator";
-import { redirect } from "next/navigation";
-import TabRoutesNav from "@/components/layout/project/TabRoutesNav";
 
 export default async function ProjectLayout({
   children,

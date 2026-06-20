@@ -1,7 +1,8 @@
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+
 import { createRole, getRoles } from "@/db/role.db";
 import { authConfig } from "@/lib/auth/auth";
-import { getServerSession } from "next-auth";
-import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
   const session = await getServerSession(authConfig);

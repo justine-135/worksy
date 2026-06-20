@@ -1,7 +1,8 @@
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+
 import { createTaskDB, updateTaskPositionsDB } from "@/db/task.db";
 import { authConfig } from "@/lib/auth/auth";
-import { getServerSession } from "next-auth";
-import { NextResponse } from "next/server";
 
 export async function PATCH(req: Request) {
   const session = await getServerSession(authConfig);

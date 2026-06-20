@@ -1,10 +1,12 @@
+import { Surface } from "@heroui/react/surface";
+import { signOut } from "next-auth/react";
+import { LuLogOut } from "react-icons/lu";
+
 import CustomButton from "@/components/common/custom/CustomButton";
 import { PROJECT_IMAGE_PLACEHOLDER } from "@/components/projects/ProjectCard";
 import { useGetUser } from "@/hooks/user/useGetUser";
 import { useSessionStore } from "@/store/session.store";
-import { Surface } from "@heroui/react/surface";
-import { signOut } from "next-auth/react";
-import { LuLogOut } from "react-icons/lu";
+
 import CustomAvatar from "../common/custom/CustomAvatar";
 
 export default function SidebarUserSurface() {

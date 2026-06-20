@@ -2,10 +2,11 @@
 
 import { Button } from "@heroui/react/button";
 import Link from "next/link";
-import { PATHS } from "./project/TabRoutesNav";
+import { usePathname } from "next/navigation";
 import { FiFolder } from "react-icons/fi";
 import { MdOutlineMailOutline } from "react-icons/md";
-import { usePathname } from "next/navigation";
+
+import { PATHS } from "./project/TabRoutesNav";
 
 export default function ProjectRoutes() {
   const path = usePathname();

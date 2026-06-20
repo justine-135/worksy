@@ -1,8 +1,9 @@
+import { upload } from "@vercel/blob/client";
+
 import {
   buildProjectImagePath,
   validateProjectImageFile,
 } from "@/lib/blob/projectImage";
-import { upload } from "@vercel/blob/client";
 
 export default async function uploadProjectImage({
   file,

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useSearchParams } from "next/navigation";
 import { toast } from "@heroui/react/toast";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useRef } from "react";
 
 export function ProjectToast() {
   const searchParams = useSearchParams();

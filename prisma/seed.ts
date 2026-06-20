@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+
 import { PermissionsSeed } from "./permissionsSeed";
 
 async function main() {

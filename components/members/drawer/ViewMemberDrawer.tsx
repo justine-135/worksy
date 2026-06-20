@@ -1,11 +1,5 @@
 "use client";
 
-import { Button } from "@heroui/react/button";
-
-import CustomButton from "@/components/common/custom/CustomButton";
-import { useState } from "react";
-
-import { useSessionStore } from "@/store/session.store";
 import {
   Avatar,
   AvatarFallback,
@@ -13,9 +7,13 @@ import {
   Label,
   Separator,
 } from "@heroui/react";
-
-import useAddRoleMutation from "@/hooks/role/useAddRoleMutation";
+import { Button } from "@heroui/react/button";
+import { useState } from "react";
 import { CgEye } from "react-icons/cg";
+
+import CustomButton from "@/components/common/custom/CustomButton";
+import useAddRoleMutation from "@/hooks/role/useAddRoleMutation";
+import { useSessionStore } from "@/store/session.store";
 
 const ViewButton = ({ onClick }: { onClick: () => void }) => {
   return (

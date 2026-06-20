@@ -1,18 +1,19 @@
 "use client";
 
+import { Form, Input, toast } from "@heroui/react";
 import { Button } from "@heroui/react/button";
 import { Modal } from "@heroui/react/modal";
-import { Form, Input, toast } from "@heroui/react";
-import { BiPlus } from "react-icons/bi";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import useCreateTaskBoardMutation from "@/hooks/taskboard/useCreateTaskBoardMutation";
 import { useForm } from "react-hook-form";
+import { BiPlus } from "react-icons/bi";
+
+import CustomButton from "@/components/common/custom/CustomButton";
+import useCreateTaskBoardMutation from "@/hooks/taskboard/useCreateTaskBoardMutation";
 import {
   CreateTaskBoardInput,
   createTaskBoardSchema,
 } from "@/lib/validations/createTaskBoard.schema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import CustomButton from "@/components/common/custom/CustomButton";
 
 const AddNewTaskBoard = ({ onClick }: { onClick: () => void }) => {
   const [isHovered, setIsHovered] = useState<boolean>(false);

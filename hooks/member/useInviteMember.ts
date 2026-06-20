@@ -1,7 +1,8 @@
-import { QUERY_KEYS } from "@/constant/queryKeys";
-import inviteMember from "@/lib/members/inviteMember.lib";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
+
+import { QUERY_KEYS } from "@/constant/queryKeys";
+import inviteMember from "@/lib/members/inviteMember.lib";
 
 export default function useInviteMember({
   receiverId,

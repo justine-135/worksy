@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
-import { authConfig } from "@/lib/auth/auth";
+
 import { checkPermissionDB } from "@/db/permission.db";
+import { authConfig } from "@/lib/auth/auth";
 
 export async function checkPermission(projectId: string) {
   const session = await getServerSession(authConfig);

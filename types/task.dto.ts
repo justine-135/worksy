@@ -1,5 +1,5 @@
-import { UserResponseDTO } from "./user.dto";
 import { ActivityLogResponseDTO } from "./activityLog.dto";
+import { UserResponseDTO } from "./user.dto";
 
 export interface TaskResponseDTO {
   id: string;

@@ -1,12 +1,13 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+
 import { QUERY_KEYS } from "@/constant/queryKeys";
 import fetchTaskBoard from "@/lib/taskboard/fetchTaskBoard.lib";
 import {
-  UserProjectParamsDTO,
   TaskBoardResponseDTO,
+  UserProjectParamsDTO,
 } from "@/types/taskboard.dto";
-import { useQuery } from "@tanstack/react-query";
 
 export function useGetTaskBoard({ userId, projectId }: UserProjectParamsDTO) {
   const { data, error, isLoading } = useQuery<TaskBoardResponseDTO[]>({

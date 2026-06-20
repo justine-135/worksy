@@ -1,8 +1,5 @@
 "use client";
 
-import { useForm, useWatch, Controller, FieldErrors } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Form } from "@heroui/react/form";
 import {
   Checkbox,
   CheckboxGroup,
@@ -12,13 +9,17 @@ import {
   Separator,
   TextField,
 } from "@heroui/react";
+import { Form } from "@heroui/react/form";
+import { toast } from "@heroui/react/toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, FieldErrors,useForm, useWatch } from "react-hook-form";
+
+import CustomButton from "@/components/common/custom/CustomButton";
 import { PERMISSIONS } from "@/constant/permissions";
 import {
   addRoleSchema,
   CreateRoleInput,
 } from "@/lib/validations/addRole.schema";
-import CustomButton from "@/components/common/custom/CustomButton";
-import { toast } from "@heroui/react/toast";
 
 interface RoleFormProps {
   initialValues?: { id: string; name: string; permissions: string[] };

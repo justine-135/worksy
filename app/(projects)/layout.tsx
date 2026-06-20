@@ -1,12 +1,14 @@
-import { Inter } from "next/font/google";
 import "@/app/globals.css";
-import { getServerSession } from "next-auth";
-import { authConfig } from "@/lib/auth/auth";
+
 import { Metadata } from "next";
-import SessionHydrator from "@/components/common/SessionHydrator";
+import { Inter } from "next/font/google";
 import { redirect } from "next/navigation";
-import ToastLayout from "@/components/layout/ToastLayout";
+import { getServerSession } from "next-auth";
+
+import SessionHydrator from "@/components/common/SessionHydrator";
 import SidebarNavigation from "@/components/layout/SidebarNavigation";
+import ToastLayout from "@/components/layout/ToastLayout";
+import { authConfig } from "@/lib/auth/auth";
 
 const inter = Inter({
   subsets: ["latin"],

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+
 import { useSessionStore } from "@/store/session.store";
 
 export default function SessionHydrator({

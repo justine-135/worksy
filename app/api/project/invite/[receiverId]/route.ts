@@ -1,10 +1,11 @@
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+
 import {
   createProjectInvite,
   getProjectInvitesByReceiverId,
 } from "@/db/projectInvite.db";
 import { authConfig } from "@/lib/auth/auth";
-import { getServerSession } from "next-auth";
-import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,

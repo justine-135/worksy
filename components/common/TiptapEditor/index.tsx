@@ -1,20 +1,21 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { createRoot, type Root } from "react-dom/client";
 import type { Editor, Range } from "@tiptap/core";
+import Image from "@tiptap/extension-image";
+import Link from "@tiptap/extension-link";
+import Mention, { type MentionNodeAttrs } from "@tiptap/extension-mention";
+import TextAlign from "@tiptap/extension-text-align";
+import Underline from "@tiptap/extension-underline";
 import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 import type {
   SuggestionKeyDownProps,
   SuggestionOptions,
   SuggestionProps,
 } from "@tiptap/suggestion";
-import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
-import TextAlign from "@tiptap/extension-text-align";
-import Link from "@tiptap/extension-link";
-import Image from "@tiptap/extension-image";
-import Mention, { type MentionNodeAttrs } from "@tiptap/extension-mention";
+import { type ReactNode,useEffect, useMemo, useRef, useState } from "react";
+import { createRoot, type Root } from "react-dom/client";
+
 import type { ProjectMemberTableDTO } from "@/types/projectMember.dto";
 
 const MAX_IMAGE_SIZE = 2 * 1024 * 1024;

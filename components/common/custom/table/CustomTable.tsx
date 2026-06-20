@@ -1,6 +1,5 @@
 "use client";
 
-import { ColumnDef } from "@/types/table";
 import type {
   Selection,
   SortDescriptor,
@@ -8,6 +7,8 @@ import type {
 } from "@heroui/react";
 import { Table } from "@heroui/react/table";
 import { useMemo, useState } from "react";
+
+import { ColumnDef } from "@/types/table";
 
 interface Props<T> {
   columns: ColumnDef<T>[];

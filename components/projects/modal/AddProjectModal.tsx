@@ -1,30 +1,32 @@
-import { Button } from "@heroui/react/button";
 import {
-  TextArea,
+  Form,
   Input,
   Label,
-  TextField,
-  Form,
-  toast,
   Modal,
+  TextArea,
+  TextField,
+  toast,
 } from "@heroui/react";
+import { Button } from "@heroui/react/button";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { BiPlus } from "react-icons/bi";
+
 import useCreateProjectMutation from "@/hooks/project/useCreateProjectMutation";
+import {
+  formatFileSize,
+  PROJECT_IMAGE_MAX_SIZE_BYTES,
+} from "@/lib/blob/projectImage";
+import deleteProjectImage from "@/lib/project/deleteProjectImage.lib";
+import uploadProjectImage from "@/lib/project/uploadProjectImage.lib";
 import {
   CreateProjectInput,
   createProjectSchema,
 } from "@/lib/validations/createProject.schema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { useState } from "react";
+
 import CustomButton from "../../common/custom/CustomButton";
 import ImageDropZone from "../../common/ImageDropZone";
-import uploadProjectImage from "@/lib/project/uploadProjectImage.lib";
-import deleteProjectImage from "@/lib/project/deleteProjectImage.lib";
-import {
-  PROJECT_IMAGE_MAX_SIZE_BYTES,
-  formatFileSize,
-} from "@/lib/blob/projectImage";
 
 interface Props {
   userId?: string | null;

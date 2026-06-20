@@ -1,8 +1,9 @@
 import { useGetRoles } from "@/hooks/role/useGetRoles";
-import { CustomTable } from "../common/custom/table/CustomTable";
-import rolesTableColumns from "./rolesTableColumns";
 import { useSessionStore } from "@/store/session.store";
 import { RolesTableDTO } from "@/types/roles.dto";
+
+import { CustomTable } from "../common/custom/table/CustomTable";
+import rolesTableColumns from "./rolesTableColumns";
 
 export default function RolesTable() {
   const projectId = useSessionStore((s) => s.projectId);

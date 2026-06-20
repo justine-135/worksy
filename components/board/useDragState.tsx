@@ -1,5 +1,3 @@
-import { TaskResponseDTO } from "@/types/task.dto";
-import { TaskBoardResponseDTO } from "@/types/taskboard.dto";
 import {
   DragEndEvent,
   DragOverEvent,
@@ -7,6 +5,9 @@ import {
 } from "@dnd-kit/core/dist/types/events";
 import { arrayMove } from "@dnd-kit/sortable";
 import { useEffect, useRef, useState } from "react";
+
+import { TaskResponseDTO } from "@/types/task.dto";
+import { TaskBoardResponseDTO } from "@/types/taskboard.dto";
 
 export const getTaskId = (taskId: string) => `task-${taskId}`;
 

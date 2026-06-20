@@ -1,14 +1,15 @@
-import {
-  PROJECT_IMAGE_ALLOWED_TYPES,
-  PROJECT_IMAGE_MAX_SIZE_BYTES,
-  isValidProjectImagePath,
-  projectImageUploadPayloadSchema,
-} from "@/lib/blob/projectImage";
-import { authConfig } from "@/lib/auth/auth";
 import { del } from "@vercel/blob";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
-import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+
+import { authConfig } from "@/lib/auth/auth";
+import {
+  isValidProjectImagePath,
+  PROJECT_IMAGE_ALLOWED_TYPES,
+  PROJECT_IMAGE_MAX_SIZE_BYTES,
+  projectImageUploadPayloadSchema,
+} from "@/lib/blob/projectImage";
 
 export async function POST(request: Request): Promise<NextResponse> {
   const session = await getServerSession(authConfig);

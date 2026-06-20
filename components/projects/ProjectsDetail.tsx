@@ -1,13 +1,15 @@
-import { ProjectCard } from "@/components/projects/ProjectCard";
-import AddProjectModal from "./modal/AddProjectModal";
-import { useGetProjects } from "@/hooks/project/useGetProjects";
-import { ProjectToast } from "../common/ProjectToast";
-import CustomSearchField from "../common/custom/CustomSearchField";
-import { useSessionStore } from "@/store/session.store";
 import { Skeleton, Typography } from "@heroui/react";
-import ProjectFilter from "./ProjectFilter";
 import { useState } from "react";
+
+import { ProjectCard } from "@/components/projects/ProjectCard";
+import { useGetProjects } from "@/hooks/project/useGetProjects";
+import { useSessionStore } from "@/store/session.store";
 import { ProjectsResponseDTO, TProjectFilter } from "@/types/project.dto";
+
+import CustomSearchField from "../common/custom/CustomSearchField";
+import { ProjectToast } from "../common/ProjectToast";
+import AddProjectModal from "./modal/AddProjectModal";
+import ProjectFilter from "./ProjectFilter";
 
 const ProjectSkeleton = () => {
   return <Skeleton className="w-51.25 h-42 rounded-xl" />;

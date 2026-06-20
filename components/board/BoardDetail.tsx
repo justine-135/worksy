@@ -1,6 +1,5 @@
 "use client";
 
-import { Card } from "@heroui/react/card";
 import {
   closestCorners,
   DndContext,
@@ -17,21 +16,24 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useCallback, useState, useSyncExternalStore } from "react";
-import useDragState, { getColumnId, getTaskId } from "./useDragState";
-import { TaskBoardResponseDTO } from "@/types/taskboard.dto";
-import AddTaskModal from "./modal/AddTaskModal";
-import { TaskResponseDTO } from "@/types/task.dto";
+import { Card } from "@heroui/react/card";
+import { ScrollShadow } from "@heroui/react/scroll-shadow";
 import { useQueryClient } from "@tanstack/react-query";
+import { useCallback, useState, useSyncExternalStore } from "react";
+
 import { useGetTaskBoard } from "@/hooks/taskboard/useGetTaskBoard";
+import useInvalidateQuery from "@/hooks/taskboard/useInvalidateQuery";
 import useSaveTaskBoardPositionMutation from "@/hooks/taskboard/useSaveTaskBoardPositionMutation";
 import useSaveTaskPositionMutation from "@/hooks/taskboard/useSaveTaskPositionMutation";
-import AddTaskBoardModal from "./modal/AddTaskBoardModal";
-import { ScrollShadow } from "@heroui/react/scroll-shadow";
 import { useSessionStore } from "@/store/session.store";
-import useInvalidateQuery from "@/hooks/taskboard/useInvalidateQuery";
-import TaskDetailDrawer from "./drawer/TaskDetailDrawer";
+import { TaskResponseDTO } from "@/types/task.dto";
+import { TaskBoardResponseDTO } from "@/types/taskboard.dto";
+
 import CustomAvatar from "../common/custom/CustomAvatar";
+import TaskDetailDrawer from "./drawer/TaskDetailDrawer";
+import AddTaskBoardModal from "./modal/AddTaskBoardModal";
+import AddTaskModal from "./modal/AddTaskModal";
+import useDragState, { getColumnId, getTaskId } from "./useDragState";
 
 const transition = {
   duration: 220,

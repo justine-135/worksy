@@ -1,8 +1,9 @@
+import type { Prisma } from "@prisma/client";
+
 import { ROLE_PRESETS } from "@/constant/role";
 import { StatusDTO } from "@/enum/member";
 import { prisma } from "@/lib/prisma";
 import { CreateProjectDTO, TProjectFilter } from "@/types/project.dto";
-import type { Prisma } from "@prisma/client";
 
 export async function createProjectDTO(data: CreateProjectDTO) {
   return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {

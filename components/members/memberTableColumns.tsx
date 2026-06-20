@@ -1,15 +1,16 @@
-import { ColumnDef } from "@/types/table";
-import SortableColumnHeader from "../common/custom/table/SortableColumn";
-
-import { ProjectMemberTableDTO } from "@/types/projectMember.dto";
+import { Chip } from "@heroui/react";
 import { Button } from "@heroui/react/button";
 import { BiTrash } from "react-icons/bi";
-import { Chip } from "@heroui/react";
+
 import { StatusDTO } from "@/enum/member";
-import ViewMemberDrawer from "./drawer/ViewMemberDrawer";
-import { timeAgo } from "@/utils/timeAgo";
-import EditMember from "./modal/EditMember";
 import { useSessionStore } from "@/store/session.store";
+import { ProjectMemberTableDTO } from "@/types/projectMember.dto";
+import { ColumnDef } from "@/types/table";
+import { timeAgo } from "@/utils/timeAgo";
+
+import SortableColumnHeader from "../common/custom/table/SortableColumn";
+import ViewMemberDrawer from "./drawer/ViewMemberDrawer";
+import EditMember from "./modal/EditMember";
 
 const StatusChip = ({ status }: { status: StatusDTO }) => {
   if (status === StatusDTO.active) {

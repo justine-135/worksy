@@ -1,9 +1,10 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+
 import { QUERY_KEYS } from "@/constant/queryKeys";
 import fetchTask from "@/lib/task/fetchTask.lib";
 import { TaskResponseDTO } from "@/types/task.dto";
-import { useQuery } from "@tanstack/react-query";
 
 export function useGetTaskDetail({
   id,

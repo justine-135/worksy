@@ -1,12 +1,13 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+
 import { QUERY_KEYS } from "@/constant/queryKeys";
 import fetchProjectMembers from "@/lib/members/fetchProjectMembers";
 import {
   ProjectMemberResponseDTO,
   ProjectMemberTableDTO,
 } from "@/types/projectMember.dto";
-import { useQuery } from "@tanstack/react-query";
 
 export function useGetProjectMembers({
   projectId,

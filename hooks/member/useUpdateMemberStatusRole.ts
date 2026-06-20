@@ -1,7 +1,8 @@
-import { QUERY_KEYS } from "@/constant/queryKeys";
-import editMemberStatusRole from "@/lib/members/editMemberStatusRole";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
+
+import { QUERY_KEYS } from "@/constant/queryKeys";
+import editMemberStatusRole from "@/lib/members/editMemberStatusRole";
 
 export default function useUpdateMemberStatusRole({
   projectId,

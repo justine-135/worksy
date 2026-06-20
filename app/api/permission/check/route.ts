@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkPermissionDB } from "@/db/permission.db"; // Safe to import here! (Server environment)
 import { getServerSession } from "next-auth";
+
+import { checkPermissionDB } from "@/db/permission.db"; // Safe to import here! (Server environment)
 import { authConfig } from "@/lib/auth/auth";
 
 export async function GET(req: NextRequest) {
