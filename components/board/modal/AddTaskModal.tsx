@@ -105,7 +105,7 @@ export default function AddTaskModal({
         <BiPlus scale={2} />
       </Button>
       <Modal.Backdrop isOpen={isOpen} onOpenChange={handleOpenChange}>
-        <Modal.Container size="lg">
+        <Modal.Container size="cover">
           <Modal.Dialog>
             <Modal.CloseTrigger />
             <Modal.Header>

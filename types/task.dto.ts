@@ -3,6 +3,7 @@ import { UserResponseDTO } from "./user.dto";
 
 export interface TaskResponseDTO {
   id: string;
+  projectId: string;
   title: string;
   ticketNumber: number;
   description?: string | null;

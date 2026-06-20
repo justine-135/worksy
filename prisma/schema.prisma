@@ -175,7 +175,7 @@ model ActivityLog {
   
   // Optional sub-payloads (Only one will be filled depending on the ActivityType)
   statusChange    StatusChangeDetail?
-  // comment         CommentDetail?
+  comment         CommentDetail?
 
   @@map("activity_log")
 }
@@ -191,6 +191,17 @@ model StatusChangeDetail {
   toBoard         TaskBoard   @relation("ToBoard", fields: [toBoardId], references: [id], onDelete: Cascade)
 
   @@map("status_change_detail")
+}
+
+model CommentDetail {
+  id              String      @id @default(cuid())
+  activityLogId   String      @unique @map("activity_log_id")
+  value           String
+  createdAt       DateTime    @default(now())     @map("created_at")
+  updatedAt       DateTime    @updatedAt          @map("updated_at")
+
+  activityLog     ActivityLog @relation(fields: [activityLogId], references: [id], onDelete: Cascade)
+  @@map("comment_detail")
 }
 
 model Account {

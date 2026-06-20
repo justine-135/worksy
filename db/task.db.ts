@@ -171,6 +171,8 @@ export async function getTaskDetail(id: string) {
       id,
     },
     select: {
+      id: true,
+      projectId: true,
       title: true,
       description: true,
       createdAt: true,
@@ -226,6 +228,12 @@ export async function getTaskDetail(id: string) {
                   title: true,
                 },
               },
+            },
+          },
+          comment: {
+            select: {
+              value: true,
+              createdAt: true,
             },
           },
           createdAt: true,

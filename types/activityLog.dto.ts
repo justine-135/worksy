@@ -1,9 +1,9 @@
-import { ActivityLog } from "@/enum/activityLog.enum";
+import { EActivityLog } from "@/enum/activityLog.enum";
 
 import { UserResponseDTO } from "./user.dto";
 
 export interface ActivityLogResponseDTO {
-  type: ActivityLog;
+  type: EActivityLog;
   actor: {
     user: UserResponseDTO;
   };
@@ -15,5 +15,19 @@ export interface ActivityLogResponseDTO {
       title: string;
     };
   };
+  comment?: {
+    value: string;
+    createdAt: string;
+  };
   createdAt: true;
 }
+
+export interface CommentDTO {
+  type: EActivityLog;
+  projectId: string;
+  userId: string;
+  taskId: string;
+  value: string;
+}
+
+export type CommentPayload = Partial<CommentDTO>;

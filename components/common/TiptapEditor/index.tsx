@@ -13,7 +13,7 @@ import type {
   SuggestionOptions,
   SuggestionProps,
 } from "@tiptap/suggestion";
-import { type ReactNode,useEffect, useMemo, useRef, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 
 import type { ProjectMemberTableDTO } from "@/types/projectMember.dto";
@@ -339,7 +339,7 @@ function TiptapEditor({ users = [], value = "", onChange }: TiptapEditorProps) {
     content: value,
     editorProps: {
       attributes: {
-        class: "min-h-44 px-3 py-3 text-sm outline-none",
+        class: "min-h-44 px-3 py-3 text-sm outline-none text-black",
       },
     },
     onUpdate({ editor }) {
