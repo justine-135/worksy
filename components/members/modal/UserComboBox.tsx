@@ -7,7 +7,7 @@ import { useDebounce } from "@/hooks/common/useDebounce";
 import { useSearchUser } from "@/hooks/user/useSearchUser";
 import { UserResponseDTO } from "@/types/user.dto";
 import { useSessionStore } from "@/store/session.store";
-import CustomAvatar from "@/components/avatar/CustomAvatar";
+import CustomAvatar from "@/components/common/custom/CustomAvatar";
 
 interface Props {
   setMember: (user: UserResponseDTO) => void;

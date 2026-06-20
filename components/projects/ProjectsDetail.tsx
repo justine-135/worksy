@@ -1,8 +1,8 @@
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import AddProjectModal from "./modal/AddProjectModal";
 import { useGetProjects } from "@/hooks/project/useGetProjects";
-import { ProjectToast } from "../toast/ProjectToast";
-import CustomSearchField from "../fields/CustomSearchField";
+import { ProjectToast } from "../common/ProjectToast";
+import CustomSearchField from "../common/custom/CustomSearchField";
 import { useSessionStore } from "@/store/session.store";
 import { Skeleton, Typography } from "@heroui/react";
 import ProjectFilter from "./ProjectFilter";

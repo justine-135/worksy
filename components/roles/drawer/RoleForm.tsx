@@ -17,7 +17,7 @@ import {
   addRoleSchema,
   CreateRoleInput,
 } from "@/lib/validations/addRole.schema";
-import CustomButton from "@/components/button/CustomButton";
+import CustomButton from "@/components/common/custom/CustomButton";
 import { toast } from "@heroui/react/toast";
 
 interface RoleFormProps {

@@ -31,7 +31,7 @@ import { ScrollShadow } from "@heroui/react/scroll-shadow";
 import { useSessionStore } from "@/store/session.store";
 import useInvalidateQuery from "@/hooks/taskboard/useInvalidateQuery";
 import TaskDetailDrawer from "./drawer/TaskDetailDrawer";
-import CustomAvatar from "../avatar/CustomAvatar";
+import CustomAvatar from "../common/custom/CustomAvatar";
 
 const transition = {
   duration: 220,

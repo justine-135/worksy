@@ -1,6 +1,6 @@
 "use client";
 
-import CustomButton from "@/components/button/CustomButton";
+import CustomButton from "@/components/common/custom/CustomButton";
 import { UserComboBox } from "./UserComboBox";
 import { UserResponseDTO } from "@/types/user.dto";
 import { useEffect, useState } from "react";

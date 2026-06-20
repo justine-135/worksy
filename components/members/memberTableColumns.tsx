@@ -1,5 +1,5 @@
 import { ColumnDef } from "@/types/table";
-import SortableColumnHeader from "../table/SortableColumn";
+import SortableColumnHeader from "../common/custom/table/SortableColumn";
 
 import { ProjectMemberTableDTO } from "@/types/projectMember.dto";
 import { Button } from "@heroui/react/button";

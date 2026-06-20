@@ -1,6 +1,6 @@
 "use client";
 
-import { TableCustom } from "../table/TableCustom";
+import { CustomTable } from "../common/custom/table/CustomTable";
 
 import { useGetProjectMembers } from "@/hooks/member/useGetProjectMembers";
 import { useSessionStore } from "@/store/session.store";
@@ -14,7 +14,7 @@ export function MembersTable() {
   const { columns } = memberTableColumns();
 
   return (
-    <TableCustom
+    <CustomTable
       data={data || []}
       columns={columns}
       getRowId={(u) => u.id}

@@ -1,4 +1,4 @@
-import { ActivityLog } from "@/enum/activityLog.enum";
+import { EActivityLog } from "@/enum/activityLog.enum";
 import { prisma } from "@/lib/prisma";
 import { CreateTaskDTO, UpdateTaskPositionDTO } from "@/types/task.dto";
 import type { Prisma } from "@prisma/client";
@@ -131,7 +131,7 @@ export async function updateTaskPositionsDB({
     if (isStatusChanged) {
       await tx.activityLog.create({
         data: {
-          type: ActivityLog.STATUS_CHANGE,
+          type: EActivityLog.STATUS_CHANGE,
           taskId: task.id,
           projectId,
           actorId: currentMember.id,

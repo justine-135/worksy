@@ -12,7 +12,7 @@ import {
   createTaskBoardSchema,
 } from "@/lib/validations/createTaskBoard.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import CustomButton from "@/components/button/CustomButton";
+import CustomButton from "@/components/common/custom/CustomButton";
 
 const AddNewTaskBoard = ({ onClick }: { onClick: () => void }) => {
   const [isHovered, setIsHovered] = useState<boolean>(false);

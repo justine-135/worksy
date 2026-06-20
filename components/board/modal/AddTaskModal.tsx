@@ -11,7 +11,7 @@ import {
 } from "@heroui/react";
 import { BiPlus } from "react-icons/bi";
 import { useGetProjectMembers } from "@/hooks/member/useGetProjectMembers";
-import TiptapEditor from "@/components/fields/TiptapEditor";
+import TiptapEditor from "@/components/common/TiptapEditor";
 import { useState } from "react";
 import useCreateTaskMutation from "@/hooks/task/useCreateTask";
 import { useForm } from "react-hook-form";
@@ -20,7 +20,7 @@ import {
   CreateTaskInput,
   createTaskSchema,
 } from "@/lib/validations/createTask.schema";
-import CustomButton from "@/components/button/CustomButton";
+import CustomButton from "@/components/common/custom/CustomButton";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSessionStore } from "@/store/session.store";
 import useInvalidateQuery from "@/hooks/taskboard/useInvalidateQuery";

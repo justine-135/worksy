@@ -2,7 +2,7 @@
 
 import { Button } from "@heroui/react/button";
 
-import CustomButton from "@/components/button/CustomButton";
+import CustomButton from "@/components/common/custom/CustomButton";
 import { useState } from "react";
 
 import { useSessionStore } from "@/store/session.store";

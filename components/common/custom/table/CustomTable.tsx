@@ -17,7 +17,7 @@ interface Props<T> {
   isLoading: boolean;
 }
 
-export function TableCustom<T>({
+export function CustomTable<T>({
   columns,
   data,
   getRowId,

@@ -1,12 +1,12 @@
 "use client";
 
-import CustomSearchField from "../fields/CustomSearchField";
+import CustomSearchField from "../common/custom/CustomSearchField";
 import { useSessionStore } from "@/store/session.store";
 import { Skeleton, Surface, Typography } from "@heroui/react";
 import { useGetInvites } from "@/hooks/invite/useGetInvites";
 import InvitesList from "./InvitesList";
 import { ProjectInviteResponseDTO } from "@/types/projectInvite.dto";
-import EmptyCustom from "../empty/EmptyCustom";
+import CustomEmpty from "../common/custom/CustomEmpty";
 
 const SkeletonInviteInformation = () => {
   return (
@@ -50,7 +50,7 @@ const InvitesListWrapper = ({
         <SkeletonInviteInformation key={index} />
       ))}
       <InvitesList data={data} />
-      {!data?.length && !isLoading && <EmptyCustom message="No invites yet" />}
+      {!data?.length && !isLoading && <CustomEmpty message="No invites yet" />}
     </>
   );
 };

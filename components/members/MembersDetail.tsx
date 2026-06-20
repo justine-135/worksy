@@ -1,5 +1,5 @@
 import { MembersTable } from "./MembersTable";
-import CustomSearchField from "../fields/CustomSearchField";
+import CustomSearchField from "../common/custom/CustomSearchField";
 import InviteMemberModal from "./modal/InviteMemberModal";
 
 export default function MembersDetail() {

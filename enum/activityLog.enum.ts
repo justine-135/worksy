@@ -1,3 +1,3 @@
-export enum ActivityLog {
+export enum EActivityLog {
   STATUS_CHANGE = "STATUS_CHANGE",
 }

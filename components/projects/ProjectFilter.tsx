@@ -1,5 +1,5 @@
 import { TProjectFilter } from "@/types/project.dto";
-import CustomButton from "../button/CustomButton";
+import CustomButton from "../common/custom/CustomButton";
 
 export default function ProjectFilter({
   filter,

@@ -3,19 +3,19 @@ import React from "react";
 import { IconType } from "react-icons/lib";
 import { MdPerson } from "react-icons/md";
 
-interface EmptyCustomProps {
+interface CustomEmptyProps {
   title?: string;
   message?: string;
   icon?: IconType;
   action?: React.ReactNode;
 }
 
-export default function EmptyCustom({
+export default function CustomEmpty({
   title,
   message,
   icon: Icon,
   action,
-}: EmptyCustomProps) {
+}: CustomEmptyProps) {
   const IconComponent = Icon || MdPerson;
   return (
     <div className="flex flex-col items-center p-5">

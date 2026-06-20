@@ -1,4 +1,4 @@
-import CustomSearchField from "../fields/CustomSearchField";
+import CustomSearchField from "../common/custom/CustomSearchField";
 import AddRoleDrawer from "./drawer/AddRoleDrawer";
 import RolesTable from "./RolesTable";
 

@@ -1,7 +1,7 @@
 import { Card } from "@heroui/react";
 import Image from "next/image";
 import Link from "next/link";
-import CustomAvatar from "../avatar/CustomAvatar";
+import CustomAvatar from "../common/custom/CustomAvatar";
 
 interface Props {
   id: string;
