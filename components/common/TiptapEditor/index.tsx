@@ -16,6 +16,8 @@ import type {
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 
+import uploadTaskImage from "@/lib/task/uploadTaskImage.lib";
+import { useSessionStore } from "@/store/session.store";
 import type { ProjectMemberTableDTO } from "@/types/projectMember.dto";
 
 const MAX_IMAGE_SIZE = 2 * 1024 * 1024;
@@ -261,18 +263,21 @@ function ToolbarButton({
   children,
   onClick,
   title,
+  disabled,
 }: {
   active?: boolean;
   children: ReactNode;
   onClick: () => void;
   title: string;
+  disabled?: boolean;
 }) {
   return (
     <button
       type="button"
       title={title}
       onClick={onClick}
-      className={`grid h-8 min-w-8 place-items-center rounded-lg border px-2 text-sm font-medium transition ${
+      disabled={disabled}
+      className={`grid h-8 min-w-8 place-items-center rounded-lg border px-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50 ${
         active
           ? "border-primary-200 bg-primary-50 text-primary-700"
           : "border-default-200 bg-white text-default-600 hover:bg-default-100"
@@ -288,6 +293,8 @@ function TiptapEditor({ users = [], value = "", onChange }: TiptapEditorProps) {
   const onChangeRef = useRef(onChange);
   const mentionUsersRef = useRef<MentionUser[]>([]);
   const [imageError, setImageError] = useState("");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const userId = useSessionStore((state) => state.userId);
   const mentionUsers = useMemo(() => getMentionUsers(users), [users]);
 
   useEffect(() => {
@@ -374,7 +381,7 @@ function TiptapEditor({ users = [], value = "", onChange }: TiptapEditorProps) {
       .run();
   };
 
-  const addImage = (file: File) => {
+  const addImage = async (file: File) => {
     if (!editor || editor.isDestroyed) return;
 
     setImageError("");
@@ -389,20 +396,34 @@ function TiptapEditor({ users = [], value = "", onChange }: TiptapEditorProps) {
       return;
     }
 
-    const reader = new FileReader();
+    if (!userId) {
+      setImageError("You must be signed in to upload images.");
+      return;
+    }
 
-    reader.onload = () => {
-      const src = reader.result;
-      if (typeof src !== "string" || editor.isDestroyed) return;
+    // Upload to blob storage at insert time so only the URL is stored in the
+    // description HTML — never the base64 data of the image itself.
+    setIsUploadingImage(true);
 
-      editor.chain().focus().setImage({ src, alt: file.name }).run();
-    };
+    try {
+      const blob = await uploadTaskImage({ file, userId });
 
-    reader.onerror = () => {
-      setImageError("Image upload failed. Please try another image.");
-    };
+      if (editor.isDestroyed) return;
 
-    reader.readAsDataURL(file);
+      editor
+        .chain()
+        .focus()
+        .setImage({ src: blob.url, alt: file.name })
+        .run();
+    } catch (error) {
+      setImageError(
+        error instanceof Error
+          ? error.message
+          : "Image upload failed. Please try another image.",
+      );
+    } finally {
+      setIsUploadingImage(false);
+    }
   };
 
   if (!editor) return null;
@@ -493,9 +514,10 @@ function TiptapEditor({ users = [], value = "", onChange }: TiptapEditorProps) {
         </ToolbarButton>
         <ToolbarButton
           title="Upload image"
+          disabled={isUploadingImage}
           onClick={() => imageInputRef.current?.click()}
         >
-          Image
+          {isUploadingImage ? "Uploading…" : "Image"}
         </ToolbarButton>
       </div>
 
