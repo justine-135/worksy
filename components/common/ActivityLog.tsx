@@ -10,6 +10,7 @@ import {
 } from "react-icons/md";
 
 import { EActivityLog } from "@/enum/activityLog.enum";
+import { TASK_STATUS_LABELS } from "@/enum/taskStatus.enum";
 import { ActivityLogResponseDTO } from "@/types/activityLog.dto";
 import { timeAgo } from "@/utils/timeAgo";
 
@@ -18,6 +19,7 @@ import CustomAvatar from "./custom/CustomAvatar";
 /** Icon used to denote each activity type (replaces the old colored dot). */
 const logIcon = (type: EActivityLog): IconType => {
   switch (type) {
+    case EActivityLog.COLUMN_CHANGE:
     case EActivityLog.STATUS_CHANGE:
       return MdArrowForward;
     case EActivityLog.TASK_CREATE:
@@ -69,13 +71,35 @@ const Badge = ({
  */
 const verbText = (log: ActivityLogResponseDTO, lead: boolean) => {
   switch (log.type) {
-    case EActivityLog.STATUS_CHANGE:
+    case EActivityLog.COLUMN_CHANGE:
       return (
         <>
           {lead ? "Moved this from " : "moved this from "}
-          <Badge title={log.statusChange.fromBoard?.title} />
+          <Badge title={log.columnChange?.fromBoard?.title} />
           {" to "}
-          <Badge title={log.statusChange.toBoard?.title} variant="success" />
+          <Badge title={log.columnChange?.toBoard?.title} variant="success" />
+        </>
+      );
+    case EActivityLog.STATUS_CHANGE:
+      return (
+        <>
+          {lead ? "Changed status from " : "changed status from "}
+          <Badge
+            title={
+              log.statusChange
+                ? TASK_STATUS_LABELS[log.statusChange.fromStatus]
+                : undefined
+            }
+          />
+          {" to "}
+          <Badge
+            title={
+              log.statusChange
+                ? TASK_STATUS_LABELS[log.statusChange.toStatus]
+                : undefined
+            }
+            variant="success"
+          />
         </>
       );
     case EActivityLog.TASK_CREATE:

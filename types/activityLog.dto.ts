@@ -1,4 +1,5 @@
 import { EActivityLog } from "@/enum/activityLog.enum";
+import { ETaskStatus } from "@/enum/taskStatus.enum";
 
 import { UserResponseDTO } from "./user.dto";
 
@@ -14,14 +15,20 @@ export interface ActivityLogResponseDTO {
     ticketNumber: number;
     title: string;
   } | null;
-  statusChange: {
+  // A task moved between board columns (type COLUMN_CHANGE).
+  columnChange?: {
     fromBoard?: {
       title: string;
     };
     toBoard?: {
       title: string;
     };
-  };
+  } | null;
+  // A task's status field changed (type STATUS_CHANGE).
+  statusChange?: {
+    fromStatus: ETaskStatus;
+    toStatus: ETaskStatus;
+  } | null;
   comment?: {
     value: string;
     createdAt: string;
@@ -48,9 +55,13 @@ export interface ProjectActivityResponseDTO {
     ticketNumber: number;
     title: string;
   } | null;
-  statusChange: {
+  columnChange: {
     toBoard?: { title: string } | null;
     fromBoard?: { title: string } | null;
+  } | null;
+  statusChange: {
+    fromStatus: ETaskStatus;
+    toStatus: ETaskStatus;
   } | null;
 }
 

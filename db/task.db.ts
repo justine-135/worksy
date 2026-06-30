@@ -2,11 +2,14 @@ import type { Prisma } from "@prisma/client";
 
 import { touchProjectActivity } from "@/db/projectMember.db";
 import { EActivityLog } from "@/enum/activityLog.enum";
+import { ETaskStatus } from "@/enum/taskStatus.enum";
 import { prisma } from "@/lib/prisma";
+import { deriveStatusFromColumn } from "@/lib/task/taskStatus.lib";
 import {
   CreateTaskDTO,
   UpdateTaskAssigneesDTO,
   UpdateTaskPositionDTO,
+  UpdateTaskStatusDTO,
 } from "@/types/task.dto";
 
 export async function createTaskDB(data: CreateTaskDTO) {
@@ -47,12 +50,27 @@ export async function createTaskDB(data: CreateTaskDTO) {
       },
     });
 
+    // Derive the initial status from the column the task is created in, using
+    // the same column-position rule as drag-to-move (first->Todo, last->Done,
+    // middle->In Progress). Falls back to TODO if the column can't be ranked.
+    const orderedBoards = await tx.taskBoard.findMany({
+      where: { projectId: data.projectId },
+      orderBy: { order: "asc" },
+      select: { id: true },
+    });
+    const status =
+      deriveStatusFromColumn(
+        data.taskBoardId,
+        orderedBoards.map((board) => board.id),
+      ) ?? ETaskStatus.TODO;
+
     const res = await tx.task.create({
       data: {
         title: data.title,
         ticketNumber: currentTicketNumber,
         description: data.description,
         priority: data.priority,
+        status,
         projectId: data.projectId,
         taskBoardId: data.taskBoardId,
         order: (lastTask?.order ?? 0) + 1,
@@ -132,6 +150,7 @@ export async function updateTaskPositionsDB({
     select: {
       id: true,
       taskBoardId: true,
+      status: true,
     },
   });
 
@@ -150,17 +169,27 @@ export async function updateTaskPositionsDB({
     throw new Error("User is not a member of this project");
   }
 
-  await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-    const isStatusChanged = task.taskBoardId !== taskBoardId;
+  // All of the project's columns in display order, used to auto-suggest the
+  // task's status from the column it lands in (first->Todo, last->Done).
+  const orderedBoards = await prisma.taskBoard.findMany({
+    where: { projectId },
+    orderBy: { order: "asc" },
+    select: { id: true },
+  });
+  const orderedBoardIds = orderedBoards.map((board) => board.id);
 
-    if (isStatusChanged) {
+  await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    const isColumnChanged = task.taskBoardId !== taskBoardId;
+
+    if (isColumnChanged) {
+      // Audit: the task moved between columns.
       await tx.activityLog.create({
         data: {
-          type: EActivityLog.STATUS_CHANGE,
+          type: EActivityLog.COLUMN_CHANGE,
           taskId: task.id,
           projectId,
           actorId: currentMember.id,
-          statusChange: {
+          columnChange: {
             create: {
               fromBoardId: task.taskBoardId,
               toBoardId: taskBoardId,
@@ -168,6 +197,35 @@ export async function updateTaskPositionsDB({
           },
         },
       });
+
+      // Auto-suggest: align the status field with the destination column.
+      // Overridable later via the drawer's Status dropdown.
+      const suggestedStatus = deriveStatusFromColumn(
+        taskBoardId,
+        orderedBoardIds,
+      );
+
+      if (suggestedStatus && suggestedStatus !== task.status) {
+        await tx.task.update({
+          where: { id: taskId },
+          data: { status: suggestedStatus },
+        });
+
+        await tx.activityLog.create({
+          data: {
+            type: EActivityLog.STATUS_CHANGE,
+            taskId: task.id,
+            projectId,
+            actorId: currentMember.id,
+            statusChange: {
+              create: {
+                fromStatus: task.status,
+                toStatus: suggestedStatus,
+              },
+            },
+          },
+        });
+      }
     }
 
     await tx.task.update({
@@ -256,6 +314,70 @@ export async function updateTaskAssigneesDB({
   });
 }
 
+export async function updateTaskStatusDB({
+  projectId,
+  userId,
+  taskId,
+  status,
+}: UpdateTaskStatusDTO) {
+  // Make sure the task belongs to a project this user is a member of before
+  // we change its status.
+  const task = await prisma.task.findFirst({
+    where: {
+      id: taskId,
+      projectId,
+      project: {
+        members: { some: { userId } },
+      },
+    },
+    select: { id: true, status: true },
+  });
+
+  if (!task) {
+    throw new Error("Task is inaccessible");
+  }
+
+  // No-op if the status didn't actually change (avoids a noisy audit entry).
+  if (task.status === status) return;
+
+  const currentMember = await prisma.projectMember.findUnique({
+    where: {
+      userId_projectId: { userId, projectId },
+    },
+    select: { id: true },
+  });
+
+  if (!currentMember) {
+    throw new Error("User is not a member of this project");
+  }
+
+  return prisma.$transaction(async (tx) => {
+    await tx.task.update({
+      where: { id: taskId },
+      data: { status },
+    });
+
+    // Audit trail entry powering the task timeline.
+    await tx.activityLog.create({
+      data: {
+        type: EActivityLog.STATUS_CHANGE,
+        taskId,
+        projectId,
+        actorId: currentMember.id,
+        statusChange: {
+          create: {
+            fromStatus: task.status,
+            toStatus: status,
+          },
+        },
+      },
+    });
+
+    // Float this project to the top of the user's "Recents".
+    await touchProjectActivity({ userId, projectId }, tx);
+  });
+}
+
 export async function getTaskDetail(id: string) {
   return await prisma.task.findUnique({
     where: {
@@ -265,6 +387,7 @@ export async function getTaskDetail(id: string) {
       id: true,
       projectId: true,
       taskBoardId: true,
+      status: true,
       title: true,
       description: true,
       createdAt: true,
@@ -309,7 +432,7 @@ export async function getTaskDetail(id: string) {
               },
             },
           },
-          statusChange: {
+          columnChange: {
             select: {
               fromBoard: {
                 select: {
@@ -321,6 +444,12 @@ export async function getTaskDetail(id: string) {
                   title: true,
                 },
               },
+            },
+          },
+          statusChange: {
+            select: {
+              fromStatus: true,
+              toStatus: true,
             },
           },
           comment: {

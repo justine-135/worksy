@@ -1,5 +1,6 @@
 "use client";
 
+import { ETaskStatus } from "@/enum/taskStatus.enum";
 import { useGetProjectMembers } from "@/hooks/member/useGetProjectMembers";
 import { useGetTaskBoard } from "@/hooks/taskboard/useGetTaskBoard";
 import { useSessionStore } from "@/store/session.store";
@@ -26,12 +27,18 @@ export default function DashboardDetail() {
     board.tasks.map((task) => ({ ...task, boardTitle: board.title })),
   );
 
-  // Boards are ordered; treat the first as "Todo" and the last as "Completed".
+  // Progress is driven by each task's `status` field (independent of which
+  // board column it sits in), not by board position.
   const total = allTasks.length;
-  const todoCount = allBoards[0]?.tasks.length ?? 0;
-  const completedCount =
-    allBoards.length > 1 ? allBoards[allBoards.length - 1].tasks.length : 0;
-  const inProgressCount = Math.max(0, total - todoCount - completedCount);
+  const doneCount = allTasks.filter(
+    (task) => task.status === ETaskStatus.DONE,
+  ).length;
+  const inProgressCount = allTasks.filter(
+    (task) => task.status === ETaskStatus.IN_PROGRESS,
+  ).length;
+  const todoCount = allTasks.filter(
+    (task) => task.status === ETaskStatus.TODO,
+  ).length;
 
   const assignedTasks: AssignedTask[] = allTasks
     .filter((task) =>
@@ -49,7 +56,7 @@ export default function DashboardDetail() {
     <div className="space-y-6">
       <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Total" value={total} accent="total" />
-        <StatCard label="Completed" value={completedCount} accent="completed" />
+        <StatCard label="Done" value={doneCount} accent="completed" />
         <StatCard
           label="In Progress"
           value={inProgressCount}
@@ -58,7 +65,7 @@ export default function DashboardDetail() {
         <StatCard label="Todo" value={todoCount} accent="todo" />
       </section>
 
-      <OverallProgress completed={completedCount} total={total} />
+      <OverallProgress completed={doneCount} total={total} />
 
       <BoardColumnsCard boards={allBoards} />
 

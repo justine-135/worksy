@@ -28,10 +28,16 @@ export async function getProjectActivity({
         },
       },
       task: { select: { ticketNumber: true, title: true } },
-      statusChange: {
+      columnChange: {
         select: {
           toBoard: { select: { title: true } },
           fromBoard: { select: { title: true } },
+        },
+      },
+      statusChange: {
+        select: {
+          fromStatus: true,
+          toStatus: true,
         },
       },
     },
@@ -75,10 +81,16 @@ export async function getMemberActivity({
           },
         },
       },
-      statusChange: {
+      columnChange: {
         select: {
           toBoard: { select: { title: true } },
           fromBoard: { select: { title: true } },
+        },
+      },
+      statusChange: {
+        select: {
+          fromStatus: true,
+          toStatus: true,
         },
       },
       comment: {

@@ -23,10 +23,16 @@ import CustomButton from "@/components/common/custom/CustomButton";
 import TiptapEditor from "@/components/common/TiptapEditor";
 import { QUERY_KEYS } from "@/constant/queryKeys";
 import { EActivityLog } from "@/enum/activityLog.enum";
+import {
+  ETaskStatus,
+  TASK_STATUS_LABELS,
+  TASK_STATUS_OPTIONS,
+} from "@/enum/taskStatus.enum";
 import useCreateComment from "@/hooks/activity/useCreateComment";
 import { useGetProjectMembers } from "@/hooks/member/useGetProjectMembers";
 import { useGetTaskDetail } from "@/hooks/task/useGetTaskDetail";
 import useUpdateTaskAssignees from "@/hooks/task/useUpdateTaskAssignees";
+import useUpdateTaskStatus from "@/hooks/task/useUpdateTaskStatus";
 import { useGetTaskBoard } from "@/hooks/taskboard/useGetTaskBoard";
 import useInvalidateQuery from "@/hooks/taskboard/useInvalidateQuery";
 import useSaveTaskPositionMutation from "@/hooks/taskboard/useSaveTaskPositionMutation";
@@ -194,13 +200,14 @@ const AssigneeDisplay = ({
 };
 
 /**
- * Right-hand sidebar: Assignees, the status dropdown (which board the task
- * lives in), and Participants (creator + assignees combined).
+ * Right-hand sidebar: Assignees, the Column dropdown (which board the task
+ * lives in), the Status dropdown (Todo / In Progress / Done — independent of
+ * the column), and Participants (creator + assignees combined).
  *
- * "Status" in this app is just which TaskBoard column the task sits in, so
- * changing it reuses the same position-save flow that drag-and-drop uses:
- * we hand the API a fresh ordering for every board with the task removed from
- * its old column and appended to the chosen one.
+ * Changing the Column reuses the same position-save flow that drag-and-drop
+ * uses: we hand the API a fresh ordering for every board with the task removed
+ * from its old column and appended to the chosen one. The server then
+ * auto-suggests a matching status. Status can also be set directly here.
  */
 const TaskSidebar = ({ task }: { task: TaskResponseDTO }) => {
   const queryClient = useQueryClient();
@@ -226,6 +233,7 @@ const TaskSidebar = ({ task }: { task: TaskResponseDTO }) => {
 
   const { data: members } = useGetProjectMembers({ projectId });
   const { mutation: updateAssignees } = useUpdateTaskAssignees();
+  const { mutation: updateStatus } = useUpdateTaskStatus();
 
   // Toggles the assignee editor (cog button) and tracks the in-progress
   // selection of projectMember ids while editing.
@@ -263,7 +271,7 @@ const TaskSidebar = ({ task }: { task: TaskResponseDTO }) => {
     return true;
   });
 
-  const handleStatusChange = (boardId?: string) => {
+  const handleColumnChange = (boardId?: string) => {
     if (!boardId || !boards || boardId === task.taskBoardId) return;
 
     // Rebuild every board's ordering with the task pulled out of its current
@@ -281,11 +289,23 @@ const TaskSidebar = ({ task }: { task: TaskResponseDTO }) => {
     saveTaskPosition.mutate(
       { taskId: task.id, taskBoardId: boardId, orderedTaskIdsByBoard },
       {
-        // Refetch the open task so its status + activity timeline update.
+        // Refetch the open task so its column, auto-suggested status, and
+        // activity timeline update.
         onSettled: () =>
           queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TASK(task.id) }),
       },
     );
+  };
+
+  const handleStatusChange = (status?: string) => {
+    if (!projectId || !userId || !status || status === task.status) return;
+
+    updateStatus.mutate({
+      taskId: task.id,
+      projectId,
+      userId,
+      status: status as ETaskStatus,
+    });
   };
 
   return (
@@ -364,11 +384,11 @@ const TaskSidebar = ({ task }: { task: TaskResponseDTO }) => {
         )}
       </SidebarSection>
 
-      <SidebarSection title="Status">
+      <SidebarSection title="Column">
         <Select
-          aria-label="Task status"
+          aria-label="Task column"
           value={task.taskBoardId}
-          onChange={(key) => handleStatusChange(key as string)}
+          onChange={(key) => handleColumnChange(key as string)}
           isDisabled={saveTaskPosition.isPending}
         >
           <Select.Trigger className="flex w-full items-center justify-between rounded-lg border border-default-200 bg-surface p-2">
@@ -385,6 +405,35 @@ const TaskSidebar = ({ task }: { task: TaskResponseDTO }) => {
                   className="flex items-center justify-between gap-2"
                 >
                   {board.title}
+                  <ListBox.ItemIndicator />
+                </ListBox.Item>
+              ))}
+            </ListBox>
+          </Select.Popover>
+        </Select>
+      </SidebarSection>
+
+      <SidebarSection title="Status">
+        <Select
+          aria-label="Task status"
+          value={task.status}
+          onChange={(key) => handleStatusChange(key as string)}
+          isDisabled={updateStatus.isPending}
+        >
+          <Select.Trigger className="flex w-full items-center justify-between rounded-lg border border-default-200 bg-surface p-2">
+            <Select.Value />
+            <Select.Indicator />
+          </Select.Trigger>
+          <Select.Popover>
+            <ListBox>
+              {TASK_STATUS_OPTIONS.map((status) => (
+                <ListBox.Item
+                  id={status}
+                  key={status}
+                  textValue={TASK_STATUS_LABELS[status]}
+                  className="flex items-center justify-between gap-2"
+                >
+                  {TASK_STATUS_LABELS[status]}
                   <ListBox.ItemIndicator />
                 </ListBox.Item>
               ))}

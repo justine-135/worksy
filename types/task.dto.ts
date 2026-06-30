@@ -1,3 +1,5 @@
+import { ETaskStatus } from "@/enum/taskStatus.enum";
+
 import { ActivityLogResponseDTO } from "./activityLog.dto";
 import { UserResponseDTO } from "./user.dto";
 
@@ -5,6 +7,7 @@ export interface TaskResponseDTO {
   id: string;
   projectId: string;
   taskBoardId: string;
+  status: ETaskStatus;
   title: string;
   ticketNumber: number;
   description?: string | null;
@@ -39,6 +42,13 @@ export interface UpdateTaskAssigneesDTO {
   userId: string;
   taskId: string;
   assignees: string[];
+}
+
+export interface UpdateTaskStatusDTO {
+  projectId: string;
+  userId: string;
+  taskId: string;
+  status: ETaskStatus;
 }
 
 export interface UpdateTaskPositionDTO {

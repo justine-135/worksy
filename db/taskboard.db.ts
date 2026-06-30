@@ -38,6 +38,7 @@ export async function getTaskBoard({
           title: true,
           description: true,
           priority: true,
+          status: true,
           createdAt: true,
           updatedAt: true,
           assignees: {

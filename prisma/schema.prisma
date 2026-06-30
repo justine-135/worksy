@@ -39,10 +39,16 @@ model TaskBoard {
   project           Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
   
   tasks             Task[]
-  fromStatusChanges StatusChangeDetail[] @relation("FromBoard")
-  toStatusChanges   StatusChangeDetail[] @relation("ToBoard")
+  fromColumnChanges ColumnChangeDetail[] @relation("FromBoard")
+  toColumnChanges   ColumnChangeDetail[] @relation("ToBoard")
 
   @@map("task_board")
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
 }
 
 model Task {
@@ -51,6 +57,7 @@ model Task {
   title         String
   description   String?
   priority      String?
+  status        TaskStatus            @default(TODO)
   order         Int                   @default(autoincrement())
   createdAt     DateTime              @default(now())         @map("created_at")
   updatedAt     DateTime              @updatedAt              @map("updated_at")
@@ -157,7 +164,8 @@ model ProjectInvite {
 }
 
 enum ActivityType {
-  STATUS_CHANGE
+  COLUMN_CHANGE   // a task moved between board columns (was STATUS_CHANGE)
+  STATUS_CHANGE   // a task's status field (Todo / In Progress / Done) changed
   COMMENT
   TASK_CREATE
   ASSIGNEE_CHANGE
@@ -177,21 +185,35 @@ model ActivityLog {
   actor           ProjectMember  @relation(fields: [actorId], references: [id], onDelete: Cascade)
   
   // Optional sub-payloads (Only one will be filled depending on the ActivityType)
+  columnChange    ColumnChangeDetail?
   statusChange    StatusChangeDetail?
   comment         CommentDetail?
 
   @@map("activity_log")
 }
 
-model StatusChangeDetail {
+// Records a task moving between board columns (ActivityType.COLUMN_CHANGE).
+model ColumnChangeDetail {
   id              String      @id @default(cuid())
   activityLogId   String      @unique @map("activity_log_id")
   fromBoardId     String      @map("from_board_id")
   toBoardId       String      @map("to_board_id")
-  
+
   activityLog     ActivityLog @relation(fields: [activityLogId], references: [id], onDelete: Cascade)
   fromBoard       TaskBoard   @relation("FromBoard", fields: [fromBoardId], references: [id], onDelete: Cascade)
   toBoard         TaskBoard   @relation("ToBoard", fields: [toBoardId], references: [id], onDelete: Cascade)
+
+  @@map("column_change_detail")
+}
+
+// Records a task's status field changing (ActivityType.STATUS_CHANGE).
+model StatusChangeDetail {
+  id              String      @id @default(cuid())
+  activityLogId   String      @unique @map("activity_log_id")
+  fromStatus      TaskStatus  @map("from_status")
+  toStatus        TaskStatus  @map("to_status")
+
+  activityLog     ActivityLog @relation(fields: [activityLogId], references: [id], onDelete: Cascade)
 
   @@map("status_change_detail")
 }

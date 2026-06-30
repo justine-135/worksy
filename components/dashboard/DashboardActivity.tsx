@@ -11,6 +11,7 @@ import {
 import CustomAvatar from "@/components/common/custom/CustomAvatar";
 import CustomEmpty from "@/components/common/custom/CustomEmpty";
 import { EActivityLog } from "@/enum/activityLog.enum";
+import { TASK_STATUS_LABELS } from "@/enum/taskStatus.enum";
 import { useGetActivity } from "@/hooks/activity/useGetActivity";
 import { ProjectActivityResponseDTO } from "@/types/activityLog.dto";
 import { timeAgo } from "@/utils/timeAgo";
@@ -30,11 +31,20 @@ function describe(log: ProjectActivityResponseDTO): {
         icon: <MdAdd size={16} />,
         iconColor: "text-success",
       };
-    case EActivityLog.STATUS_CHANGE:
+    case EActivityLog.COLUMN_CHANGE:
       return {
         verb: "moved",
-        extra: log.statusChange?.toBoard?.title
-          ? `→ ${log.statusChange.toBoard.title}`
+        extra: log.columnChange?.toBoard?.title
+          ? `→ ${log.columnChange.toBoard.title}`
+          : undefined,
+        icon: <MdArrowForward size={16} />,
+        iconColor: "text-stat-progress",
+      };
+    case EActivityLog.STATUS_CHANGE:
+      return {
+        verb: "set",
+        extra: log.statusChange
+          ? `→ ${TASK_STATUS_LABELS[log.statusChange.toStatus]}`
           : undefined,
         icon: <MdArrowForward size={16} />,
         iconColor: "text-stat-progress",
