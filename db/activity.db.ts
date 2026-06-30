@@ -2,6 +2,42 @@ import { touchProjectActivity } from "@/db/projectMember.db";
 import { prisma } from "@/lib/prisma";
 import { CommentDTO } from "@/types/activityLog.dto";
 
+/**
+ * Most recent activity across a whole project, newest first.
+ * Powers the dashboard "Activity" feed. `actor` is a ProjectMember, so we hop
+ * to `actor.user` for the display name/avatar.
+ */
+export async function getProjectActivity({
+  projectId,
+  limit = 8,
+}: {
+  projectId: string;
+  limit?: number;
+}) {
+  return prisma.activityLog.findMany({
+    where: { projectId },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    select: {
+      id: true,
+      type: true,
+      createdAt: true,
+      actor: {
+        select: {
+          user: { select: { name: true, image: true } },
+        },
+      },
+      task: { select: { ticketNumber: true, title: true } },
+      statusChange: {
+        select: {
+          toBoard: { select: { title: true } },
+          fromBoard: { select: { title: true } },
+        },
+      },
+    },
+  });
+}
+
 export async function createComment({
   userId,
   projectId,

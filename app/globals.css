@@ -1,32 +1,99 @@
 @import "tailwindcss";
 @import "@heroui/styles";
 
+/*
+ * Global design tokens.
+ * Raw values live in :root; the @theme inline block below exposes them to
+ * Tailwind so utilities like `bg-surface`, `text-muted`, `text-stat-completed`,
+ * `rounded-card`, `shadow-card` are generated automatically.
+ * Prefer these tokens over hardcoded hex/gray values in components.
+ */
 :root {
+  /* Surfaces & text */
   --background: #fafafa;
   --foreground: #171717;
+  --surface: #ffffff;
+  --surface-muted: #f4f4f5;
+  --border: #ececef;
+  --muted: #6b7280; /* secondary text */
+  --subtle: #9aa0aa; /* tertiary / labels */
+
+  /* Brand */
   --primary: #3b82f6;
+  --primary-soft: #eaf2ff;
+
+  /* Status (semantic) */
+  --success: #15803d;
+  --success-soft: #dcfce7;
+  --warning: #b45309;
+  --warning-soft: #ffedd5;
+  --danger: #dc2626;
+  --danger-soft: #fee2e2;
+  --info: #0e7490;
+  --info-soft: #cffafe;
+
+  /* Dashboard stat accents */
+  --stat-total: #171717;
+  --stat-completed: #0f766e; /* teal */
+  --stat-progress: #c2410c; /* orange */
+  --stat-todo: #be185d; /* pink */
+
+  /* Accent gradient (progress bars) */
+  --accent-from: #ef4444;
+  --accent-to: #f97316;
 }
 
-/* Dark Mode */
-/* .dark {
+/* Dark Mode (kept disabled until a dark palette is designed)
+.dark {
   --background: #0a0a0a;
   --foreground: #ededed;
 } */
 
 @theme inline {
+  /* Colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+
   --color-primary: var(--primary);
-  --border-color-primary: var(--primary);
+  --color-primary-soft: var(--primary-soft);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+
+  --color-stat-total: var(--stat-total);
+  --color-stat-completed: var(--stat-completed);
+  --color-stat-progress: var(--stat-progress);
+  --color-stat-todo: var(--stat-todo);
+
+  --color-accent-from: var(--accent-from);
+  --color-accent-to: var(--accent-to);
+
+  /* Radii */
+  --radius-card: 1rem;
+  --radius-pill: 9999px;
+
+  /* Shadows */
+  --shadow-card: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.06);
+
+  /* Fonts */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-fredoka: var(--font-fredoka);
-  --font-inter: var(--font-inter);
+  --font-project: var(--font-project);
 }
 
 body {
-  /* @apply bg-background text-foreground; */
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter), Arial, sans-serif;
+  font-family: var(--font-project), Arial, sans-serif;
 }

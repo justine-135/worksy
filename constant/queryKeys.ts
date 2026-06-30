@@ -12,4 +12,6 @@ export const QUERY_KEYS = {
   USER: (userId: string | null) => ["user", userId] as const,
   USER_SEARCH: (query: string) => ["user", "search", query] as const,
   INVITES: (receiverId?: string | null) => ["invites", receiverId] as const,
+  ACTIVITY: (projectId?: string | null, limit?: number) =>
+    ["activity", projectId, limit] as const,
 };

@@ -22,6 +22,31 @@ export interface ActivityLogResponseDTO {
   createdAt: true;
 }
 
+/**
+ * Project-wide activity feed entry (dashboard). Unlike ActivityLogResponseDTO
+ * (used in the task drawer timeline) this carries the related task's ticket so
+ * the feed can render "moved TASK-12 -> Done".
+ */
+export interface ProjectActivityResponseDTO {
+  id: string;
+  type: EActivityLog;
+  createdAt: string;
+  actor: {
+    user: {
+      name: string | null;
+      image: string | null;
+    };
+  };
+  task: {
+    ticketNumber: number;
+    title: string;
+  } | null;
+  statusChange: {
+    toBoard?: { title: string } | null;
+    fromBoard?: { title: string } | null;
+  } | null;
+}
+
 export interface CommentDTO {
   type: EActivityLog;
   projectId: string;
