@@ -7,6 +7,9 @@ import { FiHome, FiSettings } from "react-icons/fi";
 import { GoPeople } from "react-icons/go";
 import { MdOutlinePersonOutline } from "react-icons/md";
 
+import { Permissions } from "@/enum/permissions.enum";
+import { usePermission } from "@/hooks/permission/usePermission";
+
 export const PATHS = {
   projects: "/projects",
   dashboard: "/dashboard",
@@ -22,40 +25,53 @@ export const ROUTES = [
     icon: FiHome,
     name: "Dashboard",
     path: PATHS.dashboard,
+    permission: Permissions.DashboardView,
   },
   {
     icon: CgBoard,
     name: "Board",
     path: PATHS.board,
+    permission: Permissions.BoardView,
   },
   {
     icon: MdOutlinePersonOutline,
     name: "Members",
     path: PATHS.members,
+    permission: Permissions.MemberView,
   },
   {
     icon: GoPeople,
     name: "Roles and Permissions",
     path: PATHS.roles,
+    permission: Permissions.RolesView,
   },
   {
     icon: FiSettings,
     name: "Settings",
     path: PATHS.settings,
+    // No dedicated permission yet — always visible to project members.
+    permission: undefined,
   },
 ];
 
 export default function TabRoutesNav() {
   const params = useParams();
   const pathname = usePathname();
+  const { hasPermission } = usePermission();
 
   const projectId = params?.id;
   const projectBase = `${PATHS.projects}/${projectId}`;
 
+  // Hide a tab when the route declares a permission the user doesn't have.
+  // Routes without a `permission` are always shown.
+  const visibleRoutes = ROUTES.filter(
+    (route) => !route.permission || hasPermission(route.permission),
+  );
+
   return (
     <nav className="TabRoutesNav border-b border-gray-200 px-4">
       <div className="flex gap-6">
-        {ROUTES.map((route) => {
+        {visibleRoutes.map((route) => {
           const Icon = route.icon;
 
           const href = `${PATHS.projects}/${projectId}/${route.path}`;

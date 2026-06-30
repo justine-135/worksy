@@ -22,6 +22,11 @@ export const ROLE_PRESETS = {
       Permissions.MemberInvite,
       Permissions.MemberEdit,
       Permissions.MemberDelete,
+
+      Permissions.RolesView,
+      Permissions.RolesEdit,
+      Permissions.RolesDelete,
+      Permissions.RolesCreate,
     ],
   },
 

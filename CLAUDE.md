@@ -25,7 +25,7 @@ After a code change, run `npm run lint:fix` then `npm run build`. After editing 
 
 ## Workflow
 
-Start each new task on a fresh branch — run `git checkout -b <branch-name>` first. Don't commit directly to `main`.
+- Start editing in `main` branch.
 
 ## Conventions
 

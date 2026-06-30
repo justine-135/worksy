@@ -105,41 +105,41 @@ async function main() {
   ]);
 
   // 6. Create Tasks
-  await prisma.task.createMany({
-    data: [
-      {
-        title: "Setup project repo",
-        description: "Initialize Git + CI",
-        priority: "HIGH",
-        taskBoardId: todo.id,
-        assigneeId: ownerPM.id,
-      },
-      {
-        title: "Design UI",
-        priority: "MEDIUM",
-        taskBoardId: todo.id,
-        assigneeId: member1PM.id,
-      },
-      {
-        title: "Build Kanban Board",
-        priority: "HIGH",
-        taskBoardId: inProgress.id,
-        assigneeId: member2PM.id,
-      },
-      {
-        title: "Implement Auth",
-        priority: "HIGH",
-        taskBoardId: inProgress.id,
-        assigneeId: ownerPM.id,
-      },
-      {
-        title: "Deploy App",
-        priority: "LOW",
-        taskBoardId: done.id,
-        assigneeId: ownerPM.id,
-      },
-    ],
-  });
+  // await prisma.task.createMany({
+  //   data: [
+  //     {
+  //       title: "Setup project repo",
+  //       description: "Initialize Git + CI",
+  //       priority: "HIGH",
+  //       taskBoardId: todo.id,
+  //       assigneeId: ownerPM.id,
+  //     },
+  //     {
+  //       title: "Design UI",
+  //       priority: "MEDIUM",
+  //       taskBoardId: todo.id,
+  //       assigneeId: member1PM.id,
+  //     },
+  //     {
+  //       title: "Build Kanban Board",
+  //       priority: "HIGH",
+  //       taskBoardId: inProgress.id,
+  //       assigneeId: member2PM.id,
+  //     },
+  //     {
+  //       title: "Implement Auth",
+  //       priority: "HIGH",
+  //       taskBoardId: inProgress.id,
+  //       assigneeId: ownerPM.id,
+  //     },
+  //     {
+  //       title: "Deploy App",
+  //       priority: "LOW",
+  //       taskBoardId: done.id,
+  //       assigneeId: ownerPM.id,
+  //     },
+  //   ],
+  // });
 
   console.log("🌱 Seed completed with realistic data");
 }
