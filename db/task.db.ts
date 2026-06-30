@@ -1,5 +1,6 @@
 import type { Prisma } from "@prisma/client";
 
+import { touchProjectActivity } from "@/db/projectMember.db";
 import { EActivityLog } from "@/enum/activityLog.enum";
 import { prisma } from "@/lib/prisma";
 import { CreateTaskDTO, UpdateTaskPositionDTO } from "@/types/task.dto";
@@ -64,6 +65,25 @@ export async function createTaskDB(data: CreateTaskDTO) {
         assignees: true,
       },
     });
+
+    // Audit trail: record that this member created the task (powers the task
+    // detail timeline).
+    if (member?.id) {
+      await tx.activityLog.create({
+        data: {
+          type: EActivityLog.TASK_CREATE,
+          taskId: res.id,
+          projectId: data.projectId,
+          actorId: member.id,
+        },
+      });
+    }
+
+    // Float this project to the top of the user's "Recents".
+    await touchProjectActivity(
+      { userId: data.userId, projectId: data.projectId },
+      tx,
+    );
 
     return res;
   });
@@ -162,6 +182,9 @@ export async function updateTaskPositionsDB({
         });
       }
     }
+
+    // Float this project to the top of the user's "Recents".
+    await touchProjectActivity({ userId, projectId }, tx);
   });
 }
 

@@ -18,4 +18,4 @@ export interface ProjectsResponseDTO {
   };
 }
 
-export type TProjectFilter = "all" | "owned" | "shared";
+export type TProjectFilter = "all" | "owned" | "shared" | "recent";

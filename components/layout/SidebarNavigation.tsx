@@ -29,14 +29,16 @@ const SkeletonComponent = () => {
 
 export default function SidebarNavigation() {
   const userId = useSessionStore((s) => s.userId);
+  // Show only projects the user has recently acted on, most recent first.
   const { data, isLoading } = useGetProjects({
     userId,
+    filter: "recent",
   });
 
   const params = useParams();
 
   return (
-    <nav className="SidebarNavigation flex flex-col p-4 fixed border-r border-color-border min-h-screen">
+    <nav className="SidebarNavigation flex flex-col p-4 fixed border-r border-color-border min-h-screen min-w-61.5">
       <div className="flex flex-col">
         <div className="flex items-center justify-between mb-4">
           <BsBoxFill />
@@ -45,9 +47,9 @@ export default function SidebarNavigation() {
         <ProjectRoutes />
         {isLoading && <SkeletonComponent />}
         <div className="flex flex-col mt-4 space-y-1">
-          {data?.length && (
+          {!!data?.length && (
             <span className="text-sm font-medium text-default-500">
-              Projects
+              Recents
             </span>
           )}
           {data?.map((route) => {

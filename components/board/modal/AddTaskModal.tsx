@@ -17,6 +17,7 @@ import { BiPlus } from "react-icons/bi";
 
 import CustomButton from "@/components/common/custom/CustomButton";
 import TiptapEditor from "@/components/common/TiptapEditor";
+import { QUERY_KEYS } from "@/constant/queryKeys";
 import { useGetProjectMembers } from "@/hooks/member/useGetProjectMembers";
 import useCreateTaskMutation from "@/hooks/task/useCreateTask";
 import useInvalidateQuery from "@/hooks/taskboard/useInvalidateQuery";
@@ -86,6 +87,11 @@ export default function AddTaskModal({
           reset();
           toast("Task board is created");
           setIsOpen(!isOpen);
+          // Refresh the sidebar "Recents" list now that this project has a new
+          // activity entry for the current user.
+          queryClient.invalidateQueries({
+            queryKey: QUERY_KEYS.PROJECTS(userId, "recent"),
+          });
         },
         onError: () => {
           reset();

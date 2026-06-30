@@ -23,11 +23,14 @@ export async function PATCH(
     return Response.json({ error: "Invalid payload" }, { status: 400 });
   }
 
-  const data = await updateMemberStatusRole({
-    userId,
-    roleId: role_id,
-    status,
-  });
+  const data = await updateMemberStatusRole(
+    {
+      userId,
+      roleId: role_id,
+      status,
+    },
+    session.user.id,
+  );
 
   return Response.json({ success: true, data });
 }

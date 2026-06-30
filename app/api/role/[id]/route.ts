@@ -23,13 +23,16 @@ export async function PUT(
     return Response.json({ error: "Invalid payload" }, { status: 400 });
   }
 
-  const data = await updateRole({
-    data: {
-      name,
-      roleId: id,
-      permissions,
+  const data = await updateRole(
+    {
+      data: {
+        name,
+        roleId: id,
+        permissions,
+      },
     },
-  });
+    session.user.id,
+  );
 
   return Response.json({
     success: true,

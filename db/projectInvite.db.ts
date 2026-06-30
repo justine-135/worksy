@@ -1,10 +1,11 @@
+import { touchProjectActivity } from "@/db/projectMember.db";
 import { StatusDTO } from "@/enum/member";
 import { InviteStatusDTO } from "@/enum/projectInvite.enum";
 import { prisma } from "@/lib/prisma";
 import { CreateProjectInviteDTO } from "@/types/projectInvite.dto";
 
 export async function createProjectInvite(data: CreateProjectInviteDTO) {
-  return prisma.projectInvite.create({
+  const invite = await prisma.projectInvite.create({
     data: {
       userSender: {
         connect: { id: data.senderId },
@@ -17,6 +18,14 @@ export async function createProjectInvite(data: CreateProjectInviteDTO) {
       },
     },
   });
+
+  // Sending an invite is an action on the project for the sender.
+  await touchProjectActivity({
+    userId: data.senderId,
+    projectId: data.projectId,
+  });
+
+  return invite;
 }
 
 export async function getProjectInvitesByReceiverId({
@@ -83,6 +92,12 @@ export async function acceptInvite(inviteId: string) {
         status: InviteStatusDTO.ACCEPTED,
       },
     });
+
+    // Accepting an invite is the receiver's first action on this project.
+    await touchProjectActivity(
+      { userId: invite.receiverId, projectId: invite.projectId },
+      tx,
+    );
 
     return member;
   });

@@ -22,7 +22,8 @@ export async function GET(
   const { searchParams } = new URL(req.url);
 
   const filter =
-    (searchParams.get("filter") as "all" | "owned" | "shared") ?? "all";
+    (searchParams.get("filter") as "all" | "owned" | "shared" | "recent") ??
+    "all";
 
   const data = await getProjects({
     userId,

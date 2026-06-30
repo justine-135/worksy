@@ -61,6 +61,24 @@ export async function createProjectDTO(data: CreateProjectDTO) {
   });
 }
 
+// Shared shape so `getProjects` and `getRecentProjects` return the same DTO.
+const PROJECT_SELECT = {
+  id: true,
+  title: true,
+  description: true,
+  imageUrl: true,
+  members: {
+    select: {
+      id: true,
+    },
+  },
+  owner: {
+    select: {
+      name: true,
+    },
+  },
+} satisfies Prisma.ProjectSelect;
+
 export async function getProjects({
   userId,
   filter = "all",
@@ -68,6 +86,10 @@ export async function getProjects({
   userId: string;
   filter?: TProjectFilter;
 }) {
+  if (filter === "recent") {
+    return getRecentProjects(userId);
+  }
+
   const where =
     filter === "owned"
       ? {
@@ -94,21 +116,32 @@ export async function getProjects({
 
   return prisma.project.findMany({
     where,
+    select: PROJECT_SELECT,
+  });
+}
+
+// Projects the user has personally acted on (created/edited a task, moved a
+// status, commented, changed members/roles, etc.), most recent action first.
+//
+// Every mutation calls `touchProjectActivity`, which stamps the user's
+// `ProjectMember.lastActivityAt`. We just read the user's memberships that have
+// been stamped and order by that timestamp — so any action floats the project
+// to the top of "Recents".
+export async function getRecentProjects(userId: string) {
+  const memberships = await prisma.projectMember.findMany({
+    where: {
+      userId,
+      lastActivityAt: { not: null },
+    },
+    orderBy: {
+      lastActivityAt: "desc",
+    },
     select: {
-      id: true,
-      title: true,
-      description: true,
-      imageUrl: true,
-      members: {
-        select: {
-          id: true,
-        },
-      },
-      owner: {
-        select: {
-          name: true,
-        },
+      project: {
+        select: PROJECT_SELECT,
       },
     },
   });
+
+  return memberships.map((m) => m.project);
 }

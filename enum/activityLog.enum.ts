@@ -1,4 +1,5 @@
 export enum EActivityLog {
   STATUS_CHANGE = "STATUS_CHANGE",
   COMMENT = "COMMENT",
+  TASK_CREATE = "TASK_CREATE",
 }

@@ -39,6 +39,7 @@ After a code change, run `npm run lint:fix` then `npm run build`. After editing 
 - TypeScript is `strict`; code is camelCase. Prisma maps DB columns to snake_case via `@map` — keep model fields camelCase.
 - Prisma client is a singleton in `lib/prisma.ts`; multi-step writes use `prisma.$transaction()`.
 - All mutations are expected to write an `ActivityLog` entry (audit trail).
+- **Recents:** every user action on a project (task create/move, comment, member/role/permission change, invite, etc.) must call `touchProjectActivity({ userId, projectId })` from `db/projectMember.db.ts` (pass the `tx` client when inside a `$transaction`). This stamps `ProjectMember.lastActivityAt`, moving the project to the top of the sidebar "Recents" list (`getRecentProjects` orders by it). On the client, call `useInvalidateRecents()` in the mutation's `onSettled` so the list re-sorts immediately.
 
 ## Architecture
 

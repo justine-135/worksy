@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
+import useInvalidateRecents from "@/hooks/project/useInvalidateRecents";
 import saveTaskPosition from "@/lib/taskboard/saveTaskPosition.lib";
 import { TaskBoardPositionMutationDTO } from "@/types/taskboard.dto";
 
@@ -8,6 +9,8 @@ export default function useSaveTaskPositionMutation({
   projectId,
   invalidateTaskBoards,
 }: TaskBoardPositionMutationDTO) {
+  const invalidateRecents = useInvalidateRecents();
+
   const mutation = useMutation({
     mutationFn: (variables: {
       taskId: string;
@@ -23,7 +26,10 @@ export default function useSaveTaskPositionMutation({
         projectId,
       }),
 
-    onSettled: invalidateTaskBoards,
+    onSettled: async () => {
+      await invalidateTaskBoards();
+      await invalidateRecents();
+    },
   });
 
   return { mutation };

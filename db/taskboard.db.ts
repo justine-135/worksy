@@ -1,3 +1,4 @@
+import { touchProjectActivity } from "@/db/projectMember.db";
 import { prisma } from "@/lib/prisma";
 import {
   CreateTaskBoardDTO,
@@ -105,6 +106,9 @@ export async function updateTaskBoardOrdersDB({
       }),
     ),
   );
+
+  // Float this project to the top of the user's "Recents".
+  await touchProjectActivity({ userId, projectId });
 }
 
 export async function createTaskBoard(data: CreateTaskBoardDTO) {
