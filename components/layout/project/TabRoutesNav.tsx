@@ -62,8 +62,6 @@ export default function TabRoutesNav() {
   const projectId = params?.id;
   const projectBase = `${PATHS.projects}/${projectId}`;
 
-  // Hide a tab when the route declares a permission the user doesn't have.
-  // Routes without a `permission` are always shown.
   const visibleRoutes = ROUTES.filter(
     (route) => !route.permission || hasPermission(route.permission),
   );
