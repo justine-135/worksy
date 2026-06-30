@@ -1,5 +1,13 @@
 import { Card } from "@heroui/react";
+import Link from "next/link";
 import React from "react";
+import { IconType } from "react-icons";
+import {
+  MdAdd,
+  MdArrowForward,
+  MdChatBubbleOutline,
+  MdGroup,
+} from "react-icons/md";
 
 import { EActivityLog } from "@/enum/activityLog.enum";
 import { ActivityLogResponseDTO } from "@/types/activityLog.dto";
@@ -7,159 +15,191 @@ import { timeAgo } from "@/utils/timeAgo";
 
 import CustomAvatar from "./custom/CustomAvatar";
 
-const LogItem = ({ log }: { log: ActivityLogResponseDTO }) => {
-  const { name, image } = log.actor.user;
-
-  if (log.type === EActivityLog.STATUS_CHANGE) {
-    const { fromBoard, toBoard } = log.statusChange;
-    return (
-      <div className="relative flex items-center min-h-11 py-2 pl-24 w-full">
-        <div className="absolute left-18.75 top-1/2 -translate-y-1/2 z-10 size-3 rounded-full border-2 border-white bg-red-500 shadow-sm" />
-
-        {/* CONTENT ROW */}
-        <div className="flex items-center gap-2 w-full text-sm text-gray-600">
-          <CustomAvatar
-            avatarProps={{ className: "size-5 shrink-0" }}
-            avatarImageProps={{
-              src: image || "",
-              alt: name,
-            }}
-            avatarFallbackProps={{ className: "text-[10px]" }}
-            fallback={name}
-          />
-          <p className="leading-none">
-            <span className="font-semibold text-gray-900 hover:underline cursor-pointer">
-              {name}
-            </span>
-            {" moved this from "}
-            <span className="font-medium bg-gray-100 border px-1.5 py-0.5 rounded text-gray-700 text-xs">
-              {fromBoard?.title}
-            </span>
-            {" to "}
-            <span className="font-medium bg-green-50 border border-green-200 px-1.5 py-0.5 rounded text-green-700 text-xs">
-              {toBoard?.title}
-            </span>
-          </p>
-        </div>
-      </div>
-    );
+/** Icon used to denote each activity type (replaces the old colored dot). */
+const logIcon = (type: EActivityLog): IconType => {
+  switch (type) {
+    case EActivityLog.STATUS_CHANGE:
+      return MdArrowForward;
+    case EActivityLog.TASK_CREATE:
+      return MdAdd;
+    case EActivityLog.ASSIGNEE_CHANGE:
+      return MdGroup;
+    default:
+      return MdChatBubbleOutline;
   }
+};
 
-  if (log.type === EActivityLog.TASK_CREATE) {
-    return (
-      <div className="relative flex items-center min-h-11 py-2 pl-24 w-full">
-        <div className="absolute left-18.75 top-1/2 -translate-y-1/2 z-10 size-3 rounded-full border-2 border-white bg-blue-500 shadow-sm" />
+/** A gray circle holding the activity-type icon. */
+const LogIcon = ({ Icon }: { Icon: IconType }) => (
+  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-gray-200 text-gray-700">
+    <Icon size={16} />
+  </span>
+);
 
-        <div className="flex items-center gap-2 w-full text-sm text-gray-600">
-          <CustomAvatar
-            avatarProps={{ className: "size-5 shrink-0" }}
-            avatarImageProps={{
-              src: image || "",
-              alt: name,
-            }}
-            avatarFallbackProps={{ className: "text-[10px]" }}
-            fallback={name}
-          />
-          <p className="leading-none">
-            <span className="font-semibold text-gray-900 hover:underline cursor-pointer">
-              {name}
-            </span>
-            {" created this task"}
-          </p>
-        </div>
-      </div>
-    );
+const Actor = ({ name, image }: { name: string; image?: string | null }) => (
+  <CustomAvatar
+    avatarProps={{ className: "size-6 shrink-0" }}
+    avatarImageProps={{ src: image || "", alt: name }}
+    avatarFallbackProps={{ className: "text-[10px]" }}
+    fallback={name}
+  />
+);
+
+const Badge = ({
+  title,
+  variant = "neutral",
+}: {
+  title?: string;
+  variant?: "neutral" | "success";
+}) => (
+  <span
+    className={
+      variant === "success"
+        ? "font-medium bg-green-50 border border-green-200 px-1.5 py-0.5 rounded text-green-700 text-xs"
+        : "font-medium bg-gray-100 border px-1.5 py-0.5 rounded text-gray-700 text-xs"
+    }
+  >
+    {title}
+  </span>
+);
+
+/**
+ * The action sentence. `lead` capitalizes the verb for the actor-less feed
+ * (member drawer); otherwise the verb follows the actor's name.
+ */
+const verbText = (log: ActivityLogResponseDTO, lead: boolean) => {
+  switch (log.type) {
+    case EActivityLog.STATUS_CHANGE:
+      return (
+        <>
+          {lead ? "Moved this from " : "moved this from "}
+          <Badge title={log.statusChange.fromBoard?.title} />
+          {" to "}
+          <Badge title={log.statusChange.toBoard?.title} variant="success" />
+        </>
+      );
+    case EActivityLog.TASK_CREATE:
+      return lead ? "Created this task" : "created this task";
+    case EActivityLog.ASSIGNEE_CHANGE:
+      return lead ? "Updated the assignees" : "updated the assignees";
+    case EActivityLog.COMMENT:
+      return lead ? "Commented" : "commented";
+    default:
+      return null;
   }
+};
 
-  if (log.type === EActivityLog.ASSIGNEE_CHANGE) {
-    return (
-      <div className="relative flex items-center min-h-11 py-2 pl-24 w-full">
-        <div className="absolute left-18.75 top-1/2 -translate-y-1/2 z-10 size-3 rounded-full border-2 border-white bg-amber-500 shadow-sm" />
-
-        <div className="flex items-center gap-2 w-full text-sm text-gray-600">
-          <CustomAvatar
-            avatarProps={{ className: "size-5 shrink-0" }}
-            avatarImageProps={{
-              src: image || "",
-              alt: name,
-            }}
-            avatarFallbackProps={{ className: "text-[10px]" }}
-            fallback={name}
-          />
-          <p className="leading-none">
-            <span className="font-semibold text-gray-900 hover:underline cursor-pointer">
-              {name}
-            </span>
-            {" updated the assignees"}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // Anything that isn't a comment shouldn't reach the comment renderer below.
-  if (log.type !== EActivityLog.COMMENT) return null;
-
-  // COMMENT WORKFLOW
+/**
+ * Optionally wraps a log row in a Link so clicking it deep-links to the related
+ * task (the board opens that task's drawer via the `?task=` query param).
+ */
+const RowLink = ({
+  href,
+  children,
+}: {
+  href?: string;
+  children: React.ReactNode;
+}) => {
+  if (!href) return <>{children}</>;
   return (
-    <div className="relative flex items-start gap-4 py-3 pl-14 w-full">
-      <div className="absolute left-2 top-3 z-10">
-        <CustomAvatar
-          avatarProps={{
-            className: "size-8 ring-4 ring-white border shadow-sm",
-          }}
-          avatarImageProps={{
-            src: image || "",
-            alt: name,
-          }}
-          avatarFallbackProps={{ className: "text-xs" }}
-          fallback={name}
-        />
-      </div>
+    <Link
+      href={href}
+      className="block rounded-md transition-colors hover:bg-gray-50"
+    >
+      {children}
+    </Link>
+  );
+};
 
-      <div className="flex flex-col w-full bg-white">
-        <div className="flex items-baseline gap-2 mb-1.5">
-          <span className="text-sm font-semibold text-gray-900 hover:underline cursor-pointer">
-            {name}
-          </span>
-          <span>commented {timeAgo(log.comment?.createdAt)}</span>
+const LogItem = ({
+  log,
+  hideActor = false,
+  href,
+  isFirst = false,
+  isLast = false,
+}: {
+  log: ActivityLogResponseDTO;
+  hideActor?: boolean;
+  href?: string;
+  isFirst?: boolean;
+  isLast?: boolean;
+}) => {
+  const { name, image } = log.actor.user;
+  const isComment = log.type === EActivityLog.COMMENT;
+  const Icon = logIcon(log.type);
+
+  return (
+    <RowLink href={href}>
+      <div className="flex items-stretch gap-2 w-full text-sm text-gray-600">
+        {!hideActor && (
+          <div className="pt-2">
+            <Actor name={name} image={image} />
+          </div>
+        )}
+
+        {/* Icon sitting on a continuous vertical rail. The line spans the full
+            row height (so it connects to neighbours regardless of row height)
+            and is trimmed to the icon's center on the first/last rows. */}
+        <div className="relative flex flex-col items-center self-stretch">
+          <div
+            className={[
+              "absolute w-px bg-gray-200",
+              isFirst ? "top-[22px]" : "top-0",
+              isLast ? "bottom-[calc(100%-22px)]" : "bottom-0",
+            ].join(" ")}
+          />
+          <div className="relative pt-2">
+            <LogIcon Icon={Icon} />
+          </div>
         </div>
 
-        <Card className="p-4 max-w-3xl text-sm border shadow-xs">
-          <div
-            className="prose prose-sm max-w-none wrap-break-word"
-            dangerouslySetInnerHTML={{
-              __html: log.comment?.value || "",
-            }}
-          />
-        </Card>
+        <div className="flex min-w-0 flex-1 flex-col py-2">
+          <p className="leading-snug pt-1">
+            {!hideActor && (
+              <span className="font-semibold text-gray-900">{name} </span>
+            )}
+            {verbText(log, hideActor)}{" "}
+            <span className="text-gray-400">{timeAgo(log.createdAt)}</span>
+          </p>
+
+          {isComment && (
+            <Card className="mt-1.5 p-4 max-w-3xl text-sm border shadow-xs">
+              <div
+                className="prose prose-sm max-w-none wrap-break-word"
+                dangerouslySetInnerHTML={{ __html: log.comment?.value || "" }}
+              />
+            </Card>
+          )}
+        </div>
       </div>
-    </div>
+    </RowLink>
   );
 };
 
 export default function ActivityLog({
   data,
+  hideActor = false,
+  taskHref,
 }: {
   data?: ActivityLogResponseDTO[];
+  hideActor?: boolean;
+  taskHref?: (log: ActivityLogResponseDTO) => string | undefined;
 }) {
+  if (!data?.length) return "";
+
   return (
-    <div className="relative flex flex-col w-full py-4 bg-white">
-      {/* Separator */}
-      {data?.length ? (
-        <>
-          <div className="absolute left-20 top-0 bottom-0 w-0.5 bg-gray-200" />
-          <div className="flex flex-col w-full">
-            {data?.map((log, idx) => (
-              <div key={idx} className="w-full">
-                <LogItem log={log} />
-              </div>
-            ))}
-          </div>
-        </>
-      ) : (
-        ""
-      )}
+    <div className="flex flex-col w-full py-4 bg-white">
+      {data.map((log, idx) => (
+        <div key={idx} className="w-full">
+          <LogItem
+            log={log}
+            hideActor={hideActor}
+            href={taskHref?.(log)}
+            isFirst={idx === 0}
+            isLast={idx === data.length - 1}
+          />
+        </div>
+      ))}
     </div>
   );
 }

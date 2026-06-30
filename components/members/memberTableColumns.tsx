@@ -106,7 +106,7 @@ export default function memberTableColumns() {
               role={member.role}
               userId={member.id}
             />
-            <ViewMemberDrawer />
+            <ViewMemberDrawer member={member} />
             <Button isIconOnly size="sm" variant="danger-soft">
               <BiTrash />
             </Button>

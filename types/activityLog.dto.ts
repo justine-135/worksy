@@ -7,6 +7,13 @@ export interface ActivityLogResponseDTO {
   actor: {
     user: UserResponseDTO;
   };
+  // Present on the member activity feed (used to deep-link a log to its task);
+  // omitted by the task drawer timeline, where the task is already known.
+  task?: {
+    id: string;
+    ticketNumber: number;
+    title: string;
+  } | null;
   statusChange: {
     fromBoard?: {
       title: string;
@@ -19,7 +26,7 @@ export interface ActivityLogResponseDTO {
     value: string;
     createdAt: string;
   };
-  createdAt: true;
+  createdAt: string;
 }
 
 /**

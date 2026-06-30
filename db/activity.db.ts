@@ -38,6 +38,56 @@ export async function getProjectActivity({
   });
 }
 
+/**
+ * A single member's activity within a project, limited to the last `days`
+ * (default 7). `actorId` is the ProjectMember id (ActivityLog.actor is a
+ * ProjectMember, not a User), and the select shape matches
+ * ActivityLogResponseDTO so the rows can be rendered by the shared
+ * <ActivityLog /> timeline component.
+ */
+export async function getMemberActivity({
+  projectId,
+  memberId,
+  days = 7,
+}: {
+  projectId: string;
+  memberId: string;
+  days?: number;
+}) {
+  const since = new Date();
+  since.setDate(since.getDate() - days);
+
+  return prisma.activityLog.findMany({
+    where: {
+      projectId,
+      actorId: memberId,
+      createdAt: { gte: since },
+    },
+    orderBy: { createdAt: "desc" },
+    select: {
+      type: true,
+      createdAt: true,
+      task: { select: { id: true, ticketNumber: true, title: true } },
+      actor: {
+        select: {
+          user: {
+            select: { id: true, name: true, email: true, image: true },
+          },
+        },
+      },
+      statusChange: {
+        select: {
+          toBoard: { select: { title: true } },
+          fromBoard: { select: { title: true } },
+        },
+      },
+      comment: {
+        select: { value: true, createdAt: true },
+      },
+    },
+  });
+}
+
 export async function createComment({
   userId,
   projectId,

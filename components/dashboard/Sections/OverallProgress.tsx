@@ -15,12 +15,14 @@ export default function OverallProgress({
         <h2 className="text-sm font-semibold text-foreground">
           Overall Progress
         </h2>
-        <span className="text-sm font-semibold text-stat-completed">{pct}%</span>
+        <span className="text-sm font-semibold text-stat-completed">
+          {pct}%
+        </span>
       </div>
 
       <div className="mt-3 h-2.5 w-full overflow-hidden rounded-pill bg-surface-muted">
         <div
-          className="h-full rounded-pill bg-gradient-to-r from-accent-from to-accent-to transition-[width] duration-500"
+          className="h-full rounded-pill bg-linear-to-r from-accent-from to-accent-to transition-[width] duration-500"
           style={{ width: `${pct}%` }}
         />
       </div>

@@ -12,6 +12,7 @@ import {
 } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { BiCog } from "react-icons/bi";
@@ -409,12 +410,27 @@ interface TaskDetailDrawerProps {
 }
 
 export default function TaskDetailDrawer({ id, title }: TaskDetailDrawerProps) {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [manualOpen, setManualOpen] = useState<boolean>(false);
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const isDeepLinked = searchParams.get("task") === id;
+
+  // Open when the user clicks the title OR when the board is deep-linked with
+  // `?task=<id>` (e.g. from a member's activity feed). Deriving `isOpen` from
+  // the URL avoids syncing state in an effect.
+  const isOpen = manualOpen || isDeepLinked;
 
   const { data, isLoading } = useGetTaskDetail({ id, isOpen });
 
-  const handleOpenChange = () => {
-    setIsOpen(!isOpen);
+  const handleOpenChange = (open: boolean) => {
+    setManualOpen(open);
+    // Strip the deep-link param on close so the URL stays clean and the drawer
+    // doesn't immediately re-open from the derived state.
+    if (!open && isDeepLinked) {
+      router.replace(pathname);
+    }
   };
 
   const createdBy = {
@@ -426,12 +442,12 @@ export default function TaskDetailDrawer({ id, title }: TaskDetailDrawerProps) {
     <div>
       <Drawer>
         <span
-          onClick={handleOpenChange}
+          onClick={() => handleOpenChange(true)}
           className="hover:bg-transparent hover:underline cursor-pointer"
         >
           {title}
         </span>
-        <Drawer.Backdrop isOpen={isOpen} onOpenChange={setIsOpen}>
+        <Drawer.Backdrop isOpen={isOpen} onOpenChange={handleOpenChange}>
           <Drawer.Content placement="right">
             <Drawer.Dialog className="min-w-5xl max-w-[95vw]">
               {/* Stop pointer events from bubbling to the parent task card's

@@ -23,10 +23,6 @@ npm run studio     # Prisma Studio
 
 After a code change, run `npm run lint:fix` then `npm run build`. After editing the Prisma schema, run `npm run db:push`. There is no test framework configured.
 
-## Workflow
-
-- Start editing in `main` branch.
-
 ## Conventions
 
 - **File suffixes are load-bearing — match them:**
