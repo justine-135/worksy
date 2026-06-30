@@ -71,6 +71,35 @@ const LogItem = ({ log }: { log: ActivityLogResponseDTO }) => {
     );
   }
 
+  if (log.type === EActivityLog.ASSIGNEE_CHANGE) {
+    return (
+      <div className="relative flex items-center min-h-11 py-2 pl-24 w-full">
+        <div className="absolute left-18.75 top-1/2 -translate-y-1/2 z-10 size-3 rounded-full border-2 border-white bg-amber-500 shadow-sm" />
+
+        <div className="flex items-center gap-2 w-full text-sm text-gray-600">
+          <CustomAvatar
+            avatarProps={{ className: "size-5 shrink-0" }}
+            avatarImageProps={{
+              src: image || "",
+              alt: name,
+            }}
+            avatarFallbackProps={{ className: "text-[10px]" }}
+            fallback={name}
+          />
+          <p className="leading-none">
+            <span className="font-semibold text-gray-900 hover:underline cursor-pointer">
+              {name}
+            </span>
+            {" updated the assignees"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Anything that isn't a comment shouldn't reach the comment renderer below.
+  if (log.type !== EActivityLog.COMMENT) return null;
+
   // COMMENT WORKFLOW
   return (
     <div className="relative flex items-start gap-4 py-3 pl-14 w-full">

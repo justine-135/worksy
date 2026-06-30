@@ -4,12 +4,14 @@ import { UserResponseDTO } from "./user.dto";
 export interface TaskResponseDTO {
   id: string;
   projectId: string;
+  taskBoardId: string;
   title: string;
   ticketNumber: number;
   description?: string | null;
   priority?: string | null;
   assignees?: {
     projectMember: {
+      id: string;
       user: UserResponseDTO;
     };
   }[];
@@ -31,6 +33,13 @@ export interface CreateTaskDTO {
 }
 
 export type UpdateTaskDTO = Partial<CreateTaskDTO>;
+
+export interface UpdateTaskAssigneesDTO {
+  projectId: string;
+  userId: string;
+  taskId: string;
+  assignees: string[];
+}
 
 export interface UpdateTaskPositionDTO {
   projectId: string;

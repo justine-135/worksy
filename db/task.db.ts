@@ -3,7 +3,11 @@ import type { Prisma } from "@prisma/client";
 import { touchProjectActivity } from "@/db/projectMember.db";
 import { EActivityLog } from "@/enum/activityLog.enum";
 import { prisma } from "@/lib/prisma";
-import { CreateTaskDTO, UpdateTaskPositionDTO } from "@/types/task.dto";
+import {
+  CreateTaskDTO,
+  UpdateTaskAssigneesDTO,
+  UpdateTaskPositionDTO,
+} from "@/types/task.dto";
 
 export async function createTaskDB(data: CreateTaskDTO) {
   return prisma.$transaction(async (tx) => {
@@ -188,6 +192,70 @@ export async function updateTaskPositionsDB({
   });
 }
 
+export async function updateTaskAssigneesDB({
+  projectId,
+  userId,
+  taskId,
+  assignees,
+}: UpdateTaskAssigneesDTO) {
+  // Make sure the task belongs to a project this user is a member of before
+  // we touch its assignments.
+  const task = await prisma.task.findFirst({
+    where: {
+      id: taskId,
+      projectId,
+      project: {
+        members: { some: { userId } },
+      },
+    },
+    select: { id: true },
+  });
+
+  if (!task) {
+    throw new Error("Task is inaccessible");
+  }
+
+  const currentMember = await prisma.projectMember.findUnique({
+    where: {
+      userId_projectId: { userId, projectId },
+    },
+    select: { id: true },
+  });
+
+  if (!currentMember) {
+    throw new Error("User is not a member of this project");
+  }
+
+  return prisma.$transaction(async (tx) => {
+    // Assignees are a full replacement: wipe the existing rows and recreate
+    // them from the incoming selection (the TaskAssignment join table has a
+    // composite [taskId, projectMemberId] key, so there's nothing to diff).
+    await tx.taskAssignment.deleteMany({ where: { taskId } });
+
+    if (assignees.length > 0) {
+      await tx.taskAssignment.createMany({
+        data: assignees.map((projectMemberId) => ({
+          taskId,
+          projectMemberId,
+        })),
+      });
+    }
+
+    // Audit trail entry powering the task timeline.
+    await tx.activityLog.create({
+      data: {
+        type: EActivityLog.ASSIGNEE_CHANGE,
+        taskId,
+        projectId,
+        actorId: currentMember.id,
+      },
+    });
+
+    // Float this project to the top of the user's "Recents".
+    await touchProjectActivity({ userId, projectId }, tx);
+  });
+}
+
 export async function getTaskDetail(id: string) {
   return await prisma.task.findUnique({
     where: {
@@ -196,6 +264,7 @@ export async function getTaskDetail(id: string) {
     select: {
       id: true,
       projectId: true,
+      taskBoardId: true,
       title: true,
       description: true,
       createdAt: true,
@@ -205,6 +274,7 @@ export async function getTaskDetail(id: string) {
         select: {
           projectMember: {
             select: {
+              id: true,
               user: {
                 select: {
                   image: true,

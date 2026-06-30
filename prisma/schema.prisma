@@ -160,7 +160,8 @@ enum ActivityType {
   STATUS_CHANGE
   COMMENT
   TASK_CREATE
-  // Add types later like: TASK_EDIT, ASSIGNEE_CHANGE
+  ASSIGNEE_CHANGE
+  // Add types later like: TASK_EDIT
 }
 
 model ActivityLog {
