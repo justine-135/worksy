@@ -23,12 +23,9 @@ export const metadata: Metadata = {
 
 export default async function ProjectLayout({
   children,
-  params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
   const session = await getServerSession(authConfig);
 
   if (!session || !session.user?.id) {
@@ -44,7 +41,7 @@ export default async function ProjectLayout({
           </div>
           <main className="flex-1 min-w-0">{children}</main>
         </div>
-        <SessionHydrator userId={session?.user.id} projectId={id} />
+        <SessionHydrator userId={session?.user.id} />
       </ToastLayout>
     </div>
   );
