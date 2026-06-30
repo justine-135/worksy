@@ -1,24 +1,11 @@
 import Link from "next/link";
 import { LuZap } from "react-icons/lu";
-import {
-  SiDropbox,
-  SiHubspot,
-  SiIntercom,
-  SiSquare,
-} from "react-icons/si";
 
 import Avatar from "./Avatar";
 
-const partners = [
-  { label: "HubSpot", Icon: SiHubspot },
-  { label: "Dropbox", Icon: SiDropbox },
-  { label: "Square", Icon: SiSquare },
-  { label: "Intercom", Icon: SiIntercom },
-];
-
 export default function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-[#f6f7f4] px-6 pb-16 pt-14">
+    <section className="relative overflow-hidden bg-background px-6 pb-20 pt-14">
       {/* faint grid backdrop */}
       <div
         aria-hidden
@@ -44,25 +31,25 @@ export default function HeroSection() {
         />
         <Avatar
           initials="LS"
-          gradient="from-emerald-400 to-teal-500"
+          gradient="from-violet-400 to-indigo-500"
           className="absolute -right-10 top-44 hidden h-12 w-12 xl:flex"
         />
 
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-900/10 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700 shadow-sm">
-          <LuZap className="h-3.5 w-3.5 fill-emerald-500 text-emerald-500" />
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary shadow-sm">
+          <LuZap className="h-3.5 w-3.5 fill-primary text-primary" />
           Built for fast teams
         </span>
 
-        <h1 className="mt-6 text-4xl font-semibold leading-tight tracking-tight text-emerald-950 sm:text-5xl">
+        <h1 className="mt-6 text-4xl font-semibold leading-tight tracking-tight text-foreground sm:text-5xl">
           One tool to{" "}
           <span className="relative whitespace-nowrap">
             manage projects
-            <span className="absolute inset-x-0 -bottom-1 h-3 -skew-x-6 bg-lime-300/70" />
+            <span className="absolute inset-x-0 -bottom-1 h-3 -skew-x-6 bg-primary/25" />
           </span>{" "}
           and your team
         </h1>
 
-        <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-emerald-950/60">
+        <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-muted">
           Worksy helps teams plan, track, and ship work faster — with Kanban
           boards, role-based access, and data-driven insights to keep every
           project on schedule.
@@ -71,34 +58,16 @@ export default function HeroSection() {
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href="/sign-in"
-            className="w-full rounded-full bg-emerald-800 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-900 sm:w-auto"
+            className="w-full rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary/90 sm:w-auto"
           >
             Start for Free
           </Link>
           <Link
             href="#features"
-            className="w-full rounded-full border border-emerald-900/15 bg-white px-6 py-3 text-sm font-semibold text-emerald-950 transition-colors hover:bg-emerald-50 sm:w-auto"
+            className="w-full rounded-full border border-border bg-surface px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-surface-muted sm:w-auto"
           >
             See how it works
           </Link>
-        </div>
-      </div>
-
-      {/* partner row */}
-      <div className="relative mx-auto mt-16 flex max-w-4xl flex-col items-center gap-6 sm:flex-row sm:justify-between">
-        <p className="max-w-[7rem] text-center text-xs font-medium leading-5 text-emerald-950/50 sm:text-left">
-          More than 100+ companies partner
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
-          {partners.map(({ label, Icon }) => (
-            <div
-              key={label}
-              className="flex items-center gap-2 text-emerald-950/40 transition-colors hover:text-emerald-950/70"
-            >
-              <Icon className="h-5 w-5" />
-              <span className="text-sm font-semibold">{label}</span>
-            </div>
-          ))}
         </div>
       </div>
     </section>

@@ -28,7 +28,7 @@ const socials = [FaXTwitter, FaLinkedinIn, FaInstagram, FaGithub];
 
 export default function LandingFooter() {
   return (
-    <footer className="bg-[#1d2b25] px-6 py-14 text-white">
+    <footer className="bg-foreground px-6 py-14 text-white">
       <div className="mx-auto grid max-w-5xl gap-10 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
         <div>
           <Logo light />
