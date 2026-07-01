@@ -30,6 +30,7 @@ import { TaskResponseDTO } from "@/types/task.dto";
 import { TaskBoardResponseDTO } from "@/types/taskboard.dto";
 
 import CustomAvatar from "../common/custom/CustomAvatar";
+import BoardSkeleton from "./BoardSkeleton";
 import TaskDetailDrawer from "./drawer/TaskDetailDrawer";
 import AddTaskBoardModal from "./modal/AddTaskBoardModal";
 import AddTaskModal from "./modal/AddTaskModal";
@@ -411,7 +412,7 @@ export default function BoardDetail() {
         className="TaskBoardContainer flex min-h-[calc(100vh-5.5rem)] w-full gap-4"
         orientation="horizontal"
       >
-        {isLoadingView && "Loading"}
+        {isLoadingView && <BoardSkeleton />}
         {isDragDropView && (
           <DndContext
             collisionDetection={closestCorners}

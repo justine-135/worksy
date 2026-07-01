@@ -6,6 +6,7 @@ import { useGetTaskBoard } from "@/hooks/taskboard/useGetTaskBoard";
 import { useSessionStore } from "@/store/session.store";
 
 import DashboardActivity from "./DashboardActivity";
+import DashboardSkeleton from "./DashboardSkeleton";
 import AssignedToMe, { AssignedTask } from "./Sections/AssignedToMe";
 import BoardColumnsCard from "./Sections/BoardColumnsCard";
 import MembersOverview from "./Sections/MembersOverview";
@@ -16,11 +17,15 @@ export default function DashboardDetail() {
   const userId = useSessionStore((s) => s.userId);
   const projectId = useSessionStore((s) => s.projectId);
 
-  const { data: boards } = useGetTaskBoard({
+  const { data: boards, isLoading: isLoadingBoards } = useGetTaskBoard({
     userId: userId ?? "",
     projectId: projectId ?? "",
   });
-  const { data: members } = useGetProjectMembers({ projectId });
+  const { data: members, isLoading: isLoadingMembers } = useGetProjectMembers({
+    projectId,
+  });
+
+  if (isLoadingBoards || isLoadingMembers) return <DashboardSkeleton />;
 
   const allBoards = boards ?? [];
   const allTasks = allBoards.flatMap((board) =>

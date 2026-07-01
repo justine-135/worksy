@@ -36,6 +36,7 @@ After a code change, run `npm run lint:fix` then `npm run build`. After editing 
 - Prisma client is a singleton in `lib/prisma.ts`; multi-step writes use `prisma.$transaction()`.
 - All mutations are expected to write an `ActivityLog` entry (audit trail).
 - **Recents:** every user action on a project (task create/move, comment, member/role/permission change, invite, etc.) must call `touchProjectActivity({ userId, projectId })` from `db/projectMember.db.ts` (pass the `tx` client when inside a `$transaction`). This stamps `ProjectMember.lastActivityAt`, moving the project to the top of the sidebar "Recents" list (`getRecentProjects` orders by it). On the client, call `useInvalidateRecents()` in the mutation's `onSettled` so the list re-sorts immediately.
+- **Permission-gated pages:** wrap every permission-protected page in `<PermissionGate>` (`components/common/PermissionGate.tsx`) instead of inlining a `hasPermission` check. The flow is: **access page → show loading skeleton → no permission? show `CustomEmpty` (centered) → else render the page.** Never render bare "No permission" / "Loading" text — permissions load async (`usePermission().isLoadingPermission`), so a raw permission check flashes a false "No permission" before the list arrives. Pass a page-shaped `skeleton` prop (e.g. `DashboardSkeleton`, `BoardSkeleton`, or the shared `TablePageSkeleton` for search-field-over-table pages). Likewise, any in-page data-loading state (React Query `isLoading`) should render a skeleton, not text.
 
 ## Architecture
 
