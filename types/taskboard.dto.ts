@@ -1,8 +1,11 @@
+import { ETaskStatus } from "@/enum/taskStatus.enum";
+
 import { TaskResponseDTO } from "./task.dto";
 
 export interface TaskBoardResponseDTO {
   id: string;
   title: string;
+  status: ETaskStatus;
   order: number;
   tasks: TaskResponseDTO[];
   project: {
@@ -28,4 +31,22 @@ export interface TaskBoardPositionMutationDTO extends UserProjectParamsDTO {
 export interface CreateTaskBoardDTO {
   title: string;
   projectId: string;
+}
+
+export interface UpdateTaskBoardDTO {
+  projectId: string;
+  userId: string;
+  taskBoardId: string;
+  title: string;
+  status: ETaskStatus;
+}
+
+// Which resource a DELETE targets: the column itself, or just its tasks.
+export type DeleteTaskBoardTarget = "board" | "tasks";
+
+export interface DeleteTaskBoardDTO {
+  projectId: string;
+  userId: string;
+  taskBoardId: string;
+  target: DeleteTaskBoardTarget;
 }

@@ -4,7 +4,6 @@ import { touchProjectActivity } from "@/db/projectMember.db";
 import { EActivityLog } from "@/enum/activityLog.enum";
 import { ETaskStatus } from "@/enum/taskStatus.enum";
 import { prisma } from "@/lib/prisma";
-import { deriveStatusFromColumn } from "@/lib/task/taskStatus.lib";
 import {
   CreateTaskDTO,
   UpdateTaskAssigneesDTO,
@@ -50,19 +49,14 @@ export async function createTaskDB(data: CreateTaskDTO) {
       },
     });
 
-    // Derive the initial status from the column the task is created in, using
-    // the same column-position rule as drag-to-move (first->Todo, last->Done,
-    // middle->In Progress). Falls back to TODO if the column can't be ranked.
-    const orderedBoards = await tx.taskBoard.findMany({
-      where: { projectId: data.projectId },
-      orderBy: { order: "asc" },
-      select: { id: true },
+    // The task inherits the status the destination column is configured to
+    // stamp (columns own their status now — see TaskBoard.status). Falls back
+    // to TODO if the column somehow has none.
+    const board = await tx.taskBoard.findUnique({
+      where: { id: data.taskBoardId },
+      select: { status: true },
     });
-    const status =
-      deriveStatusFromColumn(
-        data.taskBoardId,
-        orderedBoards.map((board) => board.id),
-      ) ?? ETaskStatus.TODO;
+    const status = board?.status ?? ETaskStatus.TODO;
 
     const res = await tx.task.create({
       data: {
@@ -169,14 +163,12 @@ export async function updateTaskPositionsDB({
     throw new Error("User is not a member of this project");
   }
 
-  // All of the project's columns in display order, used to auto-suggest the
-  // task's status from the column it lands in (first->Todo, last->Done).
-  const orderedBoards = await prisma.taskBoard.findMany({
-    where: { projectId },
-    orderBy: { order: "asc" },
-    select: { id: true },
+  // The destination column owns the status it stamps onto tasks that land in
+  // it — read it so we can align the moved task's status below.
+  const destinationBoard = await prisma.taskBoard.findUnique({
+    where: { id: taskBoardId },
+    select: { status: true },
   });
-  const orderedBoardIds = orderedBoards.map((board) => board.id);
 
   await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const isColumnChanged = task.taskBoardId !== taskBoardId;
@@ -198,12 +190,9 @@ export async function updateTaskPositionsDB({
         },
       });
 
-      // Auto-suggest: align the status field with the destination column.
-      // Overridable later via the drawer's Status dropdown.
-      const suggestedStatus = deriveStatusFromColumn(
-        taskBoardId,
-        orderedBoardIds,
-      );
+      // Align the status field with the destination column's configured
+      // status. Overridable later via the drawer's Status dropdown.
+      const suggestedStatus = destinationBoard?.status;
 
       if (suggestedStatus && suggestedStatus !== task.status) {
         await tx.task.update({

@@ -34,6 +34,7 @@ import BoardSkeleton from "./BoardSkeleton";
 import TaskDetailDrawer from "./drawer/TaskDetailDrawer";
 import AddTaskBoardModal from "./modal/AddTaskBoardModal";
 import AddTaskModal from "./modal/AddTaskModal";
+import EditTaskBoardModal from "./modal/EditTaskBoardModal";
 import useDragState, { getColumnId, getTaskId } from "./useDragState";
 
 const transition = {
@@ -253,7 +254,14 @@ const TaskBoardContent = ({
               {column.tasks.length}
             </div>
           </div>
-          <div className="ml-auto">
+          {/* Stop pointer-downs from reaching the card's dnd-kit drag handle,
+              otherwise the sensor swallows the press and react-aria overlays
+              (the actions Dropdown) never open. */}
+          <div
+            className="ml-auto flex items-center justify-center gap-1"
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <EditTaskBoardModal column={column} />
             <AddTaskModal projectId={projectId} taskBoardID={column.id} />
           </div>
         </div>

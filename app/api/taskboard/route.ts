@@ -3,7 +3,10 @@ import { getServerSession } from "next-auth";
 
 import {
   createTaskBoard,
+  deleteAllTasksInBoardDB,
+  deleteTaskBoardDB,
   getTaskBoard,
+  updateTaskBoardDB,
   updateTaskBoardOrdersDB,
 } from "@/db/taskboard.db";
 import { authConfig } from "@/lib/auth/auth";
@@ -53,6 +56,60 @@ export async function PATCH(req: Request) {
     userId,
     orderedTaskBoardIds,
   });
+
+  return Response.json({ success: true });
+}
+
+export async function PUT(req: Request) {
+  const session = await getServerSession(authConfig);
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const body = await req.json();
+  const { projectId, userId, taskBoardId, title, status } = body;
+
+  if (!projectId || !userId || !taskBoardId || !title || !status) {
+    return Response.json({ error: "Invalid payload" }, { status: 400 });
+  }
+
+  await updateTaskBoardDB({
+    projectId,
+    userId,
+    taskBoardId,
+    title,
+    status,
+  });
+
+  return Response.json({ success: true });
+}
+
+export async function DELETE(req: Request) {
+  const session = await getServerSession(authConfig);
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const body = await req.json();
+  const { projectId, userId, taskBoardId, target } = body;
+
+  if (
+    !projectId ||
+    !userId ||
+    !taskBoardId ||
+    (target !== "board" && target !== "tasks")
+  ) {
+    return Response.json({ error: "Invalid payload" }, { status: 400 });
+  }
+
+  // `target` selects the scope: drop the whole column, or just empty it.
+  if (target === "board") {
+    await deleteTaskBoardDB({ projectId, userId, taskBoardId });
+  } else {
+    await deleteAllTasksInBoardDB({ projectId, userId, taskBoardId });
+  }
 
   return Response.json({ success: true });
 }
