@@ -4,6 +4,7 @@ import { Button } from "@heroui/react/button";
 import { Skeleton } from "@heroui/react/skeleton";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useState } from "react";
 import { BsBoxFill } from "react-icons/bs";
 import { TbColumns2 } from "react-icons/tb";
 
@@ -37,16 +38,34 @@ export default function SidebarNavigation() {
 
   const params = useParams();
 
+  const [collapsed, setCollapsed] = useState(false);
+
   return (
-    <nav className="SidebarNavigation flex flex-col p-4 fixed border-r border-color-border min-h-screen min-w-61.5">
+    <nav
+      className={`SidebarNavigation flex flex-col p-4 fixed border-r border-color-border min-h-screen ${
+        collapsed ? "min-w-16" : "min-w-61.5"
+      }`}
+    >
       <div className="flex flex-col">
-        <div className="flex items-center justify-between mb-4">
-          <BsBoxFill />
-          <TbColumns2 />
+        <div
+          className={`flex items-center mb-4 ${
+            collapsed ? "justify-center" : "justify-between"
+          }`}
+        >
+          {!collapsed && <BsBoxFill />}
+          <button
+            type="button"
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            onClick={() => setCollapsed((prev) => !prev)}
+            className="cursor-pointer"
+          >
+            <TbColumns2 />
+          </button>
         </div>
-        <ProjectRoutes />
-        {isLoading && <SkeletonComponent />}
-        <div className="flex flex-col mt-4 space-y-1">
+        <ProjectRoutes collapsed={collapsed} />
+        {!collapsed && isLoading && <SkeletonComponent />}
+        {!collapsed && (
+          <div className="flex flex-col mt-4 space-y-1">
           {!!data?.length && (
             <span className="text-sm font-medium text-default-500">
               Recents
@@ -73,7 +92,8 @@ export default function SidebarNavigation() {
               </div>
             );
           })}
-        </div>
+          </div>
+        )}
       </div>
       <SidebarUserSurface />
     </nav>
