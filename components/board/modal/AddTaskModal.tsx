@@ -20,8 +20,11 @@ import CustomButton from "@/components/common/custom/CustomButton";
 import PermissionGuard from "@/components/common/PermissionGuard";
 import TiptapEditor from "@/components/common/TiptapEditor";
 import { QUERY_KEYS } from "@/constant/queryKeys";
+import { DEFAULT_TASK_PRIORITY, PRIORITY_OPTIONS } from "@/constant/taskPriority";
 import { Permissions } from "@/enum/permissions.enum";
+import { ETaskPriority } from "@/enum/taskPriority.enum";
 import { useGetProjectMembers } from "@/hooks/member/useGetProjectMembers";
+import { useGetProject } from "@/hooks/project/useGetProject";
 import useCreateTaskMutation from "@/hooks/task/useCreateTask";
 import useInvalidateQuery from "@/hooks/taskboard/useInvalidateQuery";
 import {
@@ -39,15 +42,24 @@ export default function AddTaskModal({
   taskBoardID: string;
 }) {
   const { data } = useGetProjectMembers({ projectId });
+  const { data: project } = useGetProject(projectId);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [description, setDescription] = useState("");
   const [selectedAssignees, setSelectedAssignees] = useState<string[]>([]);
+  // Null = "follow the project default"; a value = the user picked one. Derived
+  // (not effect-synced) so the picker tracks the project default until touched.
+  const [priorityOverride, setPriorityOverride] =
+    useState<ETaskPriority | null>(null);
   // The task this new one will be a child of (optional). Left empty → the new
   // task is a top-level parent.
   const [parentTask, setParentTask] = useState<TaskSearchResultDTO | null>(null);
 
   const queryClient = useQueryClient();
   const userId = useSessionStore((s) => s.userId);
+
+  const projectDefaultPriority =
+    (project?.defaultTaskPriority as ETaskPriority) ?? DEFAULT_TASK_PRIORITY;
+  const priority = priorityOverride ?? projectDefaultPriority;
 
   const { invalidateTaskBoards } = useInvalidateQuery(
     projectId,
@@ -76,6 +88,7 @@ export default function AddTaskModal({
       setDescription("");
       setSelectedAssignees([]);
       setParentTask(null);
+      setPriorityOverride(null);
     }
   };
 
@@ -86,7 +99,7 @@ export default function AddTaskModal({
       {
         ...data,
         description,
-        priority: "low",
+        priority,
         taskBoardId: taskBoardID,
         assignees: selectedAssignees,
         projectId,
@@ -100,6 +113,7 @@ export default function AddTaskModal({
           setDescription("");
           setSelectedAssignees([]);
           setParentTask(null);
+          setPriorityOverride(null);
           toast("Task board is created");
           setIsOpen(!isOpen);
           // Refresh the sidebar "Recents" list now that this project has a new
@@ -163,6 +177,32 @@ export default function AddTaskModal({
                           className="flex items-center gap-2"
                         >
                           {member.name}
+                          <ListBox.ItemIndicator />
+                        </ListBox.Item>
+                      ))}
+                    </ListBox>
+                  </Select.Popover>
+                </Select>
+                <Select
+                  aria-label="Task priority"
+                  value={priority}
+                  onChange={(key) => setPriorityOverride(key as ETaskPriority)}
+                >
+                  <Label>Priority</Label>
+                  <Select.Trigger className="flex w-full items-center justify-between rounded-lg border border-default-200 bg-surface p-2">
+                    <Select.Value />
+                    <Select.Indicator />
+                  </Select.Trigger>
+                  <Select.Popover>
+                    <ListBox>
+                      {PRIORITY_OPTIONS.map((option) => (
+                        <ListBox.Item
+                          id={option.value}
+                          key={option.value}
+                          textValue={option.label}
+                          className="flex items-center justify-between gap-2"
+                        >
+                          {option.label}
                           <ListBox.ItemIndicator />
                         </ListBox.Item>
                       ))}

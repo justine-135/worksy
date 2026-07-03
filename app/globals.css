@@ -43,11 +43,46 @@
   --accent-to: #f97316;
 }
 
-/* Dark Mode (kept disabled until a dark palette is designed)
+/*
+ * Dark Mode. Because every utility resolves through these CSS variables
+ * (bg-surface -> var(--color-surface) -> var(--surface)), redefining the raw
+ * tokens under `.dark` recolors the entire app — no `dark:` classes needed.
+ * The `.dark` class is toggled on <html> by the theme provider.
+ */
 .dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-} */
+  /* Surfaces & text */
+  --background: #0b0e14;
+  --foreground: #e6e8eb;
+  --surface: #151922;
+  --surface-muted: #1e242e;
+  --border: #2a313c;
+  --muted: #9aa3af;
+  --subtle: #6b7280;
+
+  /* Brand */
+  --primary: #60a5fa;
+  --primary-soft: #17233b;
+
+  /* Status (semantic) */
+  --success: #4ade80;
+  --success-soft: #14311f;
+  --warning: #fbbf24;
+  --warning-soft: #3a2a10;
+  --danger: #f87171;
+  --danger-soft: #3a1414;
+  --info: #22d3ee;
+  --info-soft: #0c2f36;
+
+  /* Dashboard stat accents */
+  --stat-total: #e6e8eb;
+  --stat-completed: #2dd4bf;
+  --stat-progress: #fb923c;
+  --stat-todo: #f472b6;
+
+  /* Accent gradient (progress bars) */
+  --accent-from: #ef4444;
+  --accent-to: #f97316;
+}
 
 @theme inline {
   /* Colors */

@@ -6,13 +6,14 @@ import BoardComponent from "@/components/board/BoardComponent";
 import DashboardComponent from "@/components/dashboard/DashboardComponent";
 import MembersComponent from "@/components/members/MembersComponent";
 import RolesComponent from "@/components/roles/RolesComponent";
+import SettingsComponent from "@/components/settings/SettingsComponent";
 
 const sectionMap: Record<string, React.ReactNode> = {
   dashboard: <DashboardComponent />,
   board: <BoardComponent />,
   members: <MembersComponent />,
   roles: <RolesComponent />,
-  settings: <>asdasd</>,
+  settings: <SettingsComponent />,
 };
 
 export default function SectionComponent() {

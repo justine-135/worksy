@@ -11,7 +11,10 @@ export const QUERY_KEYS = {
     ["task", "search", projectId, query] as const,
   PROJECTS: (userId?: string | null, filter: TProjectFilter = "all") =>
     ["projects", userId, filter] as const,
+  PROJECT: (projectId?: string | null) => ["project", projectId] as const,
   USER: (userId: string | null) => ["user", userId] as const,
+  USER_PROFILE: (userId?: string | null) =>
+    ["user", "profile", userId] as const,
   USER_SEARCH: (query: string) => ["user", "search", query] as const,
   INVITES: (receiverId?: string | null) => ["invites", receiverId] as const,
   ACTIVITY: (projectId?: string | null, limit?: number) =>
