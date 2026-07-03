@@ -57,6 +57,20 @@ export async function getProjectMember({
   });
 }
 
+/**
+ * Resolve which project a membership row belongs to, by its `ProjectMember.id`
+ * (for server-side permission checks). Note the members table passes the
+ * membership id — not the user id — as this identifier.
+ */
+export async function getMemberProjectId(memberId: string) {
+  const member = await prisma.projectMember.findUnique({
+    where: { id: memberId },
+    select: { projectId: true },
+  });
+
+  return member?.projectId ?? null;
+}
+
 export async function updateMemberStatusRole(
   data: EditMemberStatusRoleDTO,
   actorUserId: string,

@@ -26,11 +26,13 @@ import {
 
 import ConfirmModal from "@/components/common/ConfirmModal";
 import CustomButton from "@/components/common/custom/CustomButton";
+import { Permissions } from "@/enum/permissions.enum";
 import {
   ETaskStatus,
   TASK_STATUS_LABELS,
   TASK_STATUS_OPTIONS,
 } from "@/enum/taskStatus.enum";
+import { usePermission } from "@/hooks/permission/usePermission";
 import useDeleteTaskBoardMutation from "@/hooks/taskboard/useDeleteTaskBoardMutation";
 import { useGetTaskBoard } from "@/hooks/taskboard/useGetTaskBoard";
 import useInvalidateQuery from "@/hooks/taskboard/useInvalidateQuery";
@@ -60,6 +62,15 @@ export default function EditTaskBoardModal({
   const queryClient = useQueryClient();
   const userId = useSessionStore((s) => s.userId);
   const projectId = useSessionStore((s) => s.projectId);
+
+  // Each column action is gated by its own permission. Moving/editing the
+  // column needs board.edit, deleting the column needs board.delete, and
+  // emptying it (removing all its tasks) needs task.delete.
+  const { hasPermission } = usePermission();
+  const canEditColumn = hasPermission(Permissions.BoardEdit);
+  const canDeleteColumn = hasPermission(Permissions.BoardDelete);
+  const canRemoveTasks = hasPermission(Permissions.TaskDelete);
+  const showMenu = canEditColumn || canDeleteColumn || canRemoveTasks;
 
   const { invalidateTaskBoards } = useInvalidateQuery(
     projectId,
@@ -197,82 +208,98 @@ export default function EditTaskBoardModal({
 
   return (
     <div>
-      <Dropdown>
-        <Dropdown.Trigger
-          aria-label="Column actions"
-          className="flex h-5 items-center justify-center rounded-md px-1 text-default-500 outline-none hover:bg-default-100"
-        >
-          <BiDotsVerticalRounded />
-        </Dropdown.Trigger>
-        <Dropdown.Popover>
-          <Dropdown.Menu
+      {showMenu && (
+        <Dropdown>
+          <Dropdown.Trigger
             aria-label="Column actions"
-            className="min-w-56 p-1"
-            onAction={handleAction}
-            disabledKeys={disabledKeys}
+            className="flex h-5 items-center justify-center rounded-md px-1 text-default-500 outline-none hover:bg-default-100"
           >
-            <Dropdown.Section>
-              <Header className={sectionTitleClass}>Column</Header>
-              <Dropdown.Item id="edit" textValue="Edit details">
-                <div className="flex items-center gap-2">
-                  <BiEditAlt />
-                  Edit details
-                </div>
-              </Dropdown.Item>
-              <Dropdown.Item id="delete" variant="danger" textValue="Delete">
-                <div className="flex items-center gap-2">
-                  <BiTrash />
-                  Delete
-                </div>
-              </Dropdown.Item>
-            </Dropdown.Section>
+            <BiDotsVerticalRounded />
+          </Dropdown.Trigger>
+          <Dropdown.Popover>
+            <Dropdown.Menu
+              aria-label="Column actions"
+              className="min-w-56 p-1"
+              onAction={handleAction}
+              disabledKeys={disabledKeys}
+            >
+              {(canEditColumn || canDeleteColumn) && (
+                <Dropdown.Section>
+                  <Header className={sectionTitleClass}>Column</Header>
+                  {canEditColumn && (
+                    <Dropdown.Item id="edit" textValue="Edit details">
+                      <div className="flex items-center gap-2">
+                        <BiEditAlt />
+                        Edit details
+                      </div>
+                    </Dropdown.Item>
+                  )}
+                  {canDeleteColumn && (
+                    <Dropdown.Item
+                      id="delete"
+                      variant="danger"
+                      textValue="Delete"
+                    >
+                      <div className="flex items-center gap-2">
+                        <BiTrash />
+                        Delete
+                      </div>
+                    </Dropdown.Item>
+                  )}
+                </Dropdown.Section>
+              )}
 
-            <Dropdown.Section>
-              <Header className={sectionTitleClass}>Items</Header>
-              <Dropdown.Item
-                id="remove-all"
-                variant="danger"
-                textValue="Remove all"
-              >
-                <div className="flex items-center gap-2">
-                  <BiTrash />
-                  Remove all
-                </div>
-              </Dropdown.Item>
-            </Dropdown.Section>
+              {canRemoveTasks && (
+                <Dropdown.Section>
+                  <Header className={sectionTitleClass}>Items</Header>
+                  <Dropdown.Item
+                    id="remove-all"
+                    variant="danger"
+                    textValue="Remove all"
+                  >
+                    <div className="flex items-center gap-2">
+                      <BiTrash />
+                      Remove all
+                    </div>
+                  </Dropdown.Item>
+                </Dropdown.Section>
+              )}
 
-            <Dropdown.Section>
-              <Header className={sectionTitleClass}>Position</Header>
-              <Dropdown.Item id="move-left" textValue="Move left">
-                <div className="flex items-center gap-2">
-                  <BiLeftArrowAlt />
-                  <div className="flex flex-col">
-                    <span>Move left</span>
-                    {isLeftmost && (
-                      <span className="text-xs text-default-400">
-                        This is the left-most column
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </Dropdown.Item>
-              <Dropdown.Item id="move-right" textValue="Move right">
-                <div className="flex items-center gap-2">
-                  <BiRightArrowAlt />
-                  <div className="flex flex-col">
-                    <span>Move right</span>
-                    {isRightmost && (
-                      <span className="text-xs text-default-400">
-                        This is the right-most column
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </Dropdown.Item>
-            </Dropdown.Section>
-          </Dropdown.Menu>
-        </Dropdown.Popover>
-      </Dropdown>
+              {canEditColumn && (
+                <Dropdown.Section>
+                  <Header className={sectionTitleClass}>Position</Header>
+                  <Dropdown.Item id="move-left" textValue="Move left">
+                    <div className="flex items-center gap-2">
+                      <BiLeftArrowAlt />
+                      <div className="flex flex-col">
+                        <span>Move left</span>
+                        {isLeftmost && (
+                          <span className="text-xs text-default-400">
+                            This is the left-most column
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </Dropdown.Item>
+                  <Dropdown.Item id="move-right" textValue="Move right">
+                    <div className="flex items-center gap-2">
+                      <BiRightArrowAlt />
+                      <div className="flex flex-col">
+                        <span>Move right</span>
+                        {isRightmost && (
+                          <span className="text-xs text-default-400">
+                            This is the right-most column
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </Dropdown.Item>
+                </Dropdown.Section>
+              )}
+            </Dropdown.Menu>
+          </Dropdown.Popover>
+        </Dropdown>
+      )}
 
       <Modal.Backdrop isOpen={isEditOpen} onOpenChange={handleEditOpenChange}>
         <Modal.Container>

@@ -2,7 +2,9 @@ import { Chip } from "@heroui/react";
 import { Button } from "@heroui/react/button";
 import { BiTrash } from "react-icons/bi";
 
+import PermissionGuard from "@/components/common/PermissionGuard";
 import { StatusDTO } from "@/enum/member";
+import { Permissions } from "@/enum/permissions.enum";
 import { useSessionStore } from "@/store/session.store";
 import { ProjectMemberTableDTO } from "@/types/projectMember.dto";
 import { ColumnDef } from "@/types/table";
@@ -107,9 +109,11 @@ export default function memberTableColumns() {
               userId={member.id}
             />
             <ViewMemberDrawer member={member} />
-            <Button isIconOnly size="sm" variant="danger-soft">
-              <BiTrash />
-            </Button>
+            <PermissionGuard permission={Permissions.MemberDelete}>
+              <Button isIconOnly size="sm" variant="danger-soft">
+                <BiTrash />
+              </Button>
+            </PermissionGuard>
           </div>
         );
       },

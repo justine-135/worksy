@@ -69,6 +69,16 @@ export async function getRoleSearch({
   });
 }
 
+/** Resolve which project a role belongs to (for server-side permission checks). */
+export async function getRoleProjectId(roleId: string) {
+  const role = await prisma.role.findUnique({
+    where: { id: roleId },
+    select: { projectId: true },
+  });
+
+  return role?.projectId ?? null;
+}
+
 export async function updateRole(
   { data }: { data: EditRoleDTO },
   actorUserId: string,

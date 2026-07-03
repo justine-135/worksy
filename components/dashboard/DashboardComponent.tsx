@@ -7,7 +7,7 @@ import DashboardSkeleton from "./DashboardSkeleton";
 export default function DashboardComponent() {
   return (
     <PermissionGate
-      permission={Permissions.BoardView}
+      permission={Permissions.DashboardView}
       skeleton={<DashboardSkeleton />}
     >
       <DashboardDetail />

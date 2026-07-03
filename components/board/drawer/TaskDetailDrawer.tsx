@@ -28,6 +28,7 @@ import CustomButton from "@/components/common/custom/CustomButton";
 import TiptapEditor from "@/components/common/TiptapEditor";
 import { QUERY_KEYS } from "@/constant/queryKeys";
 import { EActivityLog } from "@/enum/activityLog.enum";
+import { Permissions } from "@/enum/permissions.enum";
 import {
   ETaskStatus,
   TASK_STATUS_LABELS,
@@ -35,6 +36,7 @@ import {
 } from "@/enum/taskStatus.enum";
 import useCreateComment from "@/hooks/activity/useCreateComment";
 import { useGetProjectMembers } from "@/hooks/member/useGetProjectMembers";
+import { usePermission } from "@/hooks/permission/usePermission";
 import { useGetTaskDetail } from "@/hooks/task/useGetTaskDetail";
 import useUpdateTaskAssignees from "@/hooks/task/useUpdateTaskAssignees";
 import useUpdateTaskRelation from "@/hooks/task/useUpdateTaskRelation";
@@ -290,6 +292,12 @@ const TaskSidebar = ({
   const { mutation: updateStatus } = useUpdateTaskStatus();
   const { mutation: updateRelation } = useUpdateTaskRelation();
 
+  // Every mutating control in this sidebar (assignees, relationships, column,
+  // status) edits the task, so they are all gated behind task.edit. Read-only
+  // displays stay visible; only the edit affordances are hidden/disabled.
+  const { hasPermission } = usePermission();
+  const canEditTask = hasPermission(Permissions.TaskEdit);
+
   // The relationship direction chosen from the cog dropdown (null = closed, so
   // the section shows its read-only parents list instead of the picker).
   const [relationType, setRelationType] = useState<RelationType | null>(null);
@@ -418,7 +426,7 @@ const TaskSidebar = ({
       <SidebarSection
         title="Assignees"
         action={
-          !isEditingAssignees ? (
+          !isEditingAssignees && canEditTask ? (
             <Button
               aria-label="Edit assignees"
               variant="tertiary"
@@ -492,28 +500,30 @@ const TaskSidebar = ({
       <SidebarSection
         title="Relationships"
         action={
-          <Dropdown>
-            <Dropdown.Trigger
-              aria-label="Add relationship"
-              className="flex h-6 items-center justify-center rounded-md px-1 text-gray-500 outline-none hover:bg-default-100"
-            >
-              <BiCog className="size-4" />
-            </Dropdown.Trigger>
-            <Dropdown.Popover>
-              <Dropdown.Menu
+          canEditTask ? (
+            <Dropdown>
+              <Dropdown.Trigger
                 aria-label="Add relationship"
-                className="min-w-44 p-1"
-                onAction={(key: Key) => setRelationType(key as RelationType)}
+                className="flex h-6 items-center justify-center rounded-md px-1 text-gray-500 outline-none hover:bg-default-100"
               >
-                <Dropdown.Item id="parent" textValue="Add a parent">
-                  Add a parent
-                </Dropdown.Item>
-                <Dropdown.Item id="child" textValue="Add a subtask">
-                  Add a subtask
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown.Popover>
-          </Dropdown>
+                <BiCog className="size-4" />
+              </Dropdown.Trigger>
+              <Dropdown.Popover>
+                <Dropdown.Menu
+                  aria-label="Add relationship"
+                  className="min-w-44 p-1"
+                  onAction={(key: Key) => setRelationType(key as RelationType)}
+                >
+                  <Dropdown.Item id="parent" textValue="Add a parent">
+                    Add a parent
+                  </Dropdown.Item>
+                  <Dropdown.Item id="child" textValue="Add a subtask">
+                    Add a subtask
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown.Popover>
+            </Dropdown>
+          ) : undefined
         }
       >
         {relationType ? (
@@ -566,16 +576,18 @@ const TaskSidebar = ({
                   </span>
                   {parent.title}
                 </button>
-                <Button
-                  aria-label={`Remove parent ${parent.title}`}
-                  variant="danger"
-                  isIconOnly
-                  className="h-6 w-6 shrink-0 p-0"
-                  onClick={() => setParentToRemove(parent)}
-                  isDisabled={updateRelation.isPending}
-                >
-                  <BiTrash className="size-4" />
-                </Button>
+                {canEditTask && (
+                  <Button
+                    aria-label={`Remove parent ${parent.title}`}
+                    variant="danger"
+                    isIconOnly
+                    className="h-6 w-6 shrink-0 p-0"
+                    onClick={() => setParentToRemove(parent)}
+                    isDisabled={updateRelation.isPending}
+                  >
+                    <BiTrash className="size-4" />
+                  </Button>
+                )}
               </li>
             ))}
           </ul>
@@ -589,7 +601,7 @@ const TaskSidebar = ({
           aria-label="Task column"
           value={task.taskBoardId}
           onChange={(key) => handleColumnChange(key as string)}
-          isDisabled={saveTaskPosition.isPending}
+          isDisabled={saveTaskPosition.isPending || !canEditTask}
         >
           <Select.Trigger className="flex w-full items-center justify-between rounded-lg border border-default-200 bg-surface p-2">
             <Select.Value />
@@ -618,7 +630,7 @@ const TaskSidebar = ({
           aria-label="Task status"
           value={task.status}
           onChange={(key) => handleStatusChange(key as string)}
-          isDisabled={updateStatus.isPending}
+          isDisabled={updateStatus.isPending || !canEditTask}
         >
           <Select.Trigger className="flex w-full items-center justify-between rounded-lg border border-default-200 bg-surface p-2">
             <Select.Value />

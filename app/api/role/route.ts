@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
 import { createRole, getRoles } from "@/db/role.db";
+import { Permissions } from "@/enum/permissions.enum";
 import { authConfig } from "@/lib/auth/auth";
+import { hasPermissionInProject } from "@/lib/permission/checkPermission";
 
 export async function GET(req: Request) {
   const session = await getServerSession(authConfig);
@@ -36,6 +38,16 @@ export async function POST(req: Request) {
 
   if (!projectId || !name || !permissions) {
     return Response.json({ error: "Invalid payload" }, { status: 400 });
+  }
+
+  if (
+    !(await hasPermissionInProject(
+      projectId,
+      session.user.id,
+      Permissions.RolesCreate,
+    ))
+  ) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const data = await createRole({ name, permissions, projectId }, session.user.id);

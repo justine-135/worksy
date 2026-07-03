@@ -2,6 +2,8 @@ import { Chip } from "@heroui/react";
 import { Button } from "@heroui/react/button";
 import { BiTrash } from "react-icons/bi";
 
+import PermissionGuard from "@/components/common/PermissionGuard";
+import { Permissions } from "@/enum/permissions.enum";
 import { RolesTableDTO } from "@/types/roles.dto";
 import { ColumnDef } from "@/types/table";
 import { timeAgo } from "@/utils/timeAgo";
@@ -57,9 +59,11 @@ export default function rolesTableColumns() {
               permissions: user.permissions,
             }}
           />
-          <Button isIconOnly size="sm" variant="danger-soft">
-            <BiTrash />
-          </Button>
+          <PermissionGuard permission={Permissions.RolesDelete}>
+            <Button isIconOnly size="sm" variant="danger-soft">
+              <BiTrash />
+            </Button>
+          </PermissionGuard>
         </div>
       ),
     },

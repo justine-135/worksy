@@ -5,6 +5,8 @@ import { Button } from "@heroui/react/button";
 import { toast } from "@heroui/react/toast";
 import { useState } from "react";
 
+import PermissionGuard from "@/components/common/PermissionGuard";
+import { Permissions } from "@/enum/permissions.enum";
 import useAddRoleMutation from "@/hooks/role/useAddRoleMutation";
 import { CreateRoleInput } from "@/lib/validations/addRole.schema";
 import { useSessionStore } from "@/store/session.store";
@@ -37,7 +39,9 @@ export default function AddRoleDrawer() {
   return (
     <div>
       <Drawer>
-        <Button onClick={handleOpenChange}>Add Role</Button>
+        <PermissionGuard permission={Permissions.RolesCreate}>
+          <Button onClick={handleOpenChange}>Add Role</Button>
+        </PermissionGuard>
         <Drawer.Backdrop isOpen={isOpen} onOpenChange={setIsOpen}>
           <Drawer.Content placement="right">
             <Drawer.Dialog className="min-w-125">

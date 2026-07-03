@@ -17,8 +17,10 @@ import { BiPlus } from "react-icons/bi";
 
 import TaskRelationCombobox from "@/components/board/common/TaskRelationCombobox";
 import CustomButton from "@/components/common/custom/CustomButton";
+import PermissionGuard from "@/components/common/PermissionGuard";
 import TiptapEditor from "@/components/common/TiptapEditor";
 import { QUERY_KEYS } from "@/constant/queryKeys";
+import { Permissions } from "@/enum/permissions.enum";
 import { useGetProjectMembers } from "@/hooks/member/useGetProjectMembers";
 import useCreateTaskMutation from "@/hooks/task/useCreateTask";
 import useInvalidateQuery from "@/hooks/taskboard/useInvalidateQuery";
@@ -116,13 +118,15 @@ export default function AddTaskModal({
 
   return (
     <Modal>
-      <Button
-        className="px-1 h-5"
-        variant="tertiary"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <BiPlus scale={2} />
-      </Button>
+      <PermissionGuard permission={Permissions.TaskCreate}>
+        <Button
+          className="px-1 h-5"
+          variant="tertiary"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <BiPlus scale={2} />
+        </Button>
+      </PermissionGuard>
       <Modal.Backdrop isOpen={isOpen} onOpenChange={handleOpenChange}>
         <Modal.Container size="cover">
           <Modal.Dialog>

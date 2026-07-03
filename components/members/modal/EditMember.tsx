@@ -11,8 +11,10 @@ import { Controller, useForm } from "react-hook-form";
 import { BiPencil } from "react-icons/bi";
 
 import CustomButton from "@/components/common/custom/CustomButton";
+import PermissionGuard from "@/components/common/PermissionGuard";
 import { STATUS_LABEL } from "@/constant/member";
 import { StatusDTO } from "@/enum/member";
+import { Permissions } from "@/enum/permissions.enum";
 import useUpdateMemberStatusRole from "@/hooks/member/useUpdateMemberStatusRole";
 import { useGetRoles } from "@/hooks/role/useGetRoles";
 import {
@@ -157,7 +159,9 @@ export default function EditMember(props: EditMemberProps) {
 
   return (
     <div>
-      <EditMemberButton onClick={handleOpenChange} />
+      <PermissionGuard permission={Permissions.MemberEdit}>
+        <EditMemberButton onClick={handleOpenChange} />
+      </PermissionGuard>
       <Modal.Backdrop isOpen={isOpen} onOpenChange={setIsOpen}>
         <Modal.Container>
           <Modal.Dialog>

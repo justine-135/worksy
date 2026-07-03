@@ -9,6 +9,8 @@ import { useForm } from "react-hook-form";
 import { BiPlus } from "react-icons/bi";
 
 import CustomButton from "@/components/common/custom/CustomButton";
+import PermissionGuard from "@/components/common/PermissionGuard";
+import { Permissions } from "@/enum/permissions.enum";
 import useCreateTaskBoardMutation from "@/hooks/taskboard/useCreateTaskBoardMutation";
 import {
   CreateTaskBoardInput,
@@ -77,7 +79,9 @@ export default function AddTaskBoardModal({
 
   return (
     <div>
-      <AddNewTaskBoard onClick={() => setIsOpen(!isOpen)} />
+      <PermissionGuard permission={Permissions.BoardCreate}>
+        <AddNewTaskBoard onClick={() => setIsOpen(!isOpen)} />
+      </PermissionGuard>
       <Modal.Backdrop isOpen={isOpen} onOpenChange={setIsOpen}>
         <Modal.Container>
           <Modal.Dialog>

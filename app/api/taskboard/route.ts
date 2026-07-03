@@ -9,7 +9,9 @@ import {
   updateTaskBoardDB,
   updateTaskBoardOrdersDB,
 } from "@/db/taskboard.db";
+import { Permissions } from "@/enum/permissions.enum";
 import { authConfig } from "@/lib/auth/auth";
+import { hasPermissionInProject } from "@/lib/permission/checkPermission";
 
 export async function GET(req: Request) {
   const session = await getServerSession(authConfig);
@@ -51,6 +53,16 @@ export async function PATCH(req: Request) {
     return Response.json({ error: "Invalid payload" }, { status: 400 });
   }
 
+  if (
+    !(await hasPermissionInProject(
+      projectId,
+      session.user.id,
+      Permissions.BoardEdit,
+    ))
+  ) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   await updateTaskBoardOrdersDB({
     projectId,
     userId,
@@ -72,6 +84,16 @@ export async function PUT(req: Request) {
 
   if (!projectId || !userId || !taskBoardId || !title || !status) {
     return Response.json({ error: "Invalid payload" }, { status: 400 });
+  }
+
+  if (
+    !(await hasPermissionInProject(
+      projectId,
+      session.user.id,
+      Permissions.BoardEdit,
+    ))
+  ) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   await updateTaskBoardDB({
@@ -104,6 +126,21 @@ export async function DELETE(req: Request) {
     return Response.json({ error: "Invalid payload" }, { status: 400 });
   }
 
+  // Deleting the column needs board.delete; only emptying it (removing its
+  // tasks) needs task.delete.
+  const requiredPermission =
+    target === "board" ? Permissions.BoardDelete : Permissions.TaskDelete;
+
+  if (
+    !(await hasPermissionInProject(
+      projectId,
+      session.user.id,
+      requiredPermission,
+    ))
+  ) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   // `target` selects the scope: drop the whole column, or just empty it.
   if (target === "board") {
     await deleteTaskBoardDB({ projectId, userId, taskBoardId });
@@ -126,6 +163,16 @@ export async function POST(req: Request) {
 
   if (!projectId || !title) {
     return Response.json({ error: "Invalid payload" }, { status: 400 });
+  }
+
+  if (
+    !(await hasPermissionInProject(
+      projectId,
+      session.user.id,
+      Permissions.BoardCreate,
+    ))
+  ) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   await createTaskBoard({

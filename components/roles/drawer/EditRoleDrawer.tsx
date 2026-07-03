@@ -5,6 +5,8 @@ import { toast } from "@heroui/react/toast";
 import { useState } from "react";
 import { BiPencil } from "react-icons/bi";
 
+import PermissionGuard from "@/components/common/PermissionGuard";
+import { Permissions } from "@/enum/permissions.enum";
 import useEditRoleMutation from "@/hooks/role/useEditRoleMutation";
 import { CreateRoleInput } from "@/lib/validations/addRole.schema";
 import { useSessionStore } from "@/store/session.store";
@@ -50,14 +52,16 @@ export default function EditRoleDrawer({ onClose, role }: EditRoleDrawerProps) {
 
   return (
     <Drawer>
-      <Button
-        isIconOnly
-        size="sm"
-        variant="tertiary"
-        onClick={handleOpenChange}
-      >
-        <BiPencil />
-      </Button>
+      <PermissionGuard permission={Permissions.RolesEdit}>
+        <Button
+          isIconOnly
+          size="sm"
+          variant="tertiary"
+          onClick={handleOpenChange}
+        >
+          <BiPencil />
+        </Button>
+      </PermissionGuard>
       <Drawer.Backdrop isOpen={isOpen} onOpenChange={setIsOpen}>
         <Drawer.Content placement="right">
           <Drawer.Dialog className="min-w-125">

@@ -5,7 +5,9 @@ import {
   createProjectInvite,
   getProjectInvitesByReceiverId,
 } from "@/db/projectInvite.db";
+import { Permissions } from "@/enum/permissions.enum";
 import { authConfig } from "@/lib/auth/auth";
+import { hasPermissionInProject } from "@/lib/permission/checkPermission";
 
 export async function GET(
   req: Request,
@@ -47,6 +49,16 @@ export async function POST(
       { error: "Missing required fields" },
       { status: 400 },
     );
+  }
+
+  if (
+    !(await hasPermissionInProject(
+      project_id,
+      session.user.id,
+      Permissions.MemberInvite,
+    ))
+  ) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const data = await createProjectInvite({

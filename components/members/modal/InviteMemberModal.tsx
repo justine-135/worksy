@@ -10,7 +10,6 @@ import { useForm } from "react-hook-form";
 import CustomButton from "@/components/common/custom/CustomButton";
 import { Permissions } from "@/enum/permissions.enum";
 import useCreateInvite from "@/hooks/invite/useCreateInvite";
-import { usePermission } from "@/hooks/permission/usePermission";
 import {
   InviteMemberInput,
   inviteMemberSchema,
@@ -24,9 +23,6 @@ import UserSurface from "./UserSurface";
 export default function InviteMemberModal() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [member, setMember] = useState<UserResponseDTO | undefined>(undefined);
-
-  const { hasPermission, isLoadingPermission } = usePermission();
-  const isPermission = hasPermission(Permissions.MemberInvite);
 
   const projectId = useSessionStore((s) => s.projectId);
   const userId = useSessionStore((s) => s.userId);
@@ -89,8 +85,7 @@ export default function InviteMemberModal() {
       <CustomButton
         onClick={handleOpenChange}
         title="Invite member"
-        hidden={!isPermission}
-        isPending={isLoadingPermission}
+        permission={Permissions.MemberInvite}
       />
       <Modal.Backdrop isOpen={isOpen} onOpenChange={setIsOpen}>
         <Modal.Container>
