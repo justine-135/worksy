@@ -8,6 +8,7 @@ import {
   CreateTaskDTO,
   UpdateTaskAssigneesDTO,
   UpdateTaskPositionDTO,
+  UpdateTaskRelationDTO,
   UpdateTaskStatusDTO,
 } from "@/types/task.dto";
 
@@ -81,6 +82,14 @@ export async function createTaskDB(data: CreateTaskDTO) {
         assignees: true,
       },
     });
+
+    // Optionally link the new task under a parent (chosen in AddTaskModal). A
+    // brand-new task has no descendants, so no cycle is possible here.
+    if (data.parentId) {
+      await tx.taskRelation.create({
+        data: { parentId: data.parentId, childId: res.id },
+      });
+    }
 
     // Audit trail: record that this member created the task (powers the task
     // detail timeline).
@@ -367,8 +376,158 @@ export async function updateTaskStatusDB({
   });
 }
 
+/**
+ * Powers the relationship picker. With no query, returns the 5 most-recent
+ * tasks in the project (so the combobox is useful the instant it opens);
+ * otherwise does a case-insensitive title search (capped at 10). `excludeId`
+ * drops the current task so it can never be picked as its own parent.
+ */
+export async function searchTasksDB({
+  projectId,
+  userId,
+  query,
+  excludeId,
+}: {
+  projectId: string;
+  userId: string;
+  query?: string | null;
+  excludeId?: string | null;
+}) {
+  // Only members of the project may search its tasks.
+  const isMember = await prisma.projectMember.findUnique({
+    where: { userId_projectId: { userId, projectId } },
+    select: { id: true },
+  });
+
+  if (!isMember) {
+    throw new Error("User is not a member of this project");
+  }
+
+  const trimmed = query?.trim();
+
+  return prisma.task.findMany({
+    where: {
+      projectId,
+      ...(excludeId ? { id: { not: excludeId } } : {}),
+      ...(trimmed
+        ? { title: { contains: trimmed, mode: "insensitive" } }
+        : {}),
+    },
+    orderBy: { createdAt: "desc" },
+    take: trimmed ? 10 : 5,
+    select: {
+      id: true,
+      title: true,
+      ticketNumber: true,
+    },
+  });
+}
+
+/**
+ * All ancestor ids of `nodeId` (every task reachable by walking parent links
+ * upward). Used for cycle detection in the task DAG.
+ */
+async function collectAncestors(nodeId: string): Promise<Set<string>> {
+  const ancestors = new Set<string>();
+  let frontier = [nodeId];
+
+  while (frontier.length > 0) {
+    const rows = await prisma.taskRelation.findMany({
+      where: { childId: { in: frontier } },
+      select: { parentId: true },
+    });
+
+    const next: string[] = [];
+    for (const { parentId } of rows) {
+      if (!ancestors.has(parentId)) {
+        ancestors.add(parentId);
+        next.push(parentId);
+      }
+    }
+    frontier = next;
+  }
+
+  return ancestors;
+}
+
+/**
+ * Adds or removes a single parent -> child edge in the task hierarchy (which is
+ * a DAG: a task can have many parents and many children). Adding guards against
+ * cycles — a task can't be linked to itself, and the new edge can't close a loop
+ * (the child must not already be an ancestor of the parent).
+ */
+export async function updateTaskRelationDB({
+  projectId,
+  userId,
+  parentId,
+  childId,
+  action,
+}: UpdateTaskRelationDTO) {
+  if (parentId === childId) {
+    throw new Error("A task cannot be linked to itself");
+  }
+
+  // Both tasks must belong to a project this user is a member of.
+  const tasks = await prisma.task.findMany({
+    where: {
+      id: { in: [parentId, childId] },
+      projectId,
+      project: { members: { some: { userId } } },
+    },
+    select: { id: true },
+  });
+
+  if (tasks.length !== 2) {
+    throw new Error("Task is inaccessible");
+  }
+
+  const currentMember = await prisma.projectMember.findUnique({
+    where: { userId_projectId: { userId, projectId } },
+    select: { id: true },
+  });
+
+  if (!currentMember) {
+    throw new Error("User is not a member of this project");
+  }
+
+  if (action === "add") {
+    // Adding parent -> child closes a cycle iff the child is already an ancestor
+    // of the parent (child → … → parent → child).
+    const ancestorsOfParent = await collectAncestors(parentId);
+    if (ancestorsOfParent.has(childId)) {
+      throw new Error("That link would create a cycle");
+    }
+  }
+
+  return prisma.$transaction(async (tx) => {
+    if (action === "add") {
+      // Idempotent: the composite PK makes a duplicate link a no-op.
+      await tx.taskRelation.upsert({
+        where: { parentId_childId: { parentId, childId } },
+        create: { parentId, childId },
+        update: {},
+      });
+    } else {
+      await tx.taskRelation.deleteMany({ where: { parentId, childId } });
+    }
+
+    // Audit on the child — it's the task whose parent set changed.
+    await tx.activityLog.create({
+      data: {
+        type: EActivityLog.PARENT_CHANGE,
+        taskId: childId,
+        projectId,
+        actorId: currentMember.id,
+      },
+    });
+
+    // Float this project to the top of the user's "Recents".
+    await touchProjectActivity({ userId, projectId }, tx);
+  });
+}
+
 export async function getTaskDetail(id: string) {
-  return await prisma.task.findUnique({
+  const task = await prisma.task.findUnique({
     where: {
       id,
     },
@@ -382,6 +541,29 @@ export async function getTaskDetail(id: string) {
       createdAt: true,
       updatedAt: true,
       priority: true,
+      // Parents: rows where this task is the child. Powers the sidebar list.
+      parentLinks: {
+        select: {
+          parent: {
+            select: { id: true, title: true, ticketNumber: true },
+          },
+        },
+        orderBy: { createdAt: "asc" },
+      },
+      // Subtasks: rows where this task is the parent. Ordered like board columns.
+      childLinks: {
+        select: {
+          child: {
+            select: {
+              id: true,
+              title: true,
+              ticketNumber: true,
+              status: true,
+            },
+          },
+        },
+        orderBy: { child: { order: "asc" } },
+      },
       assignees: {
         select: {
           projectMember: {
@@ -455,4 +637,14 @@ export async function getTaskDetail(id: string) {
       },
     },
   });
+
+  if (!task) return null;
+
+  // Flatten the join rows into plain parent/child task arrays for the client.
+  const { parentLinks, childLinks, ...rest } = task;
+  return {
+    ...rest,
+    parents: parentLinks.map((link) => link.parent),
+    children: childLinks.map((link) => link.child),
+  };
 }

@@ -7,6 +7,8 @@ export const QUERY_KEYS = {
   TASK_BOARDS: (projectId?: string | null, userId?: string | null) =>
     ["boards", projectId, userId] as const,
   TASK: (id?: string) => ["task", id] as const,
+  TASK_SEARCH: (projectId?: string | null, query?: string) =>
+    ["task", "search", projectId, query] as const,
   PROJECTS: (userId?: string | null, filter: TProjectFilter = "all") =>
     ["projects", userId, filter] as const,
   USER: (userId: string | null) => ["user", userId] as const,

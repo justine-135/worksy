@@ -53,6 +53,7 @@ export async function POST(req: Request) {
     priority,
     project_id,
     user_id,
+    parent_id,
   } = body;
 
   if (!title || !task_board_id || !project_id || !user_id) {
@@ -67,6 +68,7 @@ export async function POST(req: Request) {
     priority,
     projectId: project_id,
     userId: user_id,
+    parentId: parent_id ?? null,
   });
 
   return Response.json({ success: true, data });

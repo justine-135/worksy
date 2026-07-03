@@ -8,6 +8,7 @@ export const createTaskSchema = z.object({
     .max(200, "Description must be at most 200 characters")
     .optional(),
   priority: z.string().optional(),
+  parentId: z.string().optional(),
 });
 
 export type CreateTaskInput = z.infer<typeof createTaskSchema>;

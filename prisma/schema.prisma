@@ -64,18 +64,38 @@ model Task {
   updatedAt     DateTime              @updatedAt              @map("updated_at")
 
   taskBoardId   String                @map("task_board_id")
-  projectId     String                @map("project_id")     
-  creatorId     String                @map("creator_id")      
+  projectId     String                @map("project_id")
+  creatorId     String                @map("creator_id")
 
-  assignees     TaskAssignment[]      
+  assignees     TaskAssignment[]
   activityLog   ActivityLog[]
 
   taskBoard     TaskBoard             @relation(fields: [taskBoardId], references: [id], onDelete: Cascade)
-  project       Project               @relation(fields: [projectId], references: [id], onDelete: Cascade) 
+  project       Project               @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdBy     ProjectMember         @relation("createdBy", fields: [creatorId], references: [id], onDelete: Cascade)
 
-  @@unique([projectId, ticketNumber]) 
+  // Task hierarchy is a DAG (a task can have many parents AND many children).
+  // childLinks  = rows where this task is the parent → its children.
+  // parentLinks = rows where this task is the child  → its parents.
+  childLinks    TaskRelation[]        @relation("relationParent")
+  parentLinks   TaskRelation[]        @relation("relationChild")
+
+  @@unique([projectId, ticketNumber])
   @@map("task")
+}
+
+// Directed parent -> child edge between two tasks. The composite PK prevents
+// duplicate links; cycle prevention is enforced in the data-access layer.
+model TaskRelation {
+  parentId  String   @map("parent_id")
+  childId   String   @map("child_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  parent    Task     @relation("relationParent", fields: [parentId], references: [id], onDelete: Cascade)
+  child     Task     @relation("relationChild", fields: [childId], references: [id], onDelete: Cascade)
+
+  @@id([parentId, childId])
+  @@map("task_relation")
 }
 
 model TaskAssignment {
@@ -170,6 +190,7 @@ enum ActivityType {
   COMMENT
   TASK_CREATE
   ASSIGNEE_CHANGE
+  PARENT_CHANGE   // a task's parent (hierarchy) link was set or changed
   // Add types later like: TASK_EDIT
 }
 

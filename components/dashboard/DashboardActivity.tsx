@@ -2,6 +2,7 @@
 
 import { ReactNode } from "react";
 import {
+  MdAccountTree,
   MdAdd,
   MdArrowForward,
   MdChatBubbleOutline,
@@ -47,6 +48,12 @@ function describe(log: ProjectActivityResponseDTO): {
           ? `→ ${TASK_STATUS_LABELS[log.statusChange.toStatus]}`
           : undefined,
         icon: <MdArrowForward size={16} />,
+        iconColor: "text-stat-progress",
+      };
+    case EActivityLog.PARENT_CHANGE:
+      return {
+        verb: "linked the parent of",
+        icon: <MdAccountTree size={16} />,
         iconColor: "text-stat-progress",
       };
     default:

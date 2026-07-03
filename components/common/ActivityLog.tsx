@@ -3,6 +3,7 @@ import Link from "next/link";
 import React from "react";
 import { IconType } from "react-icons";
 import {
+  MdAccountTree,
   MdAdd,
   MdArrowForward,
   MdChatBubbleOutline,
@@ -26,6 +27,8 @@ const logIcon = (type: EActivityLog): IconType => {
       return MdAdd;
     case EActivityLog.ASSIGNEE_CHANGE:
       return MdGroup;
+    case EActivityLog.PARENT_CHANGE:
+      return MdAccountTree;
     default:
       return MdChatBubbleOutline;
   }
@@ -106,6 +109,8 @@ const verbText = (log: ActivityLogResponseDTO, lead: boolean) => {
       return lead ? "Created this task" : "created this task";
     case EActivityLog.ASSIGNEE_CHANGE:
       return lead ? "Updated the assignees" : "updated the assignees";
+    case EActivityLog.PARENT_CHANGE:
+      return lead ? "Updated the parent task" : "updated the parent task";
     case EActivityLog.COMMENT:
       return lead ? "Commented" : "commented";
     default:

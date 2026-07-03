@@ -23,6 +23,19 @@ export interface TaskResponseDTO {
   };
   createdAt: string;
   activityLog: ActivityLogResponseDTO[];
+  // Task hierarchy is a DAG: a task can have many `parents` and many `children`
+  // (subtasks). Both are flattened from the TaskRelation join.
+  parents?: {
+    id: string;
+    title: string;
+    ticketNumber: number;
+  }[];
+  children?: {
+    id: string;
+    title: string;
+    ticketNumber: number;
+    status: ETaskStatus;
+  }[];
 }
 
 export interface CreateTaskDTO {
@@ -33,6 +46,28 @@ export interface CreateTaskDTO {
   assignees?: string[];
   projectId: string;
   userId: string;
+  // Resolved parent task id (Parent -> selected task; Sibling -> selected
+  // task's parent). null/undefined for a top-level task.
+  parentId?: string | null;
+}
+
+/** Lightweight task row returned by the relationship search picker. */
+export interface TaskSearchResultDTO {
+  id: string;
+  title: string;
+  ticketNumber: number;
+}
+
+/**
+ * Add or remove one parent -> child edge. The current task is `childId` when
+ * adding a parent, or `parentId` when adding a subtask.
+ */
+export interface UpdateTaskRelationDTO {
+  projectId: string;
+  userId: string;
+  parentId: string;
+  childId: string;
+  action: "add" | "remove";
 }
 
 export type UpdateTaskDTO = Partial<CreateTaskDTO>;

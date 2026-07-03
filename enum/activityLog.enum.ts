@@ -4,4 +4,5 @@ export enum EActivityLog {
   COMMENT = "COMMENT",
   TASK_CREATE = "TASK_CREATE",
   ASSIGNEE_CHANGE = "ASSIGNEE_CHANGE",
+  PARENT_CHANGE = "PARENT_CHANGE", // a task's parent (hierarchy) link changed
 }

@@ -15,6 +15,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { BiPlus } from "react-icons/bi";
 
+import TaskRelationCombobox from "@/components/board/common/TaskRelationCombobox";
 import CustomButton from "@/components/common/custom/CustomButton";
 import TiptapEditor from "@/components/common/TiptapEditor";
 import { QUERY_KEYS } from "@/constant/queryKeys";
@@ -26,6 +27,7 @@ import {
   createTaskSchema,
 } from "@/lib/validations/createTask.schema";
 import { useSessionStore } from "@/store/session.store";
+import { TaskSearchResultDTO } from "@/types/task.dto";
 
 export default function AddTaskModal({
   projectId,
@@ -38,6 +40,9 @@ export default function AddTaskModal({
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [description, setDescription] = useState("");
   const [selectedAssignees, setSelectedAssignees] = useState<string[]>([]);
+  // The task this new one will be a child of (optional). Left empty → the new
+  // task is a top-level parent.
+  const [parentTask, setParentTask] = useState<TaskSearchResultDTO | null>(null);
 
   const queryClient = useQueryClient();
   const userId = useSessionStore((s) => s.userId);
@@ -67,11 +72,14 @@ export default function AddTaskModal({
     if (!nextOpen) {
       reset();
       setDescription("");
+      setSelectedAssignees([]);
+      setParentTask(null);
     }
   };
 
   const onSubmit = (data: CreateTaskInput) => {
     if (!projectId || !userId) return;
+
     mutation.mutate(
       {
         ...data,
@@ -81,10 +89,15 @@ export default function AddTaskModal({
         assignees: selectedAssignees,
         projectId,
         userId,
+        // Picking a parent makes this new task its child; otherwise top-level.
+        parentId: parentTask?.id,
       },
       {
         onSuccess: () => {
           reset();
+          setDescription("");
+          setSelectedAssignees([]);
+          setParentTask(null);
           toast("Task board is created");
           setIsOpen(!isOpen);
           // Refresh the sidebar "Recents" list now that this project has a new
@@ -152,6 +165,33 @@ export default function AddTaskModal({
                     </ListBox>
                   </Select.Popover>
                 </Select>
+                <div className="space-y-2">
+                  <Label>Child of (optional)</Label>
+                  {parentTask ? (
+                    <div className="flex items-center justify-between rounded-lg border border-default-200 px-3 py-2">
+                      <span className="truncate text-sm">
+                        <span className="mr-1 text-xs font-medium text-gray-400">
+                          #{parentTask.ticketNumber}
+                        </span>
+                        {parentTask.title}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="tertiary"
+                        className="h-6 px-1 text-gray-500"
+                        onClick={() => setParentTask(null)}
+                      >
+                        Change
+                      </Button>
+                    </div>
+                  ) : (
+                    <TaskRelationCombobox
+                      projectId={projectId}
+                      onSelect={setParentTask}
+                      placeholder="Search a parent task…"
+                    />
+                  )}
+                </div>
                 <TextField>
                   <Label>Description</Label>
                   <TiptapEditor
