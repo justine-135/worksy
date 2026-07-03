@@ -27,6 +27,8 @@ export const ROLE_PRESETS = {
       Permissions.RolesEdit,
       Permissions.RolesDelete,
       Permissions.RolesCreate,
+
+      Permissions.SettingsProjectView,
     ],
   },
 

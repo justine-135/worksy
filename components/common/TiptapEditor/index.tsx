@@ -340,7 +340,10 @@ function TiptapEditor({ users = [], value = "", onChange }: TiptapEditorProps) {
         renderText({ node }) {
           return `@${node.attrs.label}`;
         },
-        suggestion: createMentionSuggestion(() => mentionUsers),
+        // Read through the ref so the suggestion always sees the latest user
+        // list. `useEditor` runs this config once at mount, so capturing
+        // `mentionUsers` directly would freeze it to the first-render value.
+        suggestion: createMentionSuggestion(() => mentionUsersRef.current),
       }),
     ],
     content: value,

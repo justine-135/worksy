@@ -40,16 +40,15 @@ export default function EditRoleDrawer({ onClose, role }: EditRoleDrawerProps) {
           setIsOpen(false);
           showSuccess(result);
         },
+        // Keep the drawer open on failure so edits aren't lost.
         onError: (error) => {
-          onClose?.();
-          setIsOpen(false);
           showError(error, "Failed to update role");
         },
       },
     );
   };
 
-  const handleOpenChange = () => setIsOpen(!isOpen);
+  const handleOpen = () => setIsOpen(true);
 
   return (
     <Drawer>
@@ -58,7 +57,7 @@ export default function EditRoleDrawer({ onClose, role }: EditRoleDrawerProps) {
           isIconOnly
           size="sm"
           variant="tertiary"
-          onClick={handleOpenChange}
+          onClick={handleOpen}
         >
           <BiPencil />
         </Button>

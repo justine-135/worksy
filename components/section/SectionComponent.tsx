@@ -6,14 +6,14 @@ import BoardComponent from "@/components/board/BoardComponent";
 import DashboardComponent from "@/components/dashboard/DashboardComponent";
 import MembersComponent from "@/components/members/MembersComponent";
 import RolesComponent from "@/components/roles/RolesComponent";
-import SettingsComponent from "@/components/settings/SettingsComponent";
 
+// Note: "settings" is intentionally absent — it has its own static route tree
+// (app/.../[id]/settings/**) which takes precedence over this [section] param.
 const sectionMap: Record<string, React.ReactNode> = {
   dashboard: <DashboardComponent />,
   board: <BoardComponent />,
   members: <MembersComponent />,
   roles: <RolesComponent />,
-  settings: <SettingsComponent />,
 };
 
 export default function SectionComponent() {

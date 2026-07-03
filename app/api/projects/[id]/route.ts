@@ -52,8 +52,15 @@ export async function DELETE(
     const data = await deleteProject({ userId: session.user.id, projectId: id });
     return Response.json({ success: true, data });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to delete";
-    const status = message === "Owner only" ? 403 : 400;
-    return NextResponse.json({ error: message }, { status });
+    // Surface only the known "Owner only" sentinel; collapse everything else to
+    // a generic message so raw Prisma errors don't reach the client.
+    const raw = error instanceof Error ? error.message : "";
+    if (raw === "Owner only") {
+      return NextResponse.json({ error: raw }, { status: 403 });
+    }
+    return NextResponse.json(
+      { error: "Failed to delete project." },
+      { status: 400 },
+    );
   }
 }

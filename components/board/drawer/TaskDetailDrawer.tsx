@@ -14,6 +14,7 @@ import {
 import { Modal } from "@heroui/react/modal";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
+import DOMPurify from "dompurify";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import type { Key } from "react-aria-components";
@@ -200,9 +201,9 @@ const AssigneeDisplay = ({
 
   return (
     <div className="flex -space-x-1">
-      {assignees.slice(0, 6).map((assignee, idx) => (
+      {assignees.slice(0, 6).map((assignee) => (
         <CustomAvatar
-          key={idx}
+          key={assignee.name}
           avatarProps={{ className: "size-6 shrink-0" }}
           avatarImageProps={{ src: assignee.image || "", alt: assignee.name }}
           avatarFallbackProps={{ className: "text-xs" }}
@@ -378,7 +379,11 @@ const TaskSidebar = ({
 
     updateAssignees.mutate(
       { taskId: task.id, projectId, userId, assignees: selectedAssignees },
-      { onSettled: () => setIsEditingAssignees(false) },
+      {
+        onSuccess: () => showSuccess("Assignees updated"),
+        onError: (error) => showError(error, "Failed to update assignees"),
+        onSettled: () => setIsEditingAssignees(false),
+      },
     );
   };
 
@@ -423,12 +428,18 @@ const TaskSidebar = ({
   const handleStatusChange = (status?: string) => {
     if (!projectId || !userId || !status || status === task.status) return;
 
-    updateStatus.mutate({
-      taskId: task.id,
-      projectId,
-      userId,
-      status: status as ETaskStatus,
-    });
+    updateStatus.mutate(
+      {
+        taskId: task.id,
+        projectId,
+        userId,
+        status: status as ETaskStatus,
+      },
+      {
+        onSuccess: () => showSuccess("Status updated"),
+        onError: (error) => showError(error, "Failed to update status"),
+      },
+    );
   };
 
   return (
@@ -666,8 +677,8 @@ const TaskSidebar = ({
 
       <SidebarSection title="Participants">
         <div className="space-y-2">
-          {participants.map((person, idx) => (
-            <PersonRow key={idx} name={person.name} image={person.image} />
+          {participants.map((person) => (
+            <PersonRow key={person.name} name={person.name} image={person.image} />
           ))}
         </div>
       </SidebarSection>
@@ -817,16 +828,18 @@ export default function TaskDetailDrawer({ id, title }: TaskDetailDrawerProps) {
       <Drawer>
         {/* No task.view → the title stays visible but its click is disabled, so
             the drawer can't be opened (isOpen also stays false for deep-links). */}
-        <span
+        <button
+          type="button"
+          disabled={!canViewTask}
           onClick={canViewTask ? () => handleOpenChange(true) : undefined}
           className={
             canViewTask
-              ? "hover:bg-transparent hover:underline cursor-pointer"
-              : "cursor-default"
+              ? "text-left hover:bg-transparent hover:underline cursor-pointer"
+              : "text-left cursor-default"
           }
         >
           {title}
-        </span>
+        </button>
         <Drawer.Backdrop isOpen={isOpen} onOpenChange={handleOpenChange}>
           <Drawer.Content placement="right">
             <Drawer.Dialog className="min-w-5xl max-w-[95vw]">
@@ -865,10 +878,14 @@ export default function TaskDetailDrawer({ id, title }: TaskDetailDrawerProps) {
                             <span>opened {timeAgo(data.createdAt)}</span>
                           </div>
                           <Card className="w-full border shadow-xs min-h-50 mt-1">
+                            {/* Sanitize before injecting: the description is
+                                user-authored HTML from Tiptap, so strip any
+                                script/handler that could slip through. */}
                             <div
                               dangerouslySetInnerHTML={{
-                                __html:
+                                __html: DOMPurify.sanitize(
                                   data.description || "<i>No description</i>",
+                                ),
                               }}
                             />
                           </Card>

@@ -11,5 +11,8 @@ export function useGetProject(projectId?: string | null) {
     queryKey: QUERY_KEYS.PROJECT(projectId),
     queryFn: () => fetchProject(projectId as string),
     enabled: !!projectId,
+    // Low-volatility config; avoid refetching on every remount. Mutations still
+    // force a refresh via invalidateQueries, which overrides staleTime.
+    staleTime: 30_000,
   });
 }

@@ -54,8 +54,6 @@ export default function RoleForm({
     }
   };
 
-  console.log(initialValues?.permissions, selectedPermissions);
-
   return (
     <Form onSubmit={handleSubmit(onSubmit, onError)}>
       <div className="w-full">

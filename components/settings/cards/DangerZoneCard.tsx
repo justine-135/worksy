@@ -1,12 +1,11 @@
 "use client";
 
-import { toast } from "@heroui/react";
 import { Button } from "@heroui/react/button";
-import { Modal } from "@heroui/react/modal";
 import { useState } from "react";
 
-import CustomButton from "@/components/common/custom/CustomButton";
+import ConfirmModal from "@/components/common/ConfirmModal";
 import SettingsSection from "@/components/settings/SettingsSection";
+import { useApiMessage } from "@/hooks/common/useApiMessage";
 import { useDeleteProject } from "@/hooks/project/useDeleteProject";
 import { ProjectDetailDTO } from "@/types/project.dto";
 
@@ -17,14 +16,15 @@ export default function DangerZoneCard({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const { mutate, isPending } = useDeleteProject(project.id);
+  const { showSuccess, showError } = useApiMessage();
 
   const handleDelete = () => {
     mutate(undefined, {
-      onSuccess: () => toast("Project deleted"),
-      onError: (error) =>
-        toast.danger(
-          error instanceof Error ? error.message : "Failed to delete project",
-        ),
+      onSuccess: () => {
+        setIsOpen(false);
+        showSuccess("Project deleted");
+      },
+      onError: (error) => showError(error, "Failed to delete project"),
     });
   };
 
@@ -48,37 +48,16 @@ export default function DangerZoneCard({
         </Button>
       </div>
 
-      <Modal.Backdrop isOpen={isOpen} onOpenChange={setIsOpen}>
-        <Modal.Container>
-          <Modal.Dialog aria-label="Delete project confirmation">
-            <Modal.CloseTrigger />
-            <Modal.Header>
-              <Modal.Heading className="font-semibold">
-                Delete “{project.title}”?
-              </Modal.Heading>
-            </Modal.Header>
-            <Modal.Body className="p-1">
-              <p className="text-sm text-muted">
-                All boards, tasks, members, roles, and activity for this project
-                will be permanently deleted. This action cannot be undone.
-              </p>
-            </Modal.Body>
-            <Modal.Footer className="flex justify-end gap-2">
-              <Button variant="tertiary" onClick={() => setIsOpen(false)}>
-                Cancel
-              </Button>
-              <CustomButton
-                type="button"
-                title="Delete project"
-                loadingTitle="Deleting"
-                isPending={isPending}
-                className="bg-danger text-white"
-                onClick={handleDelete}
-              />
-            </Modal.Footer>
-          </Modal.Dialog>
-        </Modal.Container>
-      </Modal.Backdrop>
+      <ConfirmModal
+        isOpen={isOpen}
+        onOpenChange={setIsOpen}
+        onConfirm={handleDelete}
+        isPending={isPending}
+        title={`Delete "${project.title}"?`}
+        description="All boards, tasks, members, roles, and activity for this project will be permanently deleted. This action cannot be undone."
+        confirmLabel="Delete project"
+        loadingLabel="Deleting"
+      />
     </SettingsSection>
   );
 }

@@ -19,4 +19,6 @@ export const PermissionsSeed = [
   "roles.edit",
   "roles.delete",
   "roles.create",
+
+  "settings.project.view",
 ] as const;

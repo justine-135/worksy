@@ -1,12 +1,6 @@
-import {
-  Form,
-  Input,
-  Label,
-  ListBox,
-  Select,
-  TextField,
-  toast,
-} from "@heroui/react";
+"use client";
+
+import { Form, Input, Label, ListBox, Select, TextField } from "@heroui/react";
 import { Button } from "@heroui/react/button";
 import { Modal } from "@heroui/react/modal";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,10 +13,10 @@ import TaskRelationCombobox from "@/components/board/common/TaskRelationCombobox
 import CustomButton from "@/components/common/custom/CustomButton";
 import PermissionGuard from "@/components/common/PermissionGuard";
 import TiptapEditor from "@/components/common/TiptapEditor";
-import { QUERY_KEYS } from "@/constant/queryKeys";
 import { DEFAULT_TASK_PRIORITY, PRIORITY_OPTIONS } from "@/constant/taskPriority";
 import { Permissions } from "@/enum/permissions.enum";
 import { ETaskPriority } from "@/enum/taskPriority.enum";
+import { useApiMessage } from "@/hooks/common/useApiMessage";
 import { useGetProjectMembers } from "@/hooks/member/useGetProjectMembers";
 import { useGetProject } from "@/hooks/project/useGetProject";
 import useCreateTaskMutation from "@/hooks/task/useCreateTask";
@@ -56,6 +50,7 @@ export default function AddTaskModal({
 
   const queryClient = useQueryClient();
   const userId = useSessionStore((s) => s.userId);
+  const { showSuccess, showError } = useApiMessage();
 
   const projectDefaultPriority =
     (project?.defaultTaskPriority as ETaskPriority) ?? DEFAULT_TASK_PRIORITY;
@@ -114,17 +109,14 @@ export default function AddTaskModal({
           setSelectedAssignees([]);
           setParentTask(null);
           setPriorityOverride(null);
-          toast("Task board is created");
-          setIsOpen(!isOpen);
-          // Refresh the sidebar "Recents" list now that this project has a new
-          // activity entry for the current user.
-          queryClient.invalidateQueries({
-            queryKey: QUERY_KEYS.PROJECTS(userId, "recent"),
-          });
+          setIsOpen(false);
+          showSuccess("Task created");
+          // Recents/board invalidation lives in useCreateTaskMutation.onSettled.
         },
-        onError: () => {
-          reset();
-          toast.danger("Task not created");
+        // Leave the form intact on failure so the user can retry without
+        // re-typing everything.
+        onError: (error) => {
+          showError(error, "Task not created");
         },
       },
     );
@@ -136,7 +128,7 @@ export default function AddTaskModal({
         <Button
           className="px-1 h-5"
           variant="tertiary"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => setIsOpen(true)}
         >
           <BiPlus scale={2} />
         </Button>
@@ -163,7 +155,7 @@ export default function AddTaskModal({
                   onChange={(keys) => setSelectedAssignees(keys as string[])}
                 >
                   <Label>Assignees</Label>
-                  <Select.Trigger className="SelectTriggerAssignees">
+                  <Select.Trigger className="flex w-full items-center justify-between rounded-lg border border-default-200 bg-surface p-2">
                     <Select.Value />
                     <Select.Indicator />
                   </Select.Trigger>

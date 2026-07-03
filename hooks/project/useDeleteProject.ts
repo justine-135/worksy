@@ -13,9 +13,15 @@ export function useDeleteProject(projectId?: string | null) {
 
   return useMutation({
     mutationFn: () => deleteProject(projectId as string),
-    onSuccess: async () => {
-      // Drop every cached view of the projects list (all/owned/shared/recent).
+    // Cache invalidation in onSettled (the convention every other mutation hook
+    // follows); navigation only on actual success.
+    onSettled: async () => {
+      // Prefix key on purpose: this matches every cached filter variant
+      // (["projects", userId, "all" | "owned" | "shared" | "recent"]), which a
+      // fully-qualified QUERY_KEYS.PROJECTS(userId) call would not.
       await queryClient.invalidateQueries({ queryKey: ["projects", userId] });
+    },
+    onSuccess: () => {
       router.push("/projects");
     },
   });

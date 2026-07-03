@@ -21,8 +21,13 @@ export async function PATCH(
   const parsed = updateProjectSettingsSchema.safeParse(body);
 
   if (!parsed.success) {
+    // Keep `error` a string (the client toast reads it directly); the
+    // per-field breakdown goes under `details`.
     return Response.json(
-      { error: parsed.error.flatten().fieldErrors },
+      {
+        error: "Please check the highlighted fields.",
+        details: parsed.error.flatten().fieldErrors,
+      },
       { status: 400 },
     );
   }
@@ -36,8 +41,15 @@ export async function PATCH(
 
     return Response.json({ success: true, data });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to update";
-    const status = message === "Owner only" ? 403 : 400;
-    return NextResponse.json({ error: message }, { status });
+    // Only surface known, safe sentinels; anything else (e.g. a raw Prisma
+    // error) is collapsed to a generic message to avoid leaking internals.
+    const raw = error instanceof Error ? error.message : "";
+    if (raw === "Owner only") {
+      return NextResponse.json({ error: raw }, { status: 403 });
+    }
+    return NextResponse.json(
+      { error: "Failed to update project settings." },
+      { status: 400 },
+    );
   }
 }

@@ -102,4 +102,15 @@ export const PERMISSIONS: IPermissionDetails[] = [
       },
     ],
   },
+  {
+    name: "Settings",
+    permission: [
+      {
+        name: "Project Settings View",
+        key: Permissions.SettingsProjectView,
+        content:
+          "Allows viewing and changing the project settings (name, description, default priority, and deletion).",
+      },
+    ],
+  },
 ];

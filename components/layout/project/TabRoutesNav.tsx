@@ -72,9 +72,12 @@ export default function TabRoutesNav() {
         {visibleRoutes.map((route) => {
           const Icon = route.icon;
 
-          const href = `${PATHS.projects}/${projectId}/${route.path}`;
+          const href = `${projectBase}${route.path}`;
 
-          const isActive = pathname === `${projectBase}${route.path}`;
+          // Match the tab's own path and any of its subroutes (e.g. Settings
+          // stays active on /settings/appearance) without cross-matching
+          // sibling tabs (the trailing "/" prevents /board matching /boardX).
+          const isActive = pathname === href || pathname.startsWith(`${href}/`);
 
           return (
             <div key={route.name}>

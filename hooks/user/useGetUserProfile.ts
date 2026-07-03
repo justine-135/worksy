@@ -14,5 +14,8 @@ export function useGetUserProfile() {
     queryKey: QUERY_KEYS.USER_PROFILE(userId),
     queryFn: fetchProfile,
     enabled: !!userId,
+    // Profile rarely changes; skip redundant refetches on remount. A profile
+    // save invalidates this key, which overrides staleTime.
+    staleTime: 30_000,
   });
 }

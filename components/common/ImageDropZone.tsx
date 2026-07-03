@@ -29,20 +29,18 @@ export default function ImageDropZone({
   const [isDragging, setIsDragging] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  const objectUrl = useMemo(() => {
-    if (!value) {
-      return null;
-    }
-
-    return URL.createObjectURL(value);
-  }, [value]);
+  // Preview URL for the locally-picked file. The cleanup effect is keyed on the
+  // URL, so it revokes the previous blob whenever `value` changes and again on
+  // unmount — no leak across file replacements.
+  const objectUrl = useMemo(
+    () => (value ? URL.createObjectURL(value) : null),
+    [value],
+  );
 
   useEffect(() => {
-    return () => {
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
-      }
-    };
+    if (!objectUrl) return;
+
+    return () => URL.revokeObjectURL(objectUrl);
   }, [objectUrl]);
 
   const activePreview = objectUrl ?? previewUrl ?? null;

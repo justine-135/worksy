@@ -28,7 +28,7 @@ export default function SignInComponent() {
       {/* faint grid backdrop — matches the landing hero */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.4] [background-image:linear-gradient(#0000000a_1px,transparent_1px),linear-gradient(90deg,#0000000a_1px,transparent_1px)] [background-size:40px_40px]"
+        className="pointer-events-none absolute inset-0 opacity-[0.4] [background-image:linear-gradient(#0000000a_1px,transparent_1px),linear-gradient(90deg,#0000000a_1px,transparent_1px)] [background-size:40px_40px] dark:[background-image:linear-gradient(#ffffff0f_1px,transparent_1px),linear-gradient(90deg,#ffffff0f_1px,transparent_1px)]"
       />
 
       <div className="relative w-full max-w-md">

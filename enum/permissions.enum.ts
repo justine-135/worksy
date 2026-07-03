@@ -21,4 +21,6 @@ export enum Permissions {
   RolesEdit = "roles.edit",
   RolesDelete = "roles.delete",
   RolesCreate = "roles.create",
+
+  SettingsProjectView = "settings.project.view",
 }
