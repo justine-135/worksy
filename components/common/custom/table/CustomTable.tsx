@@ -56,7 +56,7 @@ export function CustomTable<T>({
       <Table.Row key={`loading-${idx}`}>
         {columns.map((col) => (
           <Table.Cell key={col.id}>
-            <div className="h-4 w-full animate-pulse rounded bg-gray-200" />
+            <div className="h-4 w-full animate-pulse rounded bg-surface-muted" />
           </Table.Cell>
         ))}
       </Table.Row>
@@ -66,7 +66,7 @@ export function CustomTable<T>({
   const renderEmptyState = () => (
     <Table.Row>
       <Table.Cell colSpan={columns.length}>
-        <div className="py-6 text-center text-sm text-gray-500">
+        <div className="py-6 text-center text-sm text-muted">
           No data available
         </div>
       </Table.Cell>

@@ -111,7 +111,7 @@ export default function AddProjectModal({ userId }: Props) {
     <div>
       <Button
         variant="ghost"
-        className="flex flex-col items-center justify-center h-42 w-51.25 gap-2 bg-gray-100 hover:cursor-pointer hover:bg-gray-200"
+        className="flex flex-col items-center justify-center h-42 w-51.25 gap-2 bg-surface-muted hover:cursor-pointer hover:bg-surface-muted"
         onClick={() => setIsOpen(!isOpen)}
       >
         <BiPlus size={40} fill="gray" />

@@ -78,7 +78,7 @@ export default function ImageDropZone({
 
       <div className="space-y-3">
         <div className="space-y-1">
-          <p className="text-sm font-medium text-slate-800">{label}</p>
+          <p className="text-sm font-medium text-foreground">{label}</p>
         </div>
 
         <button
@@ -112,7 +112,7 @@ export default function ImageDropZone({
             "group relative flex h-52 w-full justify-center overflow-hidden border border-dashed transition-all duration-200",
 
             isDragging
-              ? "scale-[1.01] border-blue-500 bg-blue-50 shadow-[0_20px_50px_-24px_rgba(37,99,235,0.45)]"
+              ? "scale-[1.01] border-primary bg-primary-soft shadow-xl"
               : "",
           ].join(" ")}
         >
@@ -145,24 +145,24 @@ export default function ImageDropZone({
             </>
           ) : (
             <div className="pointer-events-none flex max-w-xs flex-col items-center gap-4 px-6 text-center">
-              <div className="grid size-14 place-items-center rounded-2xl bg-white/90 text-slate-700 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.45)]">
+              <div className="grid size-14 place-items-center rounded-2xl bg-surface/90 text-foreground shadow-xl">
                 {isDragging ? (
-                  <FiUploadCloud className="size-7 text-blue-600" />
+                  <FiUploadCloud className="size-7 text-primary" />
                 ) : (
                   <FiImage className="size-7" />
                 )}
               </div>
 
               <div className="space-y-2">
-                <p className="text-sm font-semibold text-slate-900">
+                <p className="text-sm font-semibold text-foreground">
                   {isDragging ? "Drop file here" : "Drag and drop your image"}
                 </p>
-                <p className="text-xs leading-5 text-slate-500">
+                <p className="text-xs leading-5 text-muted">
                   {description}
                 </p>
               </div>
 
-              <span className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm">
+              <span className="rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground shadow-sm">
                 Choose image
               </span>
             </div>

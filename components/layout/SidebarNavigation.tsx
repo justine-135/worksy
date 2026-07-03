@@ -43,7 +43,7 @@ export default function SidebarNavigation() {
 
   return (
     <nav
-      className={`SidebarNavigation flex flex-col p-4 fixed border-r border-color-border min-h-screen transition-[width,min-width] duration-300 ease-in-out ${
+      className={`SidebarNavigation flex flex-col p-4 fixed border-r border-border min-h-screen transition-[width,min-width] duration-300 ease-in-out ${
         collapsed ? "w-16 min-w-16" : "w-61.5 min-w-61.5"
       }`}
     >
@@ -78,7 +78,7 @@ export default function SidebarNavigation() {
             return (
               <div key={route.id}>
                 <Button
-                  className={`flex flex-col items-start w-53.5 p-0 ${isActive ? "bg-white shadow-xl/10" : ""}`}
+                  className={`flex flex-col items-start w-53.5 p-0 ${isActive ? "bg-surface shadow-xl/10" : ""}`}
                   variant="ghost"
                 >
                   <Link

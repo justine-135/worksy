@@ -36,7 +36,7 @@ const logIcon = (type: EActivityLog): IconType => {
 
 /** A gray circle holding the activity-type icon. */
 const LogIcon = ({ Icon }: { Icon: IconType }) => (
-  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-gray-200 text-gray-700">
+  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-surface-muted text-foreground">
     <Icon size={16} />
   </span>
 );
@@ -60,8 +60,8 @@ const Badge = ({
   <span
     className={
       variant === "success"
-        ? "font-medium bg-green-50 border border-green-200 px-1.5 py-0.5 rounded text-green-700 text-xs"
-        : "font-medium bg-gray-100 border px-1.5 py-0.5 rounded text-gray-700 text-xs"
+        ? "font-medium bg-success-soft border border-success px-1.5 py-0.5 rounded text-success text-xs"
+        : "font-medium bg-surface-muted border px-1.5 py-0.5 rounded text-foreground text-xs"
     }
   >
     {title}
@@ -133,7 +133,7 @@ const RowLink = ({
   return (
     <Link
       href={href}
-      className="block rounded-md transition-colors hover:bg-gray-50"
+      className="block rounded-md transition-colors hover:bg-surface-muted"
     >
       {children}
     </Link>
@@ -159,7 +159,7 @@ const LogItem = ({
 
   return (
     <RowLink href={href}>
-      <div className="flex items-stretch gap-2 w-full text-sm text-gray-600">
+      <div className="flex items-stretch gap-2 w-full text-sm text-muted">
         {!hideActor && (
           <div className="pt-2">
             <Actor name={name} image={image} />
@@ -172,7 +172,7 @@ const LogItem = ({
         <div className="relative flex flex-col items-center self-stretch">
           <div
             className={[
-              "absolute w-px bg-gray-200",
+              "absolute w-px bg-border",
               isFirst ? "top-[22px]" : "top-0",
               isLast ? "bottom-[calc(100%-22px)]" : "bottom-0",
             ].join(" ")}
@@ -185,10 +185,10 @@ const LogItem = ({
         <div className="flex min-w-0 flex-1 flex-col py-2">
           <p className="leading-snug pt-1">
             {!hideActor && (
-              <span className="font-semibold text-gray-900">{name} </span>
+              <span className="font-semibold text-foreground">{name} </span>
             )}
             {verbText(log, hideActor)}{" "}
-            <span className="text-gray-400">{timeAgo(log.createdAt)}</span>
+            <span className="text-subtle">{timeAgo(log.createdAt)}</span>
           </p>
 
           {isComment && (
@@ -217,7 +217,7 @@ export default function ActivityLog({
   if (!data?.length) return "";
 
   return (
-    <div className="flex flex-col w-full py-4 bg-white">
+    <div className="flex flex-col w-full py-4 bg-surface">
       {data.map((log, idx) => (
         <div key={idx} className="w-full">
           <LogItem

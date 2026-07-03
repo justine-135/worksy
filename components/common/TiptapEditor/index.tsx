@@ -70,14 +70,14 @@ function MentionList({
 }: MentionListProps) {
   if (!items.length) {
     return (
-      <div className="rounded-xl border border-default-200 bg-white px-3 py-2 text-sm text-default-500 shadow-lg">
+      <div className="rounded-xl border border-default-200 bg-surface px-3 py-2 text-sm text-default-500 shadow-lg">
         No members found
       </div>
     );
   }
 
   return (
-    <div className="w-64 overflow-hidden rounded-xl border border-default-200 bg-white p-1 shadow-lg">
+    <div className="w-64 overflow-hidden rounded-xl border border-default-200 bg-surface p-1 shadow-lg">
       {items.map((item, index) => (
         <button
           key={item.id}
@@ -280,7 +280,7 @@ function ToolbarButton({
       className={`grid h-8 min-w-8 place-items-center rounded-lg border px-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50 ${
         active
           ? "border-primary-200 bg-primary-50 text-primary-700"
-          : "border-default-200 bg-white text-default-600 hover:bg-default-100"
+          : "border-default-200 bg-surface text-default-600 hover:bg-default-100"
       }`}
     >
       {children}
@@ -346,7 +346,7 @@ function TiptapEditor({ users = [], value = "", onChange }: TiptapEditorProps) {
     content: value,
     editorProps: {
       attributes: {
-        class: "min-h-44 px-3 py-3 text-sm outline-none text-black",
+        class: "min-h-44 px-3 py-3 text-sm outline-none text-foreground",
       },
     },
     onUpdate({ editor }) {
@@ -429,7 +429,7 @@ function TiptapEditor({ users = [], value = "", onChange }: TiptapEditorProps) {
   if (!editor) return null;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-default-200 bg-white">
+    <div className="overflow-hidden rounded-xl border border-default-200 bg-surface">
       <div className="flex flex-wrap items-center gap-1 border-b border-default-200 bg-default-50 p-2">
         <ToolbarButton
           title="Bold"
@@ -482,7 +482,7 @@ function TiptapEditor({ users = [], value = "", onChange }: TiptapEditorProps) {
               .toggleHeading({ level: Number(level) as HeadingLevel })
               .run();
           }}
-          className="h-8 rounded-lg border border-default-200 bg-white px-2 text-sm text-default-700 outline-none"
+          className="h-8 rounded-lg border border-default-200 bg-surface px-2 text-sm text-default-700 outline-none"
         >
           <option value="paragraph">Paragraph</option>
           <option value="1">Heading 1</option>

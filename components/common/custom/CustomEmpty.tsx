@@ -19,13 +19,13 @@ export default function CustomEmpty({
   const IconComponent = Icon || MdPerson;
   return (
     <div className="flex flex-col items-center p-5">
-      <div className="bg-slate-200 rounded-xl border mb-4 p-2">
+      <div className="bg-surface-muted rounded-xl border mb-4 p-2">
         <IconComponent size={32} />
       </div>
       <Typography.Heading level={1} className="text-[16px]">
         {title || "No data available"}
       </Typography.Heading>
-      <Typography.Paragraph className="text-gray-500 text-sm">
+      <Typography.Paragraph className="text-muted text-sm">
         {message ?? "No members yet"}
       </Typography.Paragraph>
       {action}

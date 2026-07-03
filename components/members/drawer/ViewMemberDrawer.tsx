@@ -27,7 +27,7 @@ const Detail = ({ label, value }: { label: string; value: string }) => {
   return (
     <div className="flex">
       <span className="w-36">{label}</span>
-      <span className="text-sm text-black">{value}</span>
+      <span className="text-sm text-foreground">{value}</span>
     </div>
   );
 };
@@ -78,7 +78,7 @@ export default function ViewMemberDrawer({
                   <Separator />
                   <div className="space-y-6">
                     <div>
-                      <span className="font-medium text-black">
+                      <span className="font-medium text-foreground">
                         Member details
                       </span>
                     </div>
@@ -106,7 +106,7 @@ export default function ViewMemberDrawer({
 
                   <div className="space-y-4">
                     <div>
-                      <span className="font-medium text-black">
+                      <span className="font-medium text-foreground">
                         Recent activity
                       </span>
                       <p className="text-muted text-xs">Last 7 days</p>

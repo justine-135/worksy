@@ -154,7 +154,7 @@ const PersonRow = ({
       avatarFallbackProps={{ className: "text-xs" }}
       fallback={name}
     />
-    <span className="truncate text-sm text-gray-700">{name}</span>
+    <span className="truncate text-sm text-foreground">{name}</span>
   </div>
 );
 
@@ -169,7 +169,7 @@ const SidebarSection = ({
 }) => (
   <div className="space-y-2">
     <div className="flex items-center justify-between">
-      <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+      <h4 className="text-xs font-semibold uppercase tracking-wide text-muted">
         {title}
       </h4>
       {action}
@@ -189,7 +189,7 @@ const AssigneeDisplay = ({
   assignees: { name: string; image?: string | null }[];
 }) => {
   if (assignees.length === 0) {
-    return <p className="text-sm text-gray-400">No one assigned</p>;
+    return <p className="text-sm text-subtle">No one assigned</p>;
   }
 
   if (assignees.length === 1) {
@@ -223,7 +223,7 @@ const SubtaskList = ({
   onNavigate: (taskId: string) => void;
 }) => (
   <div className="mt-6 space-y-2">
-    <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+    <h4 className="text-xs font-semibold uppercase tracking-wide text-muted">
       Subtasks
     </h4>
     <div className="divide-y divide-default-100 rounded-lg border border-default-200">
@@ -232,15 +232,15 @@ const SubtaskList = ({
           key={child.id}
           type="button"
           onClick={() => onNavigate(child.id)}
-          className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left hover:bg-gray-50"
+          className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left hover:bg-surface-muted"
         >
           <span className="min-w-0 truncate text-sm">
-            <span className="mr-1 text-xs font-medium text-gray-400">
+            <span className="mr-1 text-xs font-medium text-subtle">
               #{child.ticketNumber}
             </span>
             {child.title}
           </span>
-          <span className="shrink-0 text-xs text-gray-500">
+          <span className="shrink-0 text-xs text-muted">
             {TASK_STATUS_LABELS[child.status]}
           </span>
         </button>
@@ -430,7 +430,7 @@ const TaskSidebar = ({
             <Button
               aria-label="Edit assignees"
               variant="tertiary"
-              className="h-6 px-1 text-gray-500"
+              className="h-6 px-1 text-muted"
               onClick={openAssigneeEditor}
             >
               <BiCog className="size-4" />
@@ -504,7 +504,7 @@ const TaskSidebar = ({
             <Dropdown>
               <Dropdown.Trigger
                 aria-label="Add relationship"
-                className="flex h-6 items-center justify-center rounded-md px-1 text-gray-500 outline-none hover:bg-default-100"
+                className="flex h-6 items-center justify-center rounded-md px-1 text-muted outline-none hover:bg-default-100"
               >
                 <BiCog className="size-4" />
               </Dropdown.Trigger>
@@ -571,7 +571,7 @@ const TaskSidebar = ({
                   onClick={() => onNavigateTask(parent.id)}
                   className="min-w-0 truncate text-left text-sm text-primary hover:underline"
                 >
-                  <span className="mr-1 text-xs font-medium text-gray-400">
+                  <span className="mr-1 text-xs font-medium text-subtle">
                     #{parent.ticketNumber}
                   </span>
                   {parent.title}
@@ -592,7 +592,7 @@ const TaskSidebar = ({
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-gray-400">No parent</p>
+          <p className="text-sm text-subtle">No parent</p>
         )}
       </SidebarSection>
 
@@ -678,9 +678,9 @@ const TaskSidebar = ({
               </Modal.Heading>
             </Modal.Header>
             <Modal.Body>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted">
                 Remove{" "}
-                <span className="font-medium text-gray-900">
+                <span className="font-medium text-foreground">
                   #{parentToRemove?.ticketNumber} {parentToRemove?.title}
                 </span>{" "}
                 as a parent of this task? This only unlinks them — no task is
@@ -849,7 +849,7 @@ export default function TaskDetailDrawer({ id, title }: TaskDetailDrawerProps) {
                         />
                         <div className="flex flex-col w-full">
                           <div className="space-x-1">
-                            <span className="text-sm font-semibold text-gray-900 hover:underline cursor-pointer">
+                            <span className="text-sm font-semibold text-foreground hover:underline cursor-pointer">
                               {createdBy.name}
                             </span>
                             <span>opened {timeAgo(data.createdAt)}</span>

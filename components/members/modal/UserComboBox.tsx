@@ -44,7 +44,7 @@ export function UserComboBox({ setMember }: Props) {
             px-3 py-2
             rounded-xl
             cursor-pointer
-            hover:bg-gray-50
+            hover:bg-surface-muted
           "
               onClick={() => {
                 if (!mentionMatch) return;

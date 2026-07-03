@@ -67,7 +67,7 @@ export default function TabRoutesNav() {
   );
 
   return (
-    <nav className="TabRoutesNav border-b border-gray-200 px-4">
+    <nav className="TabRoutesNav border-b border-border px-4">
       <div className="flex gap-6">
         {visibleRoutes.map((route) => {
           const Icon = route.icon;

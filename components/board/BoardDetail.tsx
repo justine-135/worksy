@@ -238,19 +238,19 @@ const TaskBoardContent = ({
         "flex h-full min-h-72 w-75 flex-col rounded-xl border border-default-200/80 p-1 shadow-sm",
         dragDisabled
           ? "bg-content1/95 cursor-default"
-          : "bg-content1/95 cursor-grab active:cursor-grabbing hover:bg-gray-200 active:opacity-70",
+          : "bg-content1/95 cursor-grab active:cursor-grabbing hover:bg-surface-muted active:opacity-70",
         dragging ? "shadow-xl ring-1 ring-primary/20" : "",
       ].join(" ")}
     >
       <div
-        className="TaskDetail h-full rounded-lg bg-white p-1 cursor-default"
+        className="TaskDetail h-full rounded-lg bg-surface p-1 cursor-default"
         onMouseEnter={onTaskDetailEnter}
         onMouseLeave={onTaskDetailLeave}
       >
         <div className="mb-3 flex items-center gap-2">
           <div className="truncate font-semibold">{column.title}</div>
           <div className="flex items-center gap-2">
-            <div className="rounded-full bg-default-100 px-2 py-0 text-xs text-default-600 bg-gray-100">
+            <div className="rounded-full bg-default-100 px-2 py-0 text-xs text-default-600">
               {column.tasks.length}
             </div>
           </div>

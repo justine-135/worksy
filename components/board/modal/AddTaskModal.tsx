@@ -214,7 +214,7 @@ export default function AddTaskModal({
                   {parentTask ? (
                     <div className="flex items-center justify-between rounded-lg border border-default-200 px-3 py-2">
                       <span className="truncate text-sm">
-                        <span className="mr-1 text-xs font-medium text-gray-400">
+                        <span className="mr-1 text-xs font-medium text-subtle">
                           #{parentTask.ticketNumber}
                         </span>
                         {parentTask.title}
@@ -222,7 +222,7 @@ export default function AddTaskModal({
                       <Button
                         type="button"
                         variant="tertiary"
-                        className="h-6 px-1 text-gray-500"
+                        className="h-6 px-1 text-muted"
                         onClick={() => setParentTask(null)}
                       >
                         Change

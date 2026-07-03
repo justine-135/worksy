@@ -75,15 +75,15 @@ export default function TaskRelationCombobox({
           aria-busy={isPending}
         >
           {isLoading && (
-            <p className="px-3 py-2 text-sm text-gray-400">Searching...</p>
+            <p className="px-3 py-2 text-sm text-subtle">Searching...</p>
           )}
           {!isLoading && results.length === 0 && (
-            <p className="px-3 py-2 text-sm text-gray-400">No tasks found</p>
+            <p className="px-3 py-2 text-sm text-subtle">No tasks found</p>
           )}
           {results.map((task) => (
             <div
               key={task.id}
-              className="flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2 hover:bg-gray-50"
+              className="flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2 hover:bg-surface-muted"
               // onMouseDown fires before the input's onBlur, so the selection
               // registers before the list is hidden.
               onMouseDown={() => {
@@ -92,9 +92,9 @@ export default function TaskRelationCombobox({
               }}
             >
               {isPending && selectedId === task.id ? (
-                <span className="size-4 shrink-0 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+                <span className="size-4 shrink-0 animate-spin rounded-full border-2 border-border border-t-muted" />
               ) : (
-                <span className="shrink-0 text-xs font-medium text-gray-400">
+                <span className="shrink-0 text-xs font-medium text-subtle">
                   #{task.ticketNumber}
                 </span>
               )}
