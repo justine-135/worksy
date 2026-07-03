@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
-import { getTaskDetail, updateTaskAssigneesDB } from "@/db/task.db";
+import {
+  getTaskDetail,
+  getTaskProjectId,
+  updateTaskAssigneesDB,
+} from "@/db/task.db";
 import { Permissions } from "@/enum/permissions.enum";
 import { authConfig } from "@/lib/auth/auth";
 import { hasPermissionInProject } from "@/lib/permission/checkPermission";
@@ -19,6 +23,20 @@ export async function GET(
 
   if (!id) {
     return Response.json({ error: "Missing id" }, { status: 400 });
+  }
+
+  // Viewing task details requires task.view in the task's project.
+  const projectId = await getTaskProjectId(id);
+
+  if (
+    !projectId ||
+    !(await hasPermissionInProject(
+      projectId,
+      session.user.id,
+      Permissions.TaskView,
+    ))
+  ) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const data = await getTaskDetail(id);

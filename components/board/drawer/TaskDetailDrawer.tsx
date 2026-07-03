@@ -764,12 +764,19 @@ export default function TaskDetailDrawer({ id, title }: TaskDetailDrawerProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  // Viewing a task's details requires task.view. Without it the title stays as
+  // plain, non-clickable text and the drawer never opens — including via the
+  // `?task=` deep-link (isOpen is forced false, so no detail is fetched).
+  const { hasPermission } = usePermission();
+  const canViewTask = hasPermission(Permissions.TaskView);
+
   const isDeepLinked = searchParams.get("task") === id;
 
   // Open when the user clicks the title OR when the board is deep-linked with
   // `?task=<id>` (e.g. from a member's activity feed). Deriving `isOpen` from
   // the URL avoids syncing state in an effect.
-  const isOpen = manualOpen || isDeepLinked;
+  const isOpen = canViewTask && (manualOpen || isDeepLinked);
 
   const { data, isLoading } = useGetTaskDetail({ id, isOpen });
 
@@ -798,9 +805,15 @@ export default function TaskDetailDrawer({ id, title }: TaskDetailDrawerProps) {
   return (
     <div>
       <Drawer>
+        {/* No task.view → the title stays visible but its click is disabled, so
+            the drawer can't be opened (isOpen also stays false for deep-links). */}
         <span
-          onClick={() => handleOpenChange(true)}
-          className="hover:bg-transparent hover:underline cursor-pointer"
+          onClick={canViewTask ? () => handleOpenChange(true) : undefined}
+          className={
+            canViewTask
+              ? "hover:bg-transparent hover:underline cursor-pointer"
+              : "cursor-default"
+          }
         >
           {title}
         </span>

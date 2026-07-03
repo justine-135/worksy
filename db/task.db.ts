@@ -526,6 +526,16 @@ export async function updateTaskRelationDB({
   });
 }
 
+/** Resolve which project a task belongs to (for server-side permission checks). */
+export async function getTaskProjectId(taskId: string) {
+  const task = await prisma.task.findUnique({
+    where: { id: taskId },
+    select: { projectId: true },
+  });
+
+  return task?.projectId ?? null;
+}
+
 export async function getTaskDetail(id: string) {
   const task = await prisma.task.findUnique({
     where: {
