@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 
 import SessionHydrator from "@/components/common/SessionHydrator";
-import SidebarNavigation from "@/components/layout/SidebarNavigation";
+import SidebarSpacer from "@/components/layout/SidebarSpacer";
 import ToastLayout from "@/components/layout/ToastLayout";
 import { authConfig } from "@/lib/auth/auth";
 
@@ -36,9 +36,7 @@ export default async function ProjectLayout({
     <div className={`${inter.className} font-project`}>
       <ToastLayout>
         <div className="flex">
-          <div className="w-61.5">
-            <SidebarNavigation />
-          </div>
+          <SidebarSpacer />
           <main className="flex-1 min-w-0">{children}</main>
         </div>
         <SessionHydrator userId={session?.user.id} />

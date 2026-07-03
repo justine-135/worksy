@@ -4,12 +4,12 @@ import { Button } from "@heroui/react/button";
 import { Skeleton } from "@heroui/react/skeleton";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useState } from "react";
 import { BsBoxFill } from "react-icons/bs";
 import { TbColumns2 } from "react-icons/tb";
 
 import { useGetProjects } from "@/hooks/project/useGetProjects";
 import { useSessionStore } from "@/store/session.store";
+import { useSidebarStore } from "@/store/sidebar.store";
 
 import { PATHS } from "./project/TabRoutesNav";
 import ProjectRoutes from "./ProjectRoutes";
@@ -38,12 +38,13 @@ export default function SidebarNavigation() {
 
   const params = useParams();
 
-  const [collapsed, setCollapsed] = useState(false);
+  const collapsed = useSidebarStore((s) => s.collapsed);
+  const toggle = useSidebarStore((s) => s.toggle);
 
   return (
     <nav
-      className={`SidebarNavigation flex flex-col p-4 fixed border-r border-color-border min-h-screen ${
-        collapsed ? "min-w-16" : "min-w-61.5"
+      className={`SidebarNavigation flex flex-col p-4 fixed border-r border-color-border min-h-screen transition-[width,min-width] duration-300 ease-in-out ${
+        collapsed ? "w-16 min-w-16" : "w-61.5 min-w-61.5"
       }`}
     >
       <div className="flex flex-col">
@@ -56,7 +57,7 @@ export default function SidebarNavigation() {
           <button
             type="button"
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            onClick={() => setCollapsed((prev) => !prev)}
+            onClick={toggle}
             className="cursor-pointer"
           >
             <TbColumns2 />
