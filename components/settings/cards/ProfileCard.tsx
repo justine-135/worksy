@@ -2,11 +2,10 @@
 
 import { Form, Input, Label, TextField, toast } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { FiUser } from "react-icons/fi";
 
+import CustomAvatar from "@/components/common/custom/CustomAvatar";
 import CustomButton from "@/components/common/custom/CustomButton";
 import ImageDropZone from "@/components/common/ImageDropZone";
 import SettingsSection from "@/components/settings/SettingsSection";
@@ -68,21 +67,19 @@ export default function ProfileCard({ profile }: { profile: UserProfileDTO }) {
     >
       <Form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="flex items-center gap-4">
-          <div className="relative size-16 shrink-0 overflow-hidden rounded-full border border-border bg-surface-muted">
-            {profile.image ? (
-              <Image
-                alt="Current avatar"
-                src={profile.image}
-                fill
-                sizes="64px"
-                className="object-cover"
-              />
-            ) : (
-              <span className="flex h-full w-full items-center justify-center text-muted">
-                <FiUser className="size-6" />
-              </span>
-            )}
-          </div>
+          <CustomAvatar
+            avatarProps={{
+              className:
+                "size-16 shrink-0 rounded-full border border-border bg-surface-muted",
+            }}
+            avatarImageProps={{
+              src: profile.image || "",
+              alt: "Current avatar",
+              className: "object-cover",
+            }}
+            avatarFallbackProps={{ className: "text-base text-muted" }}
+            fallback={profile.name || profile.email || "U"}
+          />
           <div className="min-w-0 flex-1">
             <ImageDropZone
               value={avatarFile}
