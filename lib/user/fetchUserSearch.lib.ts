@@ -1,3 +1,5 @@
+import { throwApiError } from "@/lib/api/apiMessage.lib";
+
 export default async function fetchUserSearch({
   query,
   currentId,
@@ -8,6 +10,6 @@ export default async function fetchUserSearch({
   const res = await fetch(
     `/api/user/search?query=${query}&current_id=${currentId}`,
   );
-  if (!res.ok) throw new Error("Failed to fetch user");
+  if (!res.ok) await throwApiError(res, "Failed to fetch user");
   return res.json();
 }

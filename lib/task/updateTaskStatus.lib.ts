@@ -1,3 +1,4 @@
+import { throwApiError } from "@/lib/api/apiMessage.lib";
 import { UpdateTaskStatusDTO } from "@/types/task.dto";
 
 export default async function updateTaskStatus({
@@ -14,9 +15,7 @@ export default async function updateTaskStatus({
     body: JSON.stringify({ projectId, userId, status }),
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to update status");
-  }
+  if (!response.ok) await throwApiError(response, "Failed to update status");
 
   return response.json();
 }

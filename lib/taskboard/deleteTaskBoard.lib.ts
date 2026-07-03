@@ -1,3 +1,4 @@
+import { throwApiError } from "@/lib/api/apiMessage.lib";
 import { DeleteTaskBoardDTO } from "@/types/taskboard.dto";
 
 export default async function deleteTaskBoard({
@@ -19,9 +20,7 @@ export default async function deleteTaskBoard({
     }),
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to delete task board resource");
-  }
+  if (!response.ok) await throwApiError(response, "Failed to delete task board resource");
 
   return response.json();
 }

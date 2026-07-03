@@ -1,3 +1,4 @@
+import { throwApiError } from "@/lib/api/apiMessage.lib";
 import { CreateProjectInviteDTO } from "@/types/projectInvite.dto";
 
 export default async function createInvite({
@@ -16,9 +17,7 @@ export default async function createInvite({
     }),
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to send invite");
-  }
+  if (!response.ok) await throwApiError(response, "Failed to send invite");
 
   return response.json();
 }

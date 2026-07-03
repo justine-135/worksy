@@ -1,3 +1,4 @@
+import { throwApiError } from "@/lib/api/apiMessage.lib";
 import { UserProjectParamsDTO } from "@/types/taskboard.dto";
 
 interface Params extends UserProjectParamsDTO {
@@ -30,9 +31,7 @@ export default async function saveTaskPosition({
     }),
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to save task position");
-  }
+  if (!response.ok) await throwApiError(response, "Failed to save task position");
 
   return response.json();
 }

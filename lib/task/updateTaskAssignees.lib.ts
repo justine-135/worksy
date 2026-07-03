@@ -1,3 +1,4 @@
+import { throwApiError } from "@/lib/api/apiMessage.lib";
 import { UpdateTaskAssigneesDTO } from "@/types/task.dto";
 
 export default async function updateTaskAssignees({
@@ -14,9 +15,7 @@ export default async function updateTaskAssignees({
     body: JSON.stringify({ projectId, userId, assignees }),
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to update assignees");
-  }
+  if (!response.ok) await throwApiError(response, "Failed to update assignees");
 
   return response.json();
 }

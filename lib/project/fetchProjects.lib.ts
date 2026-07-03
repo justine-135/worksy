@@ -1,3 +1,4 @@
+import { throwApiError } from "@/lib/api/apiMessage.lib";
 import { TProjectFilter } from "@/types/project.dto";
 
 export default async function fetchProjects({
@@ -8,6 +9,6 @@ export default async function fetchProjects({
   filter?: TProjectFilter;
 }) {
   const res = await fetch(`/api/project/${userId}?filter=${filter}`);
-  if (!res.ok) throw new Error("Failed to fetch projects");
+  if (!res.ok) await throwApiError(res, "Failed to fetch projects");
   return res.json();
 }

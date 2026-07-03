@@ -1,3 +1,4 @@
+import { throwApiError } from "@/lib/api/apiMessage.lib";
 import { CommentDTO } from "@/types/activityLog.dto";
 
 export default async function createComment({
@@ -21,9 +22,7 @@ export default async function createComment({
     }),
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to comment");
-  }
+  if (!response.ok) await throwApiError(response, "Failed to comment");
 
   return response.json();
 }

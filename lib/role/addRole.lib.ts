@@ -1,3 +1,4 @@
+import { throwApiError } from "@/lib/api/apiMessage.lib";
 import { CreateRoleInput } from "@/types/roles.dto";
 
 export default async function addRole({
@@ -17,9 +18,7 @@ export default async function addRole({
     }),
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to create role");
-  }
+  if (!response.ok) await throwApiError(response, "Failed to create role");
 
   return response.json();
 }

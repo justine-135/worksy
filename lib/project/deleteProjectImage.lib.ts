@@ -1,3 +1,5 @@
+import { throwApiError } from "@/lib/api/apiMessage.lib";
+
 export default async function deleteProjectImage(url: string) {
   const response = await fetch("/api/project/image", {
     method: "DELETE",
@@ -7,7 +9,5 @@ export default async function deleteProjectImage(url: string) {
     body: JSON.stringify({ url }),
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to delete uploaded project image");
-  }
+  if (!response.ok) await throwApiError(response, "Failed to delete uploaded project image");
 }

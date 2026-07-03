@@ -1,12 +1,12 @@
 "use client";
 
 import { Button, Drawer, Separator } from "@heroui/react";
-import { toast } from "@heroui/react/toast";
 import { useState } from "react";
 import { BiPencil } from "react-icons/bi";
 
 import PermissionGuard from "@/components/common/PermissionGuard";
 import { Permissions } from "@/enum/permissions.enum";
+import { useApiMessage } from "@/hooks/common/useApiMessage";
 import useEditRoleMutation from "@/hooks/role/useEditRoleMutation";
 import { CreateRoleInput } from "@/lib/validations/addRole.schema";
 import { useSessionStore } from "@/store/session.store";
@@ -29,20 +29,21 @@ export default function EditRoleDrawer({ onClose, role }: EditRoleDrawerProps) {
 
   const projectId = useSessionStore((s) => s.projectId);
   const { mutation } = useEditRoleMutation({ projectId });
+  const { showSuccess, showError } = useApiMessage();
 
   const onSubmit = (data: CreateRoleInput) => {
     mutation.mutate(
       { ...data, roleId: role.id },
       {
-        onSuccess: () => {
+        onSuccess: (result) => {
           onClose?.();
           setIsOpen(false);
-          queueMicrotask(() => toast("Role updated successfully"));
+          showSuccess(result);
         },
-        onError: () => {
+        onError: (error) => {
           onClose?.();
           setIsOpen(false);
-          queueMicrotask(() => toast.danger("Failed to update role"));
+          showError(error, "Failed to update role");
         },
       },
     );

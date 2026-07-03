@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
 import { createTaskDB, updateTaskPositionsDB } from "@/db/task.db";
 import { Permissions } from "@/enum/permissions.enum";
+import { apiError, apiSuccess } from "@/lib/api/apiResponse.lib";
 import { authConfig } from "@/lib/auth/auth";
 import { hasPermissionInProject } from "@/lib/permission/checkPermission";
 
@@ -10,7 +10,7 @@ export async function PATCH(req: Request) {
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("You must be signed in to continue.", 401);
   }
 
   const body = await req.json();
@@ -25,7 +25,7 @@ export async function PATCH(req: Request) {
     !Array.isArray(orderedTaskIdsByBoard) ||
     orderedTaskIdsByBoard.length === 0
   ) {
-    return Response.json({ error: "Invalid payload" }, { status: 400 });
+    return apiError("Invalid request. Some task details are missing.", 400);
   }
 
   if (
@@ -35,7 +35,7 @@ export async function PATCH(req: Request) {
       Permissions.TaskEdit,
     ))
   ) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return apiError("Forbidden", 403);
   }
 
   await updateTaskPositionsDB({
@@ -46,14 +46,14 @@ export async function PATCH(req: Request) {
     orderedTaskIdsByBoard,
   });
 
-  return Response.json({ success: true });
+  return apiSuccess("Tasks reordered.");
 }
 
 export async function POST(req: Request) {
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("You must be signed in to continue.", 401);
   }
 
   const body = await req.json();
@@ -69,7 +69,7 @@ export async function POST(req: Request) {
   } = body;
 
   if (!title || !task_board_id || !project_id || !user_id) {
-    return Response.json({ error: "Invalid payload" }, { status: 400 });
+    return apiError("Please provide the required task details.", 400);
   }
 
   if (
@@ -79,7 +79,7 @@ export async function POST(req: Request) {
       Permissions.TaskCreate,
     ))
   ) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return apiError("Forbidden", 403);
   }
 
   const data = await createTaskDB({
@@ -93,5 +93,5 @@ export async function POST(req: Request) {
     parentId: parent_id ?? null,
   });
 
-  return Response.json({ success: true, data });
+  return apiSuccess("Task created.", data);
 }

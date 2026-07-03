@@ -1,3 +1,4 @@
+import { throwApiError } from "@/lib/api/apiMessage.lib";
 import { CreateProjectDTO } from "@/types/project.dto";
 
 export default async function createProject({
@@ -19,9 +20,7 @@ export default async function createProject({
     }),
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to create project");
-  }
+  if (!response.ok) await throwApiError(response, "Failed to create project");
 
   return response.json();
 }

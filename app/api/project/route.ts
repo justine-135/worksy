@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
 
 import { createProjectDTO } from "@/db/project.db";
+import { apiError, apiSuccess } from "@/lib/api/apiResponse.lib";
 import { authConfig } from "@/lib/auth/auth";
 import { createProjectSchema } from "@/lib/validations/createProject.schema";
 
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("You must be signed in to continue.", 401);
   }
 
   const body = await req.json();
@@ -22,13 +22,14 @@ export async function POST(req: Request) {
   const parsed = createProjectRequestSchema.safeParse(body);
 
   if (!parsed.success) {
-    return Response.json(
-      { error: parsed.error.flatten().fieldErrors },
-      { status: 400 },
+    return apiError(
+      "Please correct the highlighted fields.",
+      400,
+      parsed.error.flatten().fieldErrors,
     );
   }
 
   const data = await createProjectDTO(parsed.data);
 
-  return Response.json({ success: true, data });
+  return apiSuccess("Project created.", data);
 }

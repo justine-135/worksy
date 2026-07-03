@@ -2,11 +2,11 @@
 
 import { Drawer, Separator } from "@heroui/react";
 import { Button } from "@heroui/react/button";
-import { toast } from "@heroui/react/toast";
 import { useState } from "react";
 
 import PermissionGuard from "@/components/common/PermissionGuard";
 import { Permissions } from "@/enum/permissions.enum";
+import { useApiMessage } from "@/hooks/common/useApiMessage";
 import useAddRoleMutation from "@/hooks/role/useAddRoleMutation";
 import { CreateRoleInput } from "@/lib/validations/addRole.schema";
 import { useSessionStore } from "@/store/session.store";
@@ -17,6 +17,7 @@ export default function AddRoleDrawer() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const projectId = useSessionStore((s) => s.projectId);
   const { mutation } = useAddRoleMutation({ projectId });
+  const { showSuccess, showError } = useApiMessage();
 
   const handleOpenChange = () => setIsOpen(!isOpen);
 
@@ -24,13 +25,15 @@ export default function AddRoleDrawer() {
     mutation.mutate(
       { ...data, projectId },
       {
-        onSuccess: () => {
+        // showSuccess/showError already defer the toast internally, so the
+        // manual queueMicrotask wrapper is no longer needed.
+        onSuccess: (result) => {
           setIsOpen(false);
-          queueMicrotask(() => toast("Role added successfully"));
+          showSuccess(result);
         },
-        onError: () => {
+        onError: (error) => {
           setIsOpen(false);
-          queueMicrotask(() => toast.danger("Failed to add role"));
+          showError(error, "Failed to add role");
         },
       },
     );

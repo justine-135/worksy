@@ -1,3 +1,4 @@
+import { throwApiError } from "@/lib/api/apiMessage.lib";
 import { TaskSearchResultDTO } from "@/types/task.dto";
 
 export default async function fetchTaskSearch({
@@ -14,6 +15,6 @@ export default async function fetchTaskSearch({
   if (excludeId) params.set("exclude_id", excludeId);
 
   const res = await fetch(`/api/task/search?${params.toString()}`);
-  if (!res.ok) throw new Error("Failed to search tasks");
+  if (!res.ok) await throwApiError(res, "Failed to search tasks");
   return res.json();
 }

@@ -1,3 +1,4 @@
+import { throwApiError } from "@/lib/api/apiMessage.lib";
 import { EditMemberStatusRoleDTO } from "@/types/projectMember.dto";
 
 export default async function editMemberStatusRole({
@@ -16,9 +17,7 @@ export default async function editMemberStatusRole({
     }),
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to invite member");
-  }
+  if (!response.ok) await throwApiError(response, "Failed to invite member");
 
   return response.json();
 }

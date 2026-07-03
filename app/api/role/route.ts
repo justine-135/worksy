@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
 import { createRole, getRoles } from "@/db/role.db";
 import { Permissions } from "@/enum/permissions.enum";
+import { apiError, apiSuccess } from "@/lib/api/apiResponse.lib";
 import { authConfig } from "@/lib/auth/auth";
 import { hasPermissionInProject } from "@/lib/permission/checkPermission";
 
@@ -10,7 +10,7 @@ export async function GET(req: Request) {
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("You must be signed in to continue.", 401);
   }
 
   const { searchParams } = new URL(req.url);
@@ -18,7 +18,7 @@ export async function GET(req: Request) {
   const projectId = searchParams.get("project_id");
 
   if (!projectId) {
-    return Response.json({ error: "Invalid project id" }, { status: 400 });
+    return apiError("Missing project id.", 400);
   }
 
   const data = await getRoles({ projectId });
@@ -30,14 +30,14 @@ export async function POST(req: Request) {
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("You must be signed in to continue.", 401);
   }
 
   const body = await req.json();
   const { projectId, name, permissions } = body;
 
   if (!projectId || !name || !permissions) {
-    return Response.json({ error: "Invalid payload" }, { status: 400 });
+    return apiError("Please provide a role name and permissions.", 400);
   }
 
   if (
@@ -47,13 +47,10 @@ export async function POST(req: Request) {
       Permissions.RolesCreate,
     ))
   ) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return apiError("Forbidden", 403);
   }
 
   const data = await createRole({ name, permissions, projectId }, session.user.id);
 
-  return Response.json({
-    success: true,
-    data,
-  });
+  return apiSuccess("Role created.", data);
 }

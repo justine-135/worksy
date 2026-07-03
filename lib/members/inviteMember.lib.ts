@@ -1,3 +1,5 @@
+import { throwApiError } from "@/lib/api/apiMessage.lib";
+
 export default async function inviteMember({ inviteId }: { inviteId: string }) {
   const response = await fetch("/api/member/invite", {
     method: "POST",
@@ -9,9 +11,7 @@ export default async function inviteMember({ inviteId }: { inviteId: string }) {
     }),
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to invite member");
-  }
+  if (!response.ok) await throwApiError(response, "Failed to invite member");
 
   return response.json();
 }

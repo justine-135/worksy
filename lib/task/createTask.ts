@@ -1,3 +1,4 @@
+import { throwApiError } from "@/lib/api/apiMessage.lib";
 import { CreateTaskDTO } from "@/types/task.dto";
 
 export default async function createTask({
@@ -27,9 +28,7 @@ export default async function createTask({
     }),
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to create task");
-  }
+  if (!response.ok) await throwApiError(response, "Failed to create task");
 
   return response.json();
 }

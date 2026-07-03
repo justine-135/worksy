@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
 import {
@@ -6,6 +5,7 @@ import {
   updateMemberStatusRole,
 } from "@/db/projectMember.db";
 import { Permissions } from "@/enum/permissions.enum";
+import { apiError, apiSuccess } from "@/lib/api/apiResponse.lib";
 import { authConfig } from "@/lib/auth/auth";
 import { hasPermissionInProject } from "@/lib/permission/checkPermission";
 
@@ -16,7 +16,7 @@ export async function PATCH(
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("You must be signed in to continue.", 401);
   }
 
   const { userId } = await params;
@@ -25,7 +25,7 @@ export async function PATCH(
   const { role_id, status } = body;
 
   if (!role_id || !status) {
-    return Response.json({ error: "Invalid payload" }, { status: 400 });
+    return apiError("Invalid member update.", 400);
   }
 
   // `userId` is the ProjectMember id — resolve its project server-side so the
@@ -40,7 +40,7 @@ export async function PATCH(
       Permissions.MemberEdit,
     ))
   ) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return apiError("Forbidden", 403);
   }
 
   const data = await updateMemberStatusRole(
@@ -52,5 +52,5 @@ export async function PATCH(
     session.user.id,
   );
 
-  return Response.json({ success: true, data });
+  return apiSuccess("Member updated.", data);
 }

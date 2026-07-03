@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
 import {
@@ -6,6 +5,7 @@ import {
   getProjectInvitesByReceiverId,
 } from "@/db/projectInvite.db";
 import { Permissions } from "@/enum/permissions.enum";
+import { apiError, apiSuccess } from "@/lib/api/apiResponse.lib";
 import { authConfig } from "@/lib/auth/auth";
 import { hasPermissionInProject } from "@/lib/permission/checkPermission";
 
@@ -16,12 +16,12 @@ export async function GET(
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("You must be signed in to continue.", 401);
   }
   const { receiverId } = await params;
 
   if (!receiverId) {
-    return NextResponse.json({ error: "Invalid receiver id" }, { status: 400 });
+    return apiError("Invalid receiver id.", 400);
   }
 
   const data = await getProjectInvitesByReceiverId({ receiverId });
@@ -36,7 +36,7 @@ export async function POST(
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("You must be signed in to continue.", 401);
   }
   const { receiverId } = await params;
 
@@ -45,10 +45,7 @@ export async function POST(
   const { sender_id, project_id } = body;
 
   if (!sender_id || !receiverId || !project_id) {
-    return NextResponse.json(
-      { error: "Missing required fields" },
-      { status: 400 },
-    );
+    return apiError("Missing required fields.", 400);
   }
 
   if (
@@ -58,7 +55,7 @@ export async function POST(
       Permissions.MemberInvite,
     ))
   ) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return apiError("Forbidden", 403);
   }
 
   const data = await createProjectInvite({
@@ -67,5 +64,5 @@ export async function POST(
     projectId: project_id,
   });
 
-  return Response.json({ success: true, data });
+  return apiSuccess("Invite sent.", data);
 }

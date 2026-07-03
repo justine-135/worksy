@@ -9,7 +9,6 @@ import {
   ListBox,
   Select,
   Skeleton,
-  toast,
   Typography,
 } from "@heroui/react";
 import { Modal } from "@heroui/react/modal";
@@ -35,6 +34,7 @@ import {
   TASK_STATUS_OPTIONS,
 } from "@/enum/taskStatus.enum";
 import useCreateComment from "@/hooks/activity/useCreateComment";
+import { useApiMessage } from "@/hooks/common/useApiMessage";
 import { useGetProjectMembers } from "@/hooks/member/useGetProjectMembers";
 import { usePermission } from "@/hooks/permission/usePermission";
 import { useGetTaskDetail } from "@/hooks/task/useGetTaskDetail";
@@ -67,6 +67,7 @@ const CommentForm = ({
   const userId = useSessionStore((s) => s.userId);
   const { data: currentUser } = useGetUser({ userId });
   const { mutation } = useCreateComment({ taskId });
+  const { showSuccess, showError } = useApiMessage();
 
   const {
     handleSubmit,
@@ -89,13 +90,14 @@ const CommentForm = ({
         type: EActivityLog.COMMENT,
       },
       {
-        onSuccess: () => {
+        onSuccess: (result) => {
           reset();
-          toast("Task board is created");
+          // Message comes from the API (`apiSuccess("Comment added.")`).
+          showSuccess(result);
         },
-        onError: () => {
+        onError: (error) => {
           reset();
-          toast.danger("Task not created");
+          showError(error);
         },
       },
     );
@@ -291,6 +293,7 @@ const TaskSidebar = ({
   const { mutation: updateAssignees } = useUpdateTaskAssignees();
   const { mutation: updateStatus } = useUpdateTaskStatus();
   const { mutation: updateRelation } = useUpdateTaskRelation();
+  const { showSuccess, showError } = useApiMessage();
 
   // Every mutating control in this sidebar (assignees, relationships, column,
   // status) edits the task, so they are all gated behind task.edit. Read-only
@@ -323,11 +326,14 @@ const TaskSidebar = ({
     updateRelation.mutate(
       { ...edge, projectId, userId, action: "add" },
       {
-        onSuccess: () => setRelationType(null),
-        onError: (error) =>
-          toast.danger(
-            error instanceof Error ? error.message : "Failed to link task",
-          ),
+        onSuccess: (result) => {
+          setRelationType(null);
+          // API message by default ("Task link updated."); the component could
+          // override it by passing a second arg to showSuccess.
+          showSuccess(result);
+        },
+        // The server's message (e.g. the cycle-guard reason) reaches the toast.
+        onError: (error) => showError(error, "Failed to link task"),
       },
     );
   };
@@ -344,7 +350,11 @@ const TaskSidebar = ({
         userId,
         action: "remove",
       },
-      { onSettled: () => setParentToRemove(null) },
+      {
+        onSuccess: (result) => showSuccess(result),
+        onError: (error) => showError(error, "Failed to remove link"),
+        onSettled: () => setParentToRemove(null),
+      },
     );
   };
 

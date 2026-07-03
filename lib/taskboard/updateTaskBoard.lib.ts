@@ -1,3 +1,4 @@
+import { throwApiError } from "@/lib/api/apiMessage.lib";
 import { UpdateTaskBoardDTO } from "@/types/taskboard.dto";
 
 export default async function updateTaskBoard({
@@ -21,9 +22,7 @@ export default async function updateTaskBoard({
     }),
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to update task board");
-  }
+  if (!response.ok) await throwApiError(response, "Failed to update task board");
 
   return response.json();
 }

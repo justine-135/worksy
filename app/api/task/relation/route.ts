@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
 import { updateTaskRelationDB } from "@/db/task.db";
 import { Permissions } from "@/enum/permissions.enum";
+import { apiError, apiSuccess } from "@/lib/api/apiResponse.lib";
 import { authConfig } from "@/lib/auth/auth";
 import { hasPermissionInProject } from "@/lib/permission/checkPermission";
 
@@ -10,7 +10,7 @@ export async function PATCH(req: Request) {
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("You must be signed in to continue.", 401);
   }
 
   const body = await req.json();
@@ -23,7 +23,7 @@ export async function PATCH(req: Request) {
     !childId ||
     (action !== "add" && action !== "remove")
   ) {
-    return Response.json({ error: "Invalid payload" }, { status: 400 });
+    return apiError("Invalid task relationship request.", 400);
   }
 
   if (
@@ -33,7 +33,7 @@ export async function PATCH(req: Request) {
       Permissions.TaskEdit,
     ))
   ) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return apiError("Forbidden", 403);
   }
 
   try {
@@ -41,11 +41,11 @@ export async function PATCH(req: Request) {
   } catch (error) {
     // Surface cycle-guard / access errors as a 400 so the client toast can show
     // why the link was rejected.
-    return Response.json(
-      { error: error instanceof Error ? error.message : "Failed to update" },
-      { status: 400 },
+    return apiError(
+      error instanceof Error ? error.message : "Failed to update the task link.",
+      400,
     );
   }
 
-  return Response.json({ success: true });
+  return apiSuccess("Task link updated.");
 }

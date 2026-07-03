@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
 import {
@@ -10,6 +9,7 @@ import {
   updateTaskBoardOrdersDB,
 } from "@/db/taskboard.db";
 import { Permissions } from "@/enum/permissions.enum";
+import { apiError, apiSuccess } from "@/lib/api/apiResponse.lib";
 import { authConfig } from "@/lib/auth/auth";
 import { hasPermissionInProject } from "@/lib/permission/checkPermission";
 
@@ -17,7 +17,7 @@ export async function GET(req: Request) {
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("You must be signed in to continue.", 401);
   }
 
   const { searchParams } = new URL(req.url);
@@ -26,7 +26,7 @@ export async function GET(req: Request) {
   const project_id = searchParams.get("project_id");
 
   if (!user_id || !project_id) {
-    return Response.json({ error: "Missing params" }, { status: 400 });
+    return apiError("Missing project or user id.", 400);
   }
 
   const data = await getTaskBoard({ userId: user_id, projectId: project_id });
@@ -38,7 +38,7 @@ export async function PATCH(req: Request) {
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("You must be signed in to continue.", 401);
   }
 
   const body = await req.json();
@@ -50,7 +50,7 @@ export async function PATCH(req: Request) {
     !Array.isArray(orderedTaskBoardIds) ||
     orderedTaskBoardIds.length === 0
   ) {
-    return Response.json({ error: "Invalid payload" }, { status: 400 });
+    return apiError("Invalid column order.", 400);
   }
 
   if (
@@ -60,7 +60,7 @@ export async function PATCH(req: Request) {
       Permissions.BoardEdit,
     ))
   ) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return apiError("Forbidden", 403);
   }
 
   await updateTaskBoardOrdersDB({
@@ -69,21 +69,21 @@ export async function PATCH(req: Request) {
     orderedTaskBoardIds,
   });
 
-  return Response.json({ success: true });
+  return apiSuccess("Columns reordered.");
 }
 
 export async function PUT(req: Request) {
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("You must be signed in to continue.", 401);
   }
 
   const body = await req.json();
   const { projectId, userId, taskBoardId, title, status } = body;
 
   if (!projectId || !userId || !taskBoardId || !title || !status) {
-    return Response.json({ error: "Invalid payload" }, { status: 400 });
+    return apiError("Invalid column details.", 400);
   }
 
   if (
@@ -93,7 +93,7 @@ export async function PUT(req: Request) {
       Permissions.BoardEdit,
     ))
   ) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return apiError("Forbidden", 403);
   }
 
   await updateTaskBoardDB({
@@ -104,14 +104,14 @@ export async function PUT(req: Request) {
     status,
   });
 
-  return Response.json({ success: true });
+  return apiSuccess("Column updated.");
 }
 
 export async function DELETE(req: Request) {
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("You must be signed in to continue.", 401);
   }
 
   const body = await req.json();
@@ -123,7 +123,7 @@ export async function DELETE(req: Request) {
     !taskBoardId ||
     (target !== "board" && target !== "tasks")
   ) {
-    return Response.json({ error: "Invalid payload" }, { status: 400 });
+    return apiError("Invalid delete request.", 400);
   }
 
   // Deleting the column needs board.delete; only emptying it (removing its
@@ -138,31 +138,33 @@ export async function DELETE(req: Request) {
       requiredPermission,
     ))
   ) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return apiError("Forbidden", 403);
   }
 
   // `target` selects the scope: drop the whole column, or just empty it.
   if (target === "board") {
     await deleteTaskBoardDB({ projectId, userId, taskBoardId });
-  } else {
-    await deleteAllTasksInBoardDB({ projectId, userId, taskBoardId });
+
+    return apiSuccess("Column deleted.");
   }
 
-  return Response.json({ success: true });
+  await deleteAllTasksInBoardDB({ projectId, userId, taskBoardId });
+
+  return apiSuccess("All tasks in the column were deleted.");
 }
 
 export async function POST(req: Request) {
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("You must be signed in to continue.", 401);
   }
 
   const body = await req.json();
   const { projectId, title } = body;
 
   if (!projectId || !title) {
-    return Response.json({ error: "Invalid payload" }, { status: 400 });
+    return apiError("Please provide a column title.", 400);
   }
 
   if (
@@ -172,7 +174,7 @@ export async function POST(req: Request) {
       Permissions.BoardCreate,
     ))
   ) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return apiError("Forbidden", 403);
   }
 
   await createTaskBoard({
@@ -180,5 +182,5 @@ export async function POST(req: Request) {
     title,
   });
 
-  return Response.json({ success: true });
+  return apiSuccess("Column created.");
 }

@@ -1,3 +1,4 @@
+import { throwApiError } from "@/lib/api/apiMessage.lib";
 import { CreateTaskBoardDTO } from "@/types/taskboard.dto";
 
 export default async function createTaskBoard({
@@ -15,9 +16,7 @@ export default async function createTaskBoard({
     }),
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to create task board");
-  }
+  if (!response.ok) await throwApiError(response, "Failed to create task board");
 
   return response.json();
 }

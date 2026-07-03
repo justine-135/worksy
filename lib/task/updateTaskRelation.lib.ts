@@ -1,3 +1,4 @@
+import { throwApiError } from "@/lib/api/apiMessage.lib";
 import { UpdateTaskRelationDTO } from "@/types/task.dto";
 
 export default async function updateTaskRelation({
@@ -15,10 +16,7 @@ export default async function updateTaskRelation({
     body: JSON.stringify({ projectId, userId, parentId, childId, action }),
   });
 
-  if (!response.ok) {
-    const body = await response.json().catch(() => null);
-    throw new Error(body?.error || "Failed to update relationship");
-  }
+  if (!response.ok) await throwApiError(response, "Failed to update relationship");
 
   return response.json();
 }

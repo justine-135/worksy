@@ -1,3 +1,4 @@
+import { throwApiError } from "@/lib/api/apiMessage.lib";
 import { UserProjectParamsDTO } from "@/types/taskboard.dto";
 
 export default async function fetchTaskBoard({
@@ -7,6 +8,6 @@ export default async function fetchTaskBoard({
   const res = await fetch(
     `/api/taskboard?project_id=${projectId}&user_id=${userId}`,
   );
-  if (!res.ok) throw new Error("Failed to fetch task board");
+  if (!res.ok) await throwApiError(res, "Failed to fetch task board");
   return res.json();
 }

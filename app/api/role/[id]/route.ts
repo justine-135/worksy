@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
 import { getRoleProjectId, updateRole } from "@/db/role.db";
 import { Permissions } from "@/enum/permissions.enum";
+import { apiError, apiSuccess } from "@/lib/api/apiResponse.lib";
 import { authConfig } from "@/lib/auth/auth";
 import { hasPermissionInProject } from "@/lib/permission/checkPermission";
 
@@ -13,7 +13,7 @@ export async function PUT(
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("You must be signed in to continue.", 401);
   }
 
   const { id } = await params;
@@ -22,7 +22,7 @@ export async function PUT(
   const { name, permissions } = body;
 
   if (!name || !id) {
-    return Response.json({ error: "Invalid payload" }, { status: 400 });
+    return apiError("Invalid role details.", 400);
   }
 
   // The role determines its own project — resolve it server-side so the
@@ -37,7 +37,7 @@ export async function PUT(
       Permissions.RolesEdit,
     ))
   ) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return apiError("Forbidden", 403);
   }
 
   const data = await updateRole(
@@ -51,8 +51,5 @@ export async function PUT(
     session.user.id,
   );
 
-  return Response.json({
-    success: true,
-    data,
-  });
+  return apiSuccess("Role updated.", data);
 }

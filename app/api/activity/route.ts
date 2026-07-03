@@ -3,13 +3,14 @@ import { getServerSession } from "next-auth";
 
 import { getProjectActivity } from "@/db/activity.db";
 import { getProjectMember } from "@/db/projectMember.db";
+import { apiError } from "@/lib/api/apiResponse.lib";
 import { authConfig } from "@/lib/auth/auth";
 
 export async function GET(req: Request) {
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("You must be signed in to continue.", 401);
   }
 
   const { searchParams } = new URL(req.url);
@@ -17,7 +18,7 @@ export async function GET(req: Request) {
   const limit = searchParams.get("limit");
 
   if (!project_id) {
-    return NextResponse.json({ error: "Missing params" }, { status: 400 });
+    return apiError("Missing project id.", 400);
   }
 
   // Only members of the project may read its activity feed.
@@ -27,7 +28,7 @@ export async function GET(req: Request) {
   });
 
   if (!member) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return apiError("You don't have access to this project.", 403);
   }
 
   const data = await getProjectActivity({

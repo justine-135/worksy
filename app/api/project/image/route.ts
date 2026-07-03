@@ -3,6 +3,7 @@ import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
+import { apiError, apiSuccess } from "@/lib/api/apiResponse.lib";
 import { authConfig } from "@/lib/auth/auth";
 import {
   isValidProjectImagePath,
@@ -15,7 +16,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("You must be signed in to continue.", 401);
   }
 
   const body = (await request.json()) as HandleUploadBody;
@@ -52,12 +53,9 @@ export async function POST(request: Request): Promise<NextResponse> {
 
     return NextResponse.json(jsonResponse);
   } catch (error) {
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error ? error.message : "Failed to upload project image",
-      },
-      { status: 400 },
+    return apiError(
+      error instanceof Error ? error.message : "Failed to upload project image.",
+      400,
     );
   }
 }
@@ -66,32 +64,29 @@ export async function DELETE(request: Request): Promise<NextResponse> {
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("You must be signed in to continue.", 401);
   }
 
   const body = (await request.json()) as { url?: string };
 
   if (!body.url) {
-    return NextResponse.json({ error: "Image url is required" }, { status: 400 });
+    return apiError("Image url is required.", 400);
   }
 
   try {
     const parsedUrl = new URL(body.url);
 
     if (!isValidProjectImagePath(parsedUrl.pathname.slice(1), session.user.id)) {
-      return NextResponse.json({ error: "Invalid image url" }, { status: 400 });
+      return apiError("Invalid image url.", 400);
     }
 
     await del(body.url);
 
-    return NextResponse.json({ success: true });
+    return apiSuccess("Image removed.");
   } catch (error) {
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error ? error.message : "Failed to delete project image",
-      },
-      { status: 400 },
+    return apiError(
+      error instanceof Error ? error.message : "Failed to delete project image.",
+      400,
     );
   }
 }

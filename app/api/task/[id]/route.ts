@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
 import {
@@ -7,6 +6,7 @@ import {
   updateTaskAssigneesDB,
 } from "@/db/task.db";
 import { Permissions } from "@/enum/permissions.enum";
+import { apiError, apiSuccess } from "@/lib/api/apiResponse.lib";
 import { authConfig } from "@/lib/auth/auth";
 import { hasPermissionInProject } from "@/lib/permission/checkPermission";
 
@@ -17,12 +17,12 @@ export async function GET(
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("You must be signed in to continue.", 401);
   }
   const { id } = await params;
 
   if (!id) {
-    return Response.json({ error: "Missing id" }, { status: 400 });
+    return apiError("Missing task id.", 400);
   }
 
   // Viewing task details requires task.view in the task's project.
@@ -36,7 +36,7 @@ export async function GET(
       Permissions.TaskView,
     ))
   ) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return apiError("Forbidden", 403);
   }
 
   const data = await getTaskDetail(id);
@@ -51,7 +51,7 @@ export async function PATCH(
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("You must be signed in to continue.", 401);
   }
 
   const { id } = await params;
@@ -59,7 +59,7 @@ export async function PATCH(
   const { projectId, userId, assignees } = body;
 
   if (!id || !projectId || !userId || !Array.isArray(assignees)) {
-    return Response.json({ error: "Invalid payload" }, { status: 400 });
+    return apiError("Invalid request. Please check the assignees.", 400);
   }
 
   if (
@@ -69,10 +69,10 @@ export async function PATCH(
       Permissions.TaskEdit,
     ))
   ) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return apiError("Forbidden", 403);
   }
 
   await updateTaskAssigneesDB({ projectId, userId, taskId: id, assignees });
 
-  return Response.json({ success: true });
+  return apiSuccess("Assignees updated.");
 }
