@@ -62,7 +62,7 @@ export default function ProjectsDetail() {
             <div className="flex items-center justify-between w-full">
               <Typography.Heading
                 level={1}
-                className="font-extralight text-2xl"
+                className="font-extralight text-2xl mr-8"
               >
                 Projects
               </Typography.Heading>

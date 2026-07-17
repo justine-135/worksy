@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { FiFolder } from "react-icons/fi";
 import { MdOutlineMailOutline } from "react-icons/md";
 
+import { NotificationDropdown } from "./NotificationDropdown";
 import { PATHS } from "./project/TabRoutesNav";
 
 interface ProjectRoutesProps {
@@ -50,6 +51,7 @@ export default function ProjectRoutes({
           </div>
         </Link>
       </Button>
+      <NotificationDropdown collapsed={collapsed} />
     </div>
   );
 }

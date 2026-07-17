@@ -252,6 +252,30 @@ model CommentDetail {
   @@map("comment_detail")
 }
 
+enum NotificationType {
+  MENTION
+  INVITE
+  ASSIGNED
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  type        NotificationType   
+  title       String
+  body        String?
+  data        Json?    // extra payload (link, entity id, etc.)
+  read        Boolean  @default(false)
+  readAt      DateTime?
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
+  @@map("notification")
+}
+
 model Account {
   id                String  @id @default(cuid())
   userId            String  @map("user_id")
@@ -293,6 +317,7 @@ model User {
   sessions        Session[]
   sentInvites     ProjectInvite[] @relation("ProjectSender")
   receivedInvites ProjectInvite[] @relation("ProjectReceiver")
+  notification    Notification[] 
 
   @@map("users")
 }

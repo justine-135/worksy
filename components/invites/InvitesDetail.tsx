@@ -69,7 +69,7 @@ export default function InviteDetail() {
       <section>
         <div className="flex flex-col gap-4 items-center mt-20 w-full">
           <div className="flex flex-col gap-4 w-[53%] max-w-217.25">
-            <div className="flex items-center justify-between w-full">
+            <div className="flex items-center justify-between w-full mr-8">
               <Typography.Heading
                 level={1}
                 className="font-extralight text-2xl"

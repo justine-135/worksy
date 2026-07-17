@@ -1,11 +1,14 @@
 import { touchProjectActivity } from "@/db/projectMember.db";
 import { StatusDTO } from "@/enum/member";
+import { NotificationType } from "@/enum/notifications.enum";
 import { InviteStatusDTO } from "@/enum/projectInvite.enum";
 import { prisma } from "@/lib/prisma";
 import { CreateProjectInviteDTO } from "@/types/projectInvite.dto";
 
+import { notify } from "./notification.db";
+
 export async function createProjectInvite(data: CreateProjectInviteDTO) {
-  const invite = await prisma.projectInvite.create({
+  const res = await prisma.projectInvite.create({
     data: {
       userSender: {
         connect: { id: data.senderId },
@@ -17,6 +20,20 @@ export async function createProjectInvite(data: CreateProjectInviteDTO) {
         connect: { id: data.projectId },
       },
     },
+    select: {
+      project: {
+        select: {
+          title: true,
+        },
+      },
+      userSender: {
+        select: {
+          image: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
   });
 
   // Sending an invite is an action on the project for the sender.
@@ -25,7 +42,21 @@ export async function createProjectInvite(data: CreateProjectInviteDTO) {
     projectId: data.projectId,
   });
 
-  return invite;
+  await notify({
+    userId: data.receiverId,
+    type: NotificationType.INVITE,
+    title: "invited you to join",
+    data: {
+      projectTitle: res.project?.title,
+      user: {
+        image: res.userSender?.image,
+        name: res.userSender?.name,
+        email: res.userSender?.email,
+      },
+    },
+  });
+
+  return res;
 }
 
 export async function getProjectInvitesByReceiverId({
