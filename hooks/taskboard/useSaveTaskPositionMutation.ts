@@ -5,7 +5,6 @@ import saveTaskPosition from "@/lib/taskboard/saveTaskPosition.lib";
 import { TaskBoardPositionMutationDTO } from "@/types/taskboard.dto";
 
 export default function useSaveTaskPositionMutation({
-  userId,
   projectId,
   invalidateTaskBoards,
 }: TaskBoardPositionMutationDTO) {
@@ -22,7 +21,6 @@ export default function useSaveTaskPositionMutation({
     }) =>
       saveTaskPosition({
         ...variables,
-        userId,
         projectId,
       }),
 

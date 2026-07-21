@@ -14,12 +14,10 @@ export async function PATCH(req: Request) {
   }
 
   const body = await req.json();
-  const { projectId, userId, taskId, taskBoardId, orderedTaskIdsByBoard } =
-    body;
+  const { projectId, taskId, taskBoardId, orderedTaskIdsByBoard } = body;
 
   if (
     !projectId ||
-    !userId ||
     !taskId ||
     !taskBoardId ||
     !Array.isArray(orderedTaskIdsByBoard) ||
@@ -40,7 +38,7 @@ export async function PATCH(req: Request) {
 
   await updateTaskPositionsDB({
     projectId,
-    userId,
+    userId: session?.user?.id,
     taskId,
     taskBoardId,
     orderedTaskIdsByBoard,
@@ -64,11 +62,10 @@ export async function POST(req: Request) {
     task_board_id,
     priority,
     project_id,
-    user_id,
     parent_id,
   } = body;
 
-  if (!title || !task_board_id || !project_id || !user_id) {
+  if (!title || !task_board_id || !project_id) {
     return apiError("Please provide the required task details.", 400);
   }
 
@@ -89,7 +86,7 @@ export async function POST(req: Request) {
     taskBoardId: task_board_id,
     priority,
     projectId: project_id,
-    userId: user_id,
+    userId: session?.user?.id,
     parentId: parent_id ?? null,
   });
 

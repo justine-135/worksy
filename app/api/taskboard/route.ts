@@ -22,14 +22,16 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url);
 
-  const user_id = searchParams.get("user_id");
   const project_id = searchParams.get("project_id");
 
-  if (!user_id || !project_id) {
-    return apiError("Missing project or user id.", 400);
+  if (!project_id) {
+    return apiError("Missing project id.", 400);
   }
 
-  const data = await getTaskBoard({ userId: user_id, projectId: project_id });
+  const data = await getTaskBoard({
+    userId: session?.user.id,
+    projectId: project_id,
+  });
 
   return Response.json(data);
 }
@@ -42,11 +44,10 @@ export async function PATCH(req: Request) {
   }
 
   const body = await req.json();
-  const { projectId, userId, orderedTaskBoardIds } = body;
+  const { projectId, orderedTaskBoardIds } = body;
 
   if (
     !projectId ||
-    !userId ||
     !Array.isArray(orderedTaskBoardIds) ||
     orderedTaskBoardIds.length === 0
   ) {
@@ -65,7 +66,7 @@ export async function PATCH(req: Request) {
 
   await updateTaskBoardOrdersDB({
     projectId,
-    userId,
+    userId: session?.user?.id,
     orderedTaskBoardIds,
   });
 
@@ -80,9 +81,9 @@ export async function PUT(req: Request) {
   }
 
   const body = await req.json();
-  const { projectId, userId, taskBoardId, title, status } = body;
+  const { projectId, taskBoardId, title, status } = body;
 
-  if (!projectId || !userId || !taskBoardId || !title || !status) {
+  if (!projectId || !taskBoardId || !title || !status) {
     return apiError("Invalid column details.", 400);
   }
 
@@ -98,7 +99,7 @@ export async function PUT(req: Request) {
 
   await updateTaskBoardDB({
     projectId,
-    userId,
+    userId: session?.user?.id,
     taskBoardId,
     title,
     status,
@@ -115,11 +116,10 @@ export async function DELETE(req: Request) {
   }
 
   const body = await req.json();
-  const { projectId, userId, taskBoardId, target } = body;
+  const { projectId, taskBoardId, target } = body;
 
   if (
     !projectId ||
-    !userId ||
     !taskBoardId ||
     (target !== "board" && target !== "tasks")
   ) {
@@ -143,12 +143,20 @@ export async function DELETE(req: Request) {
 
   // `target` selects the scope: drop the whole column, or just empty it.
   if (target === "board") {
-    await deleteTaskBoardDB({ projectId, userId, taskBoardId });
+    await deleteTaskBoardDB({
+      projectId,
+      userId: session?.user?.id,
+      taskBoardId,
+    });
 
     return apiSuccess("Column deleted.");
   }
 
-  await deleteAllTasksInBoardDB({ projectId, userId, taskBoardId });
+  await deleteAllTasksInBoardDB({
+    projectId,
+    userId: session?.user?.id,
+    taskBoardId,
+  });
 
   return apiSuccess("All tasks in the column were deleted.");
 }

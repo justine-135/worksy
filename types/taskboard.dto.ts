@@ -24,7 +24,10 @@ export interface UserProjectParamsDTO {
   projectId: string;
 }
 
-export interface TaskBoardPositionMutationDTO extends UserProjectParamsDTO {
+export interface TaskBoardPositionMutationDTO extends Omit<
+  UserProjectParamsDTO,
+  "userId"
+> {
   invalidateTaskBoards: () => Promise<void>;
 }
 
@@ -41,6 +44,8 @@ export interface UpdateTaskBoardDTO {
   status: ETaskStatus;
 }
 
+export type UpdateTaskBoardPayload = Omit<UpdateTaskBoardDTO, "userId">;
+
 // Which resource a DELETE targets: the column itself, or just its tasks.
 export type DeleteTaskBoardTarget = "board" | "tasks";
 
@@ -50,3 +55,5 @@ export interface DeleteTaskBoardDTO {
   taskBoardId: string;
   target: DeleteTaskBoardTarget;
 }
+
+export type DeleteTaskBoardPayload = Omit<DeleteTaskBoardDTO, "userId">;

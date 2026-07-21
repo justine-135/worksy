@@ -13,7 +13,10 @@ import TaskRelationCombobox from "@/components/board/common/TaskRelationCombobox
 import CustomButton from "@/components/common/custom/CustomButton";
 import PermissionGuard from "@/components/common/PermissionGuard";
 import TiptapEditor from "@/components/common/TiptapEditor";
-import { DEFAULT_TASK_PRIORITY, PRIORITY_OPTIONS } from "@/constant/taskPriority";
+import {
+  DEFAULT_TASK_PRIORITY,
+  PRIORITY_OPTIONS,
+} from "@/constant/taskPriority";
 import { Permissions } from "@/enum/permissions.enum";
 import { ETaskPriority } from "@/enum/taskPriority.enum";
 import { useApiMessage } from "@/hooks/common/useApiMessage";
@@ -25,7 +28,6 @@ import {
   CreateTaskInput,
   createTaskSchema,
 } from "@/lib/validations/createTask.schema";
-import { useSessionStore } from "@/store/session.store";
 import { TaskSearchResultDTO } from "@/types/task.dto";
 
 export default function AddTaskModal({
@@ -46,21 +48,18 @@ export default function AddTaskModal({
     useState<ETaskPriority | null>(null);
   // The task this new one will be a child of (optional). Left empty → the new
   // task is a top-level parent.
-  const [parentTask, setParentTask] = useState<TaskSearchResultDTO | null>(null);
+  const [parentTask, setParentTask] = useState<TaskSearchResultDTO | null>(
+    null,
+  );
 
   const queryClient = useQueryClient();
-  const userId = useSessionStore((s) => s.userId);
   const { showSuccess, showError } = useApiMessage();
 
   const projectDefaultPriority =
     (project?.defaultTaskPriority as ETaskPriority) ?? DEFAULT_TASK_PRIORITY;
   const priority = priorityOverride ?? projectDefaultPriority;
 
-  const { invalidateTaskBoards } = useInvalidateQuery(
-    projectId,
-    userId,
-    queryClient,
-  );
+  const { invalidateTaskBoards } = useInvalidateQuery(projectId, queryClient);
 
   const { mutation } = useCreateTaskMutation({
     invalidateTasks: invalidateTaskBoards,
@@ -88,7 +87,7 @@ export default function AddTaskModal({
   };
 
   const onSubmit = (data: CreateTaskInput) => {
-    if (!projectId || !userId) return;
+    if (!projectId) return;
 
     mutation.mutate(
       {
@@ -98,7 +97,6 @@ export default function AddTaskModal({
         taskBoardId: taskBoardID,
         assignees: selectedAssignees,
         projectId,
-        userId,
         // Picking a parent makes this new task its child; otherwise top-level.
         parentId: parentTask?.id,
       },

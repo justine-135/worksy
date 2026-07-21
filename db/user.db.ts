@@ -43,21 +43,9 @@ export async function getUserById({ userId }: { userId: string }) {
       id: userId,
     },
     select: {
-      id: true,
       name: true,
       email: true,
       image: true,
-      memberships: {
-        select: {
-          projectId: true,
-          role: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-      },
     },
   });
 }

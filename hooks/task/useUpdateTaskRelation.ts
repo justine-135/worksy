@@ -15,7 +15,7 @@ export default function useUpdateTaskRelation() {
       // invalidate the whole "task" prefix, plus the board cards and Recents.
       await queryClient.invalidateQueries({ queryKey: ["task"] });
       await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.TASK_BOARDS(variables.projectId, variables.userId),
+        queryKey: QUERY_KEYS.TASK_BOARDS(variables.projectId),
       });
       await invalidateRecents();
     },

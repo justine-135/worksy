@@ -1,12 +1,11 @@
 import { throwApiError } from "@/lib/api/apiMessage.lib";
-import { CreateProjectDTO } from "@/types/project.dto";
+import { CreateProjectPayload } from "@/types/project.dto";
 
 export default async function createProject({
   title,
   description,
-  ownerId,
   imageUrl,
-}: CreateProjectDTO) {
+}: CreateProjectPayload) {
   const response = await fetch("/api/project", {
     method: "POST",
     headers: {
@@ -15,8 +14,7 @@ export default async function createProject({
     body: JSON.stringify({
       title,
       description,
-      ownerId,
-      imageUrl,
+      image_url: imageUrl,
     }),
   });
 

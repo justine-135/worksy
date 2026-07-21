@@ -1,6 +1,9 @@
 import { touchProjectActivity } from "@/db/projectMember.db";
+import { NotificationType } from "@/enum/notifications.enum";
 import { prisma } from "@/lib/prisma";
-import { CommentDTO } from "@/types/activityLog.dto";
+import { CreateCommentDTO } from "@/types/activityLog.dto";
+
+import { notify } from "./notification.db";
 
 /**
  * Most recent activity across a whole project, newest first.
@@ -106,12 +109,21 @@ export async function createComment({
   type,
   taskId,
   value,
-}: CommentDTO) {
+}: CreateCommentDTO) {
   const currentMember = await prisma.projectMember.findUnique({
     where: {
       userId_projectId: { userId, projectId },
     },
-    select: { id: true },
+    select: {
+      id: true,
+      user: {
+        select: {
+          name: true,
+          image: true,
+          email: true,
+        },
+      },
+    },
   });
 
   if (!currentMember) {
@@ -130,10 +142,57 @@ export async function createComment({
         },
       },
     },
+    include: {
+      task: {
+        select: {
+          assignees: {
+            select: {
+              projectMember: {
+                select: {
+                  user: {
+                    select: {
+                      id: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          createdBy: {
+            select: {
+              userId: true,
+            },
+          },
+        },
+      },
+    },
   });
 
   // Float this project to the top of the user's "Recents".
   await touchProjectActivity({ userId, projectId });
+
+  const recipientIds = new Set([
+    res.task.createdBy.userId,
+    ...res.task.assignees.map((assignee) => assignee.projectMember.user.id),
+  ]);
+
+  const notificationPromises = [...recipientIds].map((receiverId) =>
+    notify({
+      senderId: userId,
+      receiverId,
+      type: NotificationType.COMMENT,
+      title: "left a comment",
+      data: {
+        projectId,
+        taskId,
+        user: currentMember.user,
+      },
+    }),
+  );
+
+  Promise.all(notificationPromises).catch((err) => {
+    console.error("Failed to send some notifications:", err);
+  });
 
   return res;
 }

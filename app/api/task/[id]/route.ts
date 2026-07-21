@@ -11,7 +11,7 @@ import { authConfig } from "@/lib/auth/auth";
 import { hasPermissionInProject } from "@/lib/permission/checkPermission";
 
 export async function GET(
-  req: Request,
+  _: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await getServerSession(authConfig);
@@ -39,7 +39,7 @@ export async function GET(
     return apiError("Forbidden", 403);
   }
 
-  const data = await getTaskDetail(id);
+  const data = await getTaskDetail(id, session?.user?.id);
 
   return Response.json(data);
 }

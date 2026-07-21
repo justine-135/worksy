@@ -62,8 +62,7 @@ export default function AddTaskBoardModal({
         projectId,
       },
       {
-        onSuccess: (e) => {
-          console.log(e);
+        onSuccess: () => {
           reset();
           setIsOpen(false);
           toast("Task board is created");

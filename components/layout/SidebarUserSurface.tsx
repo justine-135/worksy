@@ -5,14 +5,11 @@ import { LuLogOut } from "react-icons/lu";
 import CustomButton from "@/components/common/custom/CustomButton";
 import { PROJECT_IMAGE_PLACEHOLDER } from "@/components/projects/ProjectCard";
 import { useGetUser } from "@/hooks/user/useGetUser";
-import { useSessionStore } from "@/store/session.store";
 
 import CustomAvatar from "../common/custom/CustomAvatar";
 
 export default function SidebarUserSurface() {
-  const userId = useSessionStore((s) => s.userId);
-
-  const { data } = useGetUser({ userId });
+  const { data } = useGetUser();
 
   return (
     <Surface
@@ -31,7 +28,6 @@ export default function SidebarUserSurface() {
       />
       <div className="flex flex-col">
         <span className="font-semibold text-xs">{data?.name}</span>
-        <span className="text-muted text-xs">{data?.role?.name}</span>
       </div>
       <CustomButton
         className="ml-auto"

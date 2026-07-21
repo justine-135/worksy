@@ -1,13 +1,12 @@
 import { throwApiError } from "@/lib/api/apiMessage.lib";
-import { CommentDTO } from "@/types/activityLog.dto";
+import { CreateCommentPayload } from "@/types/activityLog.dto";
 
 export default async function createComment({
   projectId,
   taskId,
-  userId,
   type,
   value,
-}: CommentDTO) {
+}: CreateCommentPayload) {
   const response = await fetch("/api/activity/comment", {
     method: "POST",
     headers: {
@@ -16,7 +15,6 @@ export default async function createComment({
     body: JSON.stringify({
       projectId,
       taskId,
-      userId,
       type,
       value,
     }),

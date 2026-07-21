@@ -17,7 +17,7 @@ export default function useUpdateTaskStatus() {
         queryKey: QUERY_KEYS.TASK(variables.taskId),
       });
       await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.TASK_BOARDS(variables.projectId, variables.userId),
+        queryKey: QUERY_KEYS.TASK_BOARDS(variables.projectId),
       });
       await invalidateRecents();
     },

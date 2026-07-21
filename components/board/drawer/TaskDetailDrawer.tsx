@@ -45,13 +45,13 @@ import useUpdateTaskStatus from "@/hooks/task/useUpdateTaskStatus";
 import { useGetTaskBoard } from "@/hooks/taskboard/useGetTaskBoard";
 import useInvalidateQuery from "@/hooks/taskboard/useInvalidateQuery";
 import useSaveTaskPositionMutation from "@/hooks/taskboard/useSaveTaskPositionMutation";
-import { useGetUser } from "@/hooks/user/useGetUser";
 import {
   CreateCommentInput,
   createCommentSchema,
 } from "@/lib/validations/createComment.schema";
 import { useSessionStore } from "@/store/session.store";
 import { TaskResponseDTO, TaskSearchResultDTO } from "@/types/task.dto";
+import { UserResponseDTO } from "@/types/user.dto";
 import { timeAgo } from "@/utils/timeAgo";
 
 // "parent": move THIS task under the picked task (this.parentId = picked.id).
@@ -61,12 +61,12 @@ type RelationType = "parent" | "child";
 const CommentForm = ({
   projectId,
   taskId,
+  currentUser,
 }: {
   projectId?: string;
   taskId?: string;
+  currentUser: Omit<UserResponseDTO, "id">;
 }) => {
-  const userId = useSessionStore((s) => s.userId);
-  const { data: currentUser } = useGetUser({ userId });
   const { mutation } = useCreateComment({ taskId });
   const { showSuccess, showError } = useApiMessage();
 
@@ -80,20 +80,19 @@ const CommentForm = ({
   });
 
   const onSubmit = (data: CreateCommentInput) => {
-    if (!projectId || !userId || !taskId || !data) return;
+    if (!projectId || !taskId || !data) return;
 
     mutation.mutate(
       {
         ...data,
         taskId,
         projectId,
-        userId,
         type: EActivityLog.COMMENT,
       },
       {
         onSuccess: (result) => {
           reset();
-          // Message comes from the API (`apiSuccess("Comment added.")`).
+          setValue("value", "");
           showSuccess(result);
         },
         onError: (error) => {
@@ -270,22 +269,15 @@ const TaskSidebar = ({
   onNavigateTask: (taskId: string) => void;
 }) => {
   const queryClient = useQueryClient();
-  const userId = useSessionStore((s) => s.userId);
   const projectId = useSessionStore((s) => s.projectId);
 
   const { data: boards } = useGetTaskBoard({
-    userId: userId || "",
     projectId: projectId || "",
   });
 
-  const { invalidateTaskBoards } = useInvalidateQuery(
-    projectId,
-    userId,
-    queryClient,
-  );
+  const { invalidateTaskBoards } = useInvalidateQuery(projectId, queryClient);
 
   const { mutation: saveTaskPosition } = useSaveTaskPositionMutation({
-    userId: userId || "",
     projectId: projectId || "",
     invalidateTaskBoards,
   });
@@ -317,7 +309,7 @@ const TaskSidebar = ({
   //   "child"  → add the picked task as a subtask (child) of this task.
   // The server rejects cycles (self / would-be loop), surfaced via the toast.
   const handleSelectRelation = (picked: TaskSearchResultDTO) => {
-    if (!projectId || !userId) return;
+    if (!projectId) return;
 
     const edge =
       relationType === "parent"
@@ -325,7 +317,7 @@ const TaskSidebar = ({
         : { parentId: task.id, childId: picked.id };
 
     updateRelation.mutate(
-      { ...edge, projectId, userId, action: "add" },
+      { ...edge, projectId, action: "add" },
       {
         onSuccess: (result) => {
           setRelationType(null);
@@ -341,14 +333,13 @@ const TaskSidebar = ({
 
   // Remove the confirmed parent -> this-task edge.
   const confirmRemoveParent = () => {
-    if (!projectId || !userId || !parentToRemove) return;
+    if (!projectId || !parentToRemove) return;
 
     updateRelation.mutate(
       {
         parentId: parentToRemove.id,
         childId: task.id,
         projectId,
-        userId,
         action: "remove",
       },
       {
@@ -375,10 +366,10 @@ const TaskSidebar = ({
   };
 
   const handleSaveAssignees = () => {
-    if (!projectId || !userId) return;
+    if (!projectId) return;
 
     updateAssignees.mutate(
-      { taskId: task.id, projectId, userId, assignees: selectedAssignees },
+      { taskId: task.id, projectId, assignees: selectedAssignees },
       {
         onSuccess: () => showSuccess("Assignees updated"),
         onError: (error) => showError(error, "Failed to update assignees"),
@@ -426,13 +417,12 @@ const TaskSidebar = ({
   };
 
   const handleStatusChange = (status?: string) => {
-    if (!projectId || !userId || !status || status === task.status) return;
+    if (!projectId || !status || status === task.status) return;
 
     updateStatus.mutate(
       {
         taskId: task.id,
         projectId,
-        userId,
         status: status as ETaskStatus,
       },
       {
@@ -678,7 +668,11 @@ const TaskSidebar = ({
       <SidebarSection title="Participants">
         <div className="space-y-2">
           {participants.map((person) => (
-            <PersonRow key={person.name} name={person.name} image={person.image} />
+            <PersonRow
+              key={person.name}
+              name={person.name}
+              image={person.image}
+            />
           ))}
         </div>
       </SidebarSection>
@@ -898,7 +892,11 @@ export default function TaskDetailDrawer({ id, title }: TaskDetailDrawerProps) {
                         />
                       )}
                       <ActivityLog data={data.activityLog} />
-                      <CommentForm projectId={data.projectId} taskId={data.id} />
+                      <CommentForm
+                        projectId={data.projectId}
+                        taskId={data.id}
+                        currentUser={data.currentUser}
+                      />
                     </div>
 
                     {/* Right: assignees, relationships, status, participants */}

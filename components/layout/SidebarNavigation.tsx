@@ -8,7 +8,6 @@ import { BsBoxFill } from "react-icons/bs";
 import { TbColumns2 } from "react-icons/tb";
 
 import { useGetProjects } from "@/hooks/project/useGetProjects";
-import { useSessionStore } from "@/store/session.store";
 import { useSidebarStore } from "@/store/sidebar.store";
 
 import { PATHS } from "./project/TabRoutesNav";
@@ -29,10 +28,7 @@ const SkeletonComponent = () => {
 };
 
 export default function SidebarNavigation() {
-  const userId = useSessionStore((s) => s.userId);
-  // Show only projects the user has recently acted on, most recent first.
   const { data, isLoading } = useGetProjects({
-    userId,
     filter: "recent",
   });
 

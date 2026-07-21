@@ -36,6 +36,10 @@ export type NotificationDataDTO =
   | (BaseNotificationDataDTO & {
       type: NotificationType.ASSIGNED;
       data: AssignedNotificationData;
+    })
+  | (BaseNotificationDataDTO & {
+      type: NotificationType.COMMENT;
+      data: AssignedNotificationData;
     });
 
 export interface NotificationResponseDTO {

@@ -18,7 +18,6 @@ export default function DashboardDetail() {
   const projectId = useSessionStore((s) => s.projectId);
 
   const { data: boards, isLoading: isLoadingBoards } = useGetTaskBoard({
-    userId: userId ?? "",
     projectId: projectId ?? "",
   });
   const { data: members, isLoading: isLoadingMembers } = useGetProjectMembers({

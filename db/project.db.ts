@@ -51,7 +51,7 @@ export async function createProjectDTO(data: CreateProjectDTO) {
       throw new Error("Owner role not created");
     }
 
-    const member = await tx.projectMember.create({
+    await tx.projectMember.create({
       data: {
         userId: data.ownerId,
         projectId: project.id,
@@ -62,29 +62,12 @@ export async function createProjectDTO(data: CreateProjectDTO) {
     });
 
     return {
-      ...project,
-      members: [member],
+      title: data.title,
+      description: data.description,
+      imageUrl: data.imageUrl,
     };
   });
 }
-
-// Shared shape so `getProjects` and `getRecentProjects` return the same DTO.
-const PROJECT_SELECT = {
-  id: true,
-  title: true,
-  description: true,
-  imageUrl: true,
-  members: {
-    select: {
-      id: true,
-    },
-  },
-  owner: {
-    select: {
-      name: true,
-    },
-  },
-} satisfies Prisma.ProjectSelect;
 
 export async function getProjects({
   userId,
@@ -123,17 +106,25 @@ export async function getProjects({
 
   return prisma.project.findMany({
     where,
-    select: PROJECT_SELECT,
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      imageUrl: true,
+      members: {
+        select: {
+          id: true,
+        },
+      },
+      owner: {
+        select: {
+          name: true,
+        },
+      },
+    },
   });
 }
 
-// Projects the user has personally acted on (created/edited a task, moved a
-// status, commented, changed members/roles, etc.), most recent action first.
-//
-// Every mutation calls `touchProjectActivity`, which stamps the user's
-// `ProjectMember.lastActivityAt`. We just read the user's memberships that have
-// been stamped and order by that timestamp — so any action floats the project
-// to the top of "Recents".
 export async function getRecentProjects(userId: string) {
   const memberships = await prisma.projectMember.findMany({
     where: {
@@ -145,7 +136,10 @@ export async function getRecentProjects(userId: string) {
     },
     select: {
       project: {
-        select: PROJECT_SELECT,
+        select: {
+          id: true,
+          title: true,
+        },
       },
     },
   });

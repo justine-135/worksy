@@ -1,5 +1,5 @@
 import { throwApiError } from "@/lib/api/apiMessage.lib";
-import { CreateTaskDTO } from "@/types/task.dto";
+import { CreateTaskPayload } from "@/types/task.dto";
 
 export default async function createTask({
   title,
@@ -8,9 +8,8 @@ export default async function createTask({
   taskBoardId,
   assignees,
   projectId,
-  userId,
   parentId,
-}: CreateTaskDTO) {
+}: CreateTaskPayload) {
   const response = await fetch("/api/task", {
     method: "POST",
     headers: {
@@ -23,7 +22,6 @@ export default async function createTask({
       task_board_id: taskBoardId,
       assignees,
       project_id: projectId,
-      user_id: userId,
       parent_id: parentId ?? null,
     }),
   });

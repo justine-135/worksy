@@ -12,13 +12,19 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
-  const { projectId, taskId, userId, type, value } = body;
+  const { projectId, taskId, type, value } = body;
 
-  if (!projectId || !taskId || !userId || !value) {
+  if (!projectId || !taskId || !value) {
     return apiError("Please provide a comment.", 400);
   }
 
-  const data = await createComment({ projectId, taskId, userId, type, value });
+  const data = await createComment({
+    projectId,
+    taskId,
+    userId: session?.user?.id,
+    type,
+    value,
+  });
 
   return apiSuccess("Comment added.", data);
 }

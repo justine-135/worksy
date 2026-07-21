@@ -22,7 +22,5 @@ export async function GET() {
     getUnreadNotificationCount(session.user?.id),
   ]);
 
-  console.log(data);
-
   return NextResponse.json({ data, unreadCount });
 }

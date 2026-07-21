@@ -9,42 +9,32 @@ import { apiError, apiSuccess } from "@/lib/api/apiResponse.lib";
 import { authConfig } from "@/lib/auth/auth";
 import { hasPermissionInProject } from "@/lib/permission/checkPermission";
 
-export async function GET(
-  req: Request,
-  { params }: { params: Promise<{ receiverId: string }> },
-) {
+export async function GET() {
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
     return apiError("You must be signed in to continue.", 401);
   }
-  const { receiverId } = await params;
 
-  if (!receiverId) {
-    return apiError("Invalid receiver id.", 400);
-  }
-
-  const data = await getProjectInvitesByReceiverId({ receiverId });
+  const data = await getProjectInvitesByReceiverId({
+    receiverId: session?.user?.id,
+  });
 
   return Response.json(data);
 }
 
-export async function POST(
-  req: Request,
-  { params }: { params: Promise<{ receiverId: string }> },
-) {
+export async function POST(req: Request) {
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
     return apiError("You must be signed in to continue.", 401);
   }
-  const { receiverId } = await params;
 
   const body = await req.json();
 
-  const { sender_id, project_id } = body;
+  const { project_id, receiver_id } = body;
 
-  if (!sender_id || !receiverId || !project_id) {
+  if (!receiver_id || !project_id) {
     return apiError("Missing required fields.", 400);
   }
 
@@ -59,8 +49,8 @@ export async function POST(
   }
 
   const data = await createProjectInvite({
-    senderId: sender_id,
-    receiverId,
+    senderId: session?.user?.id,
+    receiverId: receiver_id,
     projectId: project_id,
   });
 

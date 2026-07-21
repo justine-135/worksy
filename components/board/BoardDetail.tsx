@@ -334,17 +334,14 @@ const TaskBoard = ({
 
 export default function BoardDetail() {
   const queryClient = useQueryClient();
-  const userId = useSessionStore((s) => s.userId);
   const projectId = useSessionStore((s) => s.projectId);
 
   const { taskBoardQueryKey, invalidateTaskBoards } = useInvalidateQuery(
     projectId,
-    userId,
     queryClient,
   );
 
   const { data, isLoading } = useGetTaskBoard({
-    userId: userId || "",
     projectId: projectId || "",
   });
 
@@ -359,13 +356,11 @@ export default function BoardDetail() {
 
   const { mutation: saveTaskBoardOrderMutation } =
     useSaveTaskBoardPositionMutation({
-      userId: userId || "",
       projectId: projectId || "",
       invalidateTaskBoards,
     });
 
   const { mutation: saveTaskPosition } = useSaveTaskPositionMutation({
-    userId: userId || "",
     projectId: projectId || "",
     invalidateTaskBoards,
   });

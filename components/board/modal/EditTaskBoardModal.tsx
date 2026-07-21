@@ -60,7 +60,6 @@ export default function EditTaskBoardModal({
   const [isDeleteTasksOpen, setDeleteTasksOpen] = useState<boolean>(false);
 
   const queryClient = useQueryClient();
-  const userId = useSessionStore((s) => s.userId);
   const projectId = useSessionStore((s) => s.projectId);
 
   // Each column action is gated by its own permission. Moving/editing the
@@ -72,15 +71,10 @@ export default function EditTaskBoardModal({
   const canRemoveTasks = hasPermission(Permissions.TaskDelete);
   const showMenu = canEditColumn || canDeleteColumn || canRemoveTasks;
 
-  const { invalidateTaskBoards } = useInvalidateQuery(
-    projectId,
-    userId,
-    queryClient,
-  );
+  const { invalidateTaskBoards } = useInvalidateQuery(projectId, queryClient);
 
   // All columns in display order — powers the left/right moves.
   const { data } = useGetTaskBoard({
-    userId: userId || "",
     projectId: projectId || "",
   });
   const columns: TaskBoardResponseDTO[] = data ?? [];
@@ -88,7 +82,6 @@ export default function EditTaskBoardModal({
 
   const { mutation } = useUpdateTaskBoardMutation({ invalidateTaskBoards });
   const { mutation: reorderMutation } = useSaveTaskBoardPositionMutation({
-    userId: userId || "",
     projectId: projectId || "",
     invalidateTaskBoards,
   });
@@ -116,12 +109,11 @@ export default function EditTaskBoardModal({
   };
 
   const onSubmit = (formData: EditTaskBoardInput) => {
-    if (!projectId || !userId) return;
+    if (!projectId) return;
 
     mutation.mutate(
       {
         projectId,
-        userId,
         taskBoardId: column.id,
         title: formData.title,
         status: formData.status,
@@ -143,7 +135,7 @@ export default function EditTaskBoardModal({
   // Move the column one slot left/right by swapping it with its neighbour and
   // persisting the new order through the existing reorder endpoint.
   const handleMove = (direction: "left" | "right") => {
-    if (!userId || !projectId || currentIndex < 0) return;
+    if (!projectId || currentIndex < 0) return;
 
     const swapWith = direction === "left" ? currentIndex - 1 : currentIndex + 1;
     if (swapWith < 0 || swapWith >= columns.length) return;
@@ -158,10 +150,10 @@ export default function EditTaskBoardModal({
   };
 
   const handleDelete = (target: DeleteTaskBoardTarget) => {
-    if (!userId || !projectId) return;
+    if (!projectId) return;
 
     deleteMutation.mutate(
-      { projectId, userId, taskBoardId: column.id, target },
+      { projectId, taskBoardId: column.id, target },
       {
         onSuccess: () => {
           if (target === "board") {

@@ -7,6 +7,11 @@ export interface CreateProjectInviteDTO {
   projectId: string;
 }
 
+export type CreateProjectInvitePayload = Omit<
+  CreateProjectInviteDTO,
+  "senderId"
+>;
+
 export interface ProjectInviteResponseDTO {
   id: string;
   userSender: UserResponseDTO;

@@ -5,6 +5,8 @@ export interface CreateProjectDTO {
   imageUrl?: string;
 }
 
+export type CreateProjectPayload = Omit<CreateProjectDTO, "ownerId">;
+
 export interface ProjectsResponseDTO {
   id: string;
   title: string;

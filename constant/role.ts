@@ -38,6 +38,7 @@ export const ROLE_PRESETS = {
       Permissions.DashboardView,
       Permissions.BoardView,
       Permissions.BoardStatusEdit,
+      Permissions.TaskView,
     ],
   },
 } as const;

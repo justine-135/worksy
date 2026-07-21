@@ -1,7 +1,7 @@
 import { throwApiError } from "@/lib/api/apiMessage.lib";
 import { UserProjectParamsDTO } from "@/types/taskboard.dto";
 
-interface Params extends UserProjectParamsDTO {
+interface Params extends Omit<UserProjectParamsDTO, "userId"> {
   taskId: string;
   taskBoardId: string;
   orderedTaskIdsByBoard: Array<{
@@ -15,7 +15,6 @@ export default async function saveTaskPosition({
   taskBoardId,
   orderedTaskIdsByBoard,
   projectId,
-  userId,
 }: Params) {
   const response = await fetch("/api/task", {
     method: "PATCH",
@@ -24,14 +23,14 @@ export default async function saveTaskPosition({
     },
     body: JSON.stringify({
       projectId,
-      userId,
       taskId,
       taskBoardId,
       orderedTaskIdsByBoard,
     }),
   });
 
-  if (!response.ok) await throwApiError(response, "Failed to save task position");
+  if (!response.ok)
+    await throwApiError(response, "Failed to save task position");
 
   return response.json();
 }

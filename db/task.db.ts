@@ -574,7 +574,7 @@ export async function getTaskProjectId(taskId: string) {
   return task?.projectId ?? null;
 }
 
-export async function getTaskDetail(id: string) {
+export async function getTaskDetail(id: string, userId: string) {
   const task = await prisma.task.findUnique({
     where: {
       id,
@@ -683,10 +683,29 @@ export async function getTaskDetail(id: string) {
           createdAt: "asc",
         },
       },
+      project: {
+        select: {
+          members: {
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  image: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 
   if (!task) return null;
+
+  const currentUser = task.project.members.find(
+    (member) => member.user.id === userId,
+  );
 
   // Flatten the join rows into plain parent/child task arrays for the client.
   const { parentLinks, childLinks, ...rest } = task;
@@ -694,5 +713,6 @@ export async function getTaskDetail(id: string) {
     ...rest,
     parents: parentLinks.map((link) => link.parent),
     children: childLinks.map((link) => link.child),
+    currentUser: currentUser?.user,
   };
 }

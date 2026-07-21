@@ -175,7 +175,6 @@ export default function EditMember(props: EditMemberProps) {
                   name="status"
                   control={control}
                   render={({ field: { value, onChange } }) => {
-                    console.log(value, props.status);
                     return (
                       <SelectStatusDropdown
                         defaultValue={value}

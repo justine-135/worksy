@@ -4,13 +4,12 @@ import saveTaskBoardPosition from "@/lib/taskboard/saveTaskboardPosition.lib";
 import { TaskBoardPositionMutationDTO } from "@/types/taskboard.dto";
 
 export default function useSaveTaskBoardPositionMutation({
-  userId,
   projectId,
   invalidateTaskBoards,
 }: TaskBoardPositionMutationDTO) {
   const mutation = useMutation({
     mutationFn: (variables: { orderedTaskBoardIds: string[] }) =>
-      saveTaskBoardPosition({ ...variables, userId, projectId }),
+      saveTaskBoardPosition({ ...variables, projectId }),
     onSettled: invalidateTaskBoards,
   });
 

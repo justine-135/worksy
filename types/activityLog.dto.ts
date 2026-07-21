@@ -65,7 +65,7 @@ export interface ProjectActivityResponseDTO {
   } | null;
 }
 
-export interface CommentDTO {
+export interface CreateCommentDTO {
   type: EActivityLog;
   projectId: string;
   userId: string;
@@ -73,4 +73,4 @@ export interface CommentDTO {
   value: string;
 }
 
-export type CommentPayload = Partial<CommentDTO>;
+export type CreateCommentPayload = Omit<CreateCommentDTO, "userId">;

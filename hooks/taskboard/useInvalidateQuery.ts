@@ -5,12 +5,11 @@ import { QUERY_KEYS } from "@/constant/queryKeys";
 
 export default function useInvalidateQuery(
   projectId?: string | null,
-  userId?: string | null,
   queryClient?: QueryClient,
 ) {
   const taskBoardQueryKey = useMemo(
-    () => QUERY_KEYS.TASK_BOARDS(projectId, userId),
-    [projectId, userId],
+    () => QUERY_KEYS.TASK_BOARDS(projectId),
+    [projectId],
   );
 
   const invalidateTaskBoards = async () => {

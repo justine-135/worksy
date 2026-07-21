@@ -3,7 +3,6 @@ import { useState } from "react";
 
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { useGetProjects } from "@/hooks/project/useGetProjects";
-import { useSessionStore } from "@/store/session.store";
 import { ProjectsResponseDTO, TProjectFilter } from "@/types/project.dto";
 
 import CustomSearchField from "../common/custom/CustomSearchField";
@@ -21,7 +20,6 @@ const ProjectList = ({
 }: {
   data?: ProjectsResponseDTO[];
   isLoading: boolean;
-  userId: string | null;
 }) => {
   return (
     <>
@@ -47,10 +45,8 @@ const ProjectList = ({
 
 export default function ProjectsDetail() {
   const [filter, setFilter] = useState<TProjectFilter>("all");
-  const userId = useSessionStore((s) => s.userId);
 
   const { data, isLoading } = useGetProjects({
-    userId,
     filter,
   });
 
@@ -72,10 +68,8 @@ export default function ProjectsDetail() {
               <ProjectFilter filter={filter} setFilter={setFilter} />
             </div>
             <div className="flex flex-wrap mr-auto gap-4 max-w-230">
-              <ProjectList data={data} isLoading={isLoading} userId={userId} />
-              {!isLoading && filter !== "shared" && (
-                <AddProjectModal userId={userId} />
-              )}
+              <ProjectList data={data} isLoading={isLoading} />
+              {!isLoading && filter !== "shared" && <AddProjectModal />}
             </div>
           </div>
           <ProjectToast />

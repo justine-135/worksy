@@ -36,6 +36,7 @@ export interface TaskResponseDTO {
     ticketNumber: number;
     status: ETaskStatus;
   }[];
+  currentUser: Omit<UserResponseDTO, "id">;
 }
 
 export interface CreateTaskDTO {
@@ -50,6 +51,8 @@ export interface CreateTaskDTO {
   // task's parent). null/undefined for a top-level task.
   parentId?: string | null;
 }
+
+export type CreateTaskPayload = Omit<CreateTaskDTO, "userId">;
 
 /** Lightweight task row returned by the relationship search picker. */
 export interface TaskSearchResultDTO {
@@ -70,6 +73,8 @@ export interface UpdateTaskRelationDTO {
   action: "add" | "remove";
 }
 
+export type UpdateTaskRelationPayload = Omit<UpdateTaskRelationDTO, "userId">;
+
 export type UpdateTaskDTO = Partial<CreateTaskDTO>;
 
 export interface UpdateTaskAssigneesDTO {
@@ -79,12 +84,16 @@ export interface UpdateTaskAssigneesDTO {
   assignees: string[];
 }
 
+export type UpdateTaskAssigneesPayload = Omit<UpdateTaskAssigneesDTO, "userId">;
+
 export interface UpdateTaskStatusDTO {
   projectId: string;
-  userId: string;
   taskId: string;
+  userId: string;
   status: ETaskStatus;
 }
+
+export type UpdateTaskStatusPayload = Omit<UpdateTaskStatusDTO, "userId">;
 
 export interface UpdateTaskPositionDTO {
   projectId: string;

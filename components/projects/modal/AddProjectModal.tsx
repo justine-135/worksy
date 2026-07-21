@@ -24,20 +24,18 @@ import {
   CreateProjectInput,
   createProjectSchema,
 } from "@/lib/validations/createProject.schema";
+import { useSessionStore } from "@/store/session.store";
 
 import CustomButton from "../../common/custom/CustomButton";
 import ImageDropZone from "../../common/ImageDropZone";
 
-interface Props {
-  userId?: string | null;
-}
-
-export default function AddProjectModal({ userId }: Props) {
+export default function AddProjectModal() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [projectImage, setProjectImage] = useState<File | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
+  const userId = useSessionStore((state) => state.userId);
 
-  const { mutation } = useCreateProjectMutation({ userId });
+  const { mutation } = useCreateProjectMutation();
 
   const {
     register,
@@ -79,7 +77,6 @@ export default function AddProjectModal({ userId }: Props) {
 
       await mutation.mutateAsync({
         ...data,
-        ownerId: userId,
         imageUrl: uploadedImageUrl,
       });
 

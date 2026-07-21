@@ -8,10 +8,53 @@ import { NotificationType } from "@/enum/notifications.enum";
 import { useGetNotification } from "@/hooks/notification/useGetNotification";
 import useReadNotification from "@/hooks/notification/useReadNotification";
 import { NotificationDataDTO } from "@/types/notification.dto";
+import { UserResponseDTO } from "@/types/user.dto";
 import { notificationTimeAgo } from "@/utils/timeAgo";
 
 import CustomAvatar from "../common/custom/CustomAvatar";
 import { PROJECT_IMAGE_PLACEHOLDER } from "../projects/ProjectCard";
+
+const NotificationDescription = ({
+  item,
+  user,
+  title,
+}: {
+  item: NotificationDataDTO;
+  user: Omit<UserResponseDTO, "id">;
+  title: string;
+}) => {
+  return (
+    <>
+      <Description
+        className={`text-[0.875rem] ${item.read ? "opacity-60" : "opacity-100"} `}
+      >
+        <div className="flex items-center gap-2">
+          <CustomAvatar
+            avatarProps={{ size: "md" }}
+            avatarImageProps={{
+              src: user?.image || PROJECT_IMAGE_PLACEHOLDER,
+              alt: user?.name || "User",
+              className: "pointer-events-none object-cover select-none",
+            }}
+            avatarFallbackProps={{ className: "text-xs" }}
+            fallback={user?.name || ""}
+          />
+          <div className="flex flex-col">
+            <Label>
+              <span className="font-semibold">{user?.name}</span>{" "}
+              <span>{item.title}</span>{" "}
+              <span className="font-semibold">{title}</span>
+            </Label>
+            <span>{notificationTimeAgo(item.createdAt)}</span>
+          </div>
+        </div>
+      </Description>
+      {!item.read && (
+        <Badge className="static! ml-2 mt-2" color="accent" size="sm" />
+      )}
+    </>
+  );
+};
 
 const NotificationItem = ({ item }: { item: NotificationDataDTO }) => {
   const { mutation } = useReadNotification();
@@ -29,70 +72,23 @@ const NotificationItem = ({ item }: { item: NotificationDataDTO }) => {
       return (
         <Dropdown.Item onClick={handleRead}>
           <div className="flex items-start">
-            <Description
-              className={`text-[0.875rem] ${item.read ? "opacity-60" : "opacity-100"} `}
-            >
-              <div className="flex items-center gap-2">
-                <CustomAvatar
-                  avatarProps={{ size: "md" }}
-                  avatarImageProps={{
-                    src: userInvite?.image || PROJECT_IMAGE_PLACEHOLDER,
-                    alt: userInvite?.name || "User",
-                    className: "pointer-events-none object-cover select-none",
-                  }}
-                  avatarFallbackProps={{ className: "text-xs" }}
-                  fallback={userInvite?.name || ""}
-                />
-                <div className="flex flex-col">
-                  <Label>
-                    <span className="font-semibold">{userInvite?.name}</span>{" "}
-                    <span>{item.title}</span>{" "}
-                    <span className="font-semibold">{projectTitle}</span>
-                  </Label>
-                  <span>{notificationTimeAgo(item.createdAt)}</span>
-                </div>
-              </div>
-            </Description>
-            {!item.read && (
-              <Badge className="static! ml-2 mt-2" color="accent" size="sm" />
-            )}
+            <NotificationDescription
+              user={userInvite}
+              item={item}
+              title={projectTitle}
+            />
           </div>
         </Dropdown.Item>
       );
 
     case NotificationType.ASSIGNED:
+    case NotificationType.COMMENT:
       const { user, taskId, projectId } = item?.data;
       const taskHref = `/projects/${projectId}/board?task=${taskId}`;
       return (
         <Dropdown.Item onClick={handleRead}>
           <Link href={taskHref} className="flex items-start">
-            <Description
-              className={`text-[0.875rem] ${item.read ? "opacity-60" : "opacity-100"} `}
-            >
-              <div className="flex items-center gap-2">
-                <CustomAvatar
-                  avatarProps={{ size: "md" }}
-                  avatarImageProps={{
-                    src: user?.image || PROJECT_IMAGE_PLACEHOLDER,
-                    alt: user?.name || "User",
-                    className: "pointer-events-none object-cover select-none",
-                  }}
-                  avatarFallbackProps={{ className: "text-xs" }}
-                  fallback={user?.name || ""}
-                />
-                <div className="flex flex-col">
-                  <Label>
-                    <span className="font-semibold">{user?.name}</span>{" "}
-                    <span>{item.title}</span>{" "}
-                    <span className="font-semibold">{taskId}</span>
-                  </Label>
-                  <span>{notificationTimeAgo(item.createdAt)}</span>
-                </div>
-              </div>
-            </Description>
-            {!item.read && (
-              <Badge className="static! ml-2 mt-2" color="accent" size="sm" />
-            )}
+            <NotificationDescription user={user} item={item} title={taskId} />
           </Link>
         </Dropdown.Item>
       );

@@ -25,7 +25,6 @@ export default function InviteMemberModal() {
   const [member, setMember] = useState<UserResponseDTO | undefined>(undefined);
 
   const projectId = useSessionStore((s) => s.projectId);
-  const userId = useSessionStore((s) => s.userId);
 
   const { mutation } = useCreateInvite({ receiverId: member?.id });
 
@@ -56,14 +55,9 @@ export default function InviteMemberModal() {
   }, [member, setValue]);
 
   const onSubmit = (data: InviteMemberInput) => {
-    if (!userId) {
-      toast.danger("User not authenticated");
-      return;
-    }
     mutation.mutate(
       {
         ...data,
-        senderId: userId,
       },
       {
         onSuccess: () => {

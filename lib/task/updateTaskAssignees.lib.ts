@@ -1,18 +1,17 @@
 import { throwApiError } from "@/lib/api/apiMessage.lib";
-import { UpdateTaskAssigneesDTO } from "@/types/task.dto";
+import { UpdateTaskAssigneesPayload } from "@/types/task.dto";
 
 export default async function updateTaskAssignees({
   taskId,
   projectId,
-  userId,
   assignees,
-}: UpdateTaskAssigneesDTO) {
+}: UpdateTaskAssigneesPayload) {
   const response = await fetch(`/api/task/${taskId}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ projectId, userId, assignees }),
+    body: JSON.stringify({ projectId, assignees }),
   });
 
   if (!response.ok) await throwApiError(response, "Failed to update assignees");

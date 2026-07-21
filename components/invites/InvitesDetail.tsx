@@ -3,7 +3,6 @@
 import { Skeleton, Surface, Typography } from "@heroui/react";
 
 import { useGetInvites } from "@/hooks/invite/useGetInvites";
-import { useSessionStore } from "@/store/session.store";
 import { ProjectInviteResponseDTO } from "@/types/projectInvite.dto";
 
 import CustomEmpty from "../common/custom/CustomEmpty";
@@ -58,11 +57,7 @@ const InvitesListWrapper = ({
 };
 
 export default function InviteDetail() {
-  const userId = useSessionStore((s) => s.userId);
-
-  const { data, isLoading } = useGetInvites({
-    receiverId: userId,
-  });
+  const { data, isLoading } = useGetInvites();
 
   return (
     <div className="InvitesDetail flex flex-col space-y-6">
