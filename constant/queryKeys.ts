@@ -21,5 +21,5 @@ export const QUERY_KEYS = {
     ["activity", projectId, limit] as const,
   MEMBER_ACTIVITY: (projectId?: string | null, memberId?: string | null) =>
     ["activity", "member", projectId, memberId] as const,
-  NOTIFICATION: (id?: string) => ["notification", id] as const,
+  NOTIFICATION: () => ["notification"] as const,
 };

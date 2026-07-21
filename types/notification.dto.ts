@@ -1,12 +1,16 @@
 import { NotificationType } from "@/enum/notifications.enum";
 
+import { UserResponseDTO } from "./user.dto";
+
 interface InviteNotificationData {
   projectTitle: string;
-  user: {
-    image: string;
-    name: string;
-    email: string;
-  };
+  user: Omit<UserResponseDTO, "id">;
+}
+
+interface AssignedNotificationData {
+  taskId: string;
+  projectId: string;
+  user: Omit<UserResponseDTO, "id">;
 }
 
 interface BaseNotificationDataDTO {
@@ -28,6 +32,10 @@ export type NotificationDataDTO =
       data: {
         commentId: string;
       };
+    })
+  | (BaseNotificationDataDTO & {
+      type: NotificationType.ASSIGNED;
+      data: AssignedNotificationData;
     });
 
 export interface NotificationResponseDTO {
@@ -36,7 +44,8 @@ export interface NotificationResponseDTO {
 }
 
 export interface CreateNotificationDTO {
-  userId: string;
+  senderId: string;
+  receiverId: string;
   type: NotificationType;
   title: string;
   body?: string;

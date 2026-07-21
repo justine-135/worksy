@@ -5,7 +5,7 @@ import { markAsReadNotification } from "@/db/notification.db";
 import { apiError, apiSuccess } from "@/lib/api/apiResponse.lib";
 import { authConfig } from "@/lib/auth/auth";
 
-export async function POST(
+export async function PUT(
   _: NextRequest,
   { params }: { params: { id: string } },
 ) {

@@ -75,7 +75,7 @@ const InviteInformation = ({
         <Typography.Paragraph weight="medium">
           {project.title}
         </Typography.Paragraph>
-        <div className="flex items-center gap-5">
+        <div className="flex items-center space-x-4 flex-wrap">
           <InviteInformationTypography>
             <CustomAvatar
               avatarProps={{ className: "size-5" }}
@@ -97,7 +97,7 @@ const InviteInformation = ({
           </InviteInformationTypography>
         </div>
       </div>
-      <div className="ml-auto flex gap-2">
+      <div className="ml-auto flex flex-wrap space-x-4">
         <CustomButton
           variant="outline"
           title="Accept"

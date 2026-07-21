@@ -43,7 +43,7 @@ export default function SidebarNavigation() {
 
   return (
     <nav
-      className={`SidebarNavigation flex flex-col p-4 fixed border-r border-border min-h-screen transition-[width,min-width] duration-300 ease-in-out ${
+      className={`SidebarNavigation bg-surface flex flex-col p-4 fixed border-r border-border min-h-screen transition-[width,min-width] duration-300 ease-in-out ${
         collapsed ? "w-16 min-w-16" : "w-61.5 min-w-61.5"
       }`}
     >
@@ -67,32 +67,32 @@ export default function SidebarNavigation() {
         {!collapsed && isLoading && <SkeletonComponent />}
         {!collapsed && (
           <div className="flex flex-col mt-4 space-y-1">
-          {!!data?.length && (
-            <span className="text-sm font-medium text-default-500">
-              Recents
-            </span>
-          )}
-          {data?.map((route) => {
-            const isActive = route.id === params.id;
+            {!!data?.length && (
+              <span className="text-sm font-medium text-default-500">
+                Recents
+              </span>
+            )}
+            {data?.map((route) => {
+              const isActive = route.id === params.id;
 
-            return (
-              <div key={route.id}>
-                <Button
-                  className={`flex flex-col items-start w-53.5 p-0 ${isActive ? "bg-surface shadow-xl/10" : ""}`}
-                  variant="ghost"
-                >
-                  <Link
-                    href={`${PATHS.projects}/${route.id}/${params.section || "dashboard"}`}
-                    className="w-full pl-3 pr-23.5"
+              return (
+                <div key={route.id}>
+                  <Button
+                    className={`flex flex-col items-start w-53.5 p-0 ${isActive ? "bg-surface shadow-xl/10" : ""}`}
+                    variant="ghost"
                   >
-                    <div className="flex items-center space-x-2">
-                      <span>{route.title}</span>
-                    </div>
-                  </Link>
-                </Button>
-              </div>
-            );
-          })}
+                    <Link
+                      href={`${PATHS.projects}/${route.id}/${params.section || "dashboard"}`}
+                      className="w-full pl-3 pr-23.5"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <span>{route.title}</span>
+                      </div>
+                    </Link>
+                  </Button>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

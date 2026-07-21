@@ -173,7 +173,7 @@ const LogItem = ({
           <div
             className={[
               "absolute w-px bg-border",
-              isFirst ? "top-[22px]" : "top-0",
+              isFirst ? "top-5.5" : "top-0",
               isLast ? "bottom-[calc(100%-22px)]" : "bottom-0",
             ].join(" ")}
           />
@@ -217,7 +217,7 @@ export default function ActivityLog({
   if (!data?.length) return "";
 
   return (
-    <div className="flex flex-col w-full py-4 bg-surface">
+    <div className="flex flex-col w-full py-4">
       {data.map((log, idx) => (
         <div key={idx} className="w-full">
           <LogItem

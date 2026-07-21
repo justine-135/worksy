@@ -75,8 +75,7 @@ export async function getUserProfile({ userId }: { userId: string }) {
   });
 }
 
-// User-global update — no ActivityLog / touchProjectActivity (those are
-// project-audit constructs; editing your own profile isn't a project action).
+// User-global update — no ActivityLog / touchProjectActivity (those are project-audit constructs; editing your own profile isn't a project action).
 export async function updateUserProfile({
   userId,
   name,

@@ -27,7 +27,7 @@ export async function getNotifications(
 }
 
 export async function getUnreadNotificationCount(userId: string) {
-  return await prisma.notification.count({ where: { userId } });
+  return await prisma.notification.count({ where: { userId, read: false } });
 }
 
 // Mark one read
@@ -59,13 +59,21 @@ export async function markAllAsReadNotification(userId: string) {
 }
 
 export async function notify({
-  userId,
+  senderId,
+  receiverId,
   type,
   title,
   body,
   data: payload,
 }: CreateNotificationDTO) {
+  if (senderId === receiverId) return null;
   return prisma.notification.create({
-    data: { userId, type, title, body, data: payload as Prisma.InputJsonValue },
+    data: {
+      userId: receiverId,
+      type,
+      title,
+      body,
+      data: payload as Prisma.InputJsonValue,
+    },
   });
 }

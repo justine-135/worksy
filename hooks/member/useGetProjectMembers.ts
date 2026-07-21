@@ -39,5 +39,9 @@ export function useGetProjectMembers({
     }));
   };
 
-  return { data: transformData(), error, isLoading };
+  return {
+    data: transformData(),
+    error,
+    isLoading,
+  };
 }

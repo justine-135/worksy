@@ -67,7 +67,7 @@ export default function TabRoutesNav() {
   );
 
   return (
-    <nav className="TabRoutesNav border-b border-border px-4">
+    <nav className="TabRoutesNav border-b border-border px-4 bg-background">
       <div className="flex gap-6">
         {visibleRoutes.map((route) => {
           const Icon = route.icon;
@@ -82,7 +82,7 @@ export default function TabRoutesNav() {
           return (
             <div key={route.name}>
               <div
-                className={`flex flex-col items-start w-full py-1 ${isActive ? "border-b-2 border-primary opacity-100" : "opacity-40"}`}
+                className={`flex flex-col items-start w-full pb-1 pt-4 ${isActive ? "border-b-2 border-primary opacity-100" : "opacity-40"}`}
               >
                 <Link href={href} className="w-full ">
                   <div className="flex items-center space-x-1">

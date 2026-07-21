@@ -2,6 +2,7 @@ import type { Prisma } from "@prisma/client";
 
 import { touchProjectActivity } from "@/db/projectMember.db";
 import { EActivityLog } from "@/enum/activityLog.enum";
+import { NotificationType } from "@/enum/notifications.enum";
 import { ETaskStatus } from "@/enum/taskStatus.enum";
 import { prisma } from "@/lib/prisma";
 import {
@@ -11,6 +12,8 @@ import {
   UpdateTaskRelationDTO,
   UpdateTaskStatusDTO,
 } from "@/types/task.dto";
+
+import { notify } from "./notification.db";
 
 export async function createTaskDB(data: CreateTaskDTO) {
   return prisma.$transaction(async (tx) => {
@@ -47,6 +50,13 @@ export async function createTaskDB(data: CreateTaskDTO) {
       },
       select: {
         id: true,
+        user: {
+          select: {
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
       },
     });
 
@@ -79,9 +89,39 @@ export async function createTaskDB(data: CreateTaskDTO) {
         creatorId: member?.id || "",
       },
       include: {
-        assignees: true,
+        assignees: {
+          include: {
+            projectMember: {
+              select: {
+                userId: true,
+              },
+            },
+          },
+        },
       },
     });
+
+    // If assignees are created, call notify
+    if (res.assignees && res.assignees.length > 0) {
+      const notificationPromises = res.assignees.map((assignee) =>
+        notify({
+          senderId: member?.id || "",
+          receiverId: assignee.projectMember.userId,
+          type: NotificationType.ASSIGNED,
+          title: "assigned you a task",
+          data: {
+            projectId: data.projectId,
+            taskId: res.id,
+            user: { ...member?.user },
+          },
+        }),
+      );
+
+      // Run all notifications concurrently outside the critical transaction path
+      Promise.all(notificationPromises).catch((err) => {
+        console.error("Failed to send some notifications:", err);
+      });
+    }
 
     // Optionally link the new task under a parent (chosen in AddTaskModal). A
     // brand-new task has no descendants, so no cycle is possible here.
@@ -409,9 +449,7 @@ export async function searchTasksDB({
     where: {
       projectId,
       ...(excludeId ? { id: { not: excludeId } } : {}),
-      ...(trimmed
-        ? { title: { contains: trimmed, mode: "insensitive" } }
-        : {}),
+      ...(trimmed ? { title: { contains: trimmed, mode: "insensitive" } } : {}),
     },
     orderBy: { createdAt: "desc" },
     take: trimmed ? 10 : 5,

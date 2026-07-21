@@ -28,6 +28,7 @@ export async function createProjectInvite(data: CreateProjectInviteDTO) {
       },
       userSender: {
         select: {
+          id: true,
           image: true,
           name: true,
           email: true,
@@ -43,7 +44,8 @@ export async function createProjectInvite(data: CreateProjectInviteDTO) {
   });
 
   await notify({
-    userId: data.receiverId,
+    senderId: res.userSender?.id,
+    receiverId: data.receiverId,
     type: NotificationType.INVITE,
     title: "invited you to join",
     data: {

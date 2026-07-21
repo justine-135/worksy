@@ -5,6 +5,7 @@ import { Inter } from "next/font/google";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 
+import LinesBg from "@/components/common/LinesBg";
 import SessionHydrator from "@/components/common/SessionHydrator";
 import SidebarSpacer from "@/components/layout/SidebarSpacer";
 import ToastLayout from "@/components/layout/ToastLayout";
@@ -37,7 +38,10 @@ export default async function ProjectLayout({
       <ToastLayout>
         <div className="flex">
           <SidebarSpacer />
-          <main className="flex-1 min-w-0">{children}</main>
+          <main className="flex-1 min-w-0">
+            <LinesBg />
+            {children}
+          </main>
         </div>
         <SessionHydrator userId={session?.user.id} />
       </ToastLayout>

@@ -28,7 +28,7 @@ export function CustomTable<T>({
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: (columns[0]?.id as string) ?? "",
-    direction: "ascending",
+    direction: "descending",
   });
 
   const sortedData = useMemo(() => {
