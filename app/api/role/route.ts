@@ -16,12 +16,14 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
 
   const projectId = searchParams.get("project_id");
+  const skip = Number(searchParams.get("skip"));
+  const take = Number(searchParams.get("take"));
 
   if (!projectId) {
     return apiError("Missing project id.", 400);
   }
 
-  const data = await getRoles({ projectId });
+  const data = await getRoles({ projectId, skip, take });
 
   return Response.json(data);
 }
@@ -50,7 +52,10 @@ export async function POST(req: Request) {
     return apiError("Forbidden", 403);
   }
 
-  const data = await createRole({ name, permissions, projectId }, session.user.id);
+  const data = await createRole(
+    { name, permissions, projectId },
+    session.user.id,
+  );
 
   return apiSuccess("Role created.", data);
 }

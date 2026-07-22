@@ -2,24 +2,38 @@ import { touchProjectActivity } from "@/db/projectMember.db";
 import { prisma } from "@/lib/prisma";
 import { AddRoleDTO, EditRoleDTO } from "@/types/roles.dto";
 
-export async function getRoles({ projectId }: { projectId: string }) {
-  const roles = await prisma.role.findMany({
-    where: {
-      projectId,
-    },
-    select: {
-      id: true,
-      name: true,
-      createdAt: true,
-      permissions: {
-        select: {
-          key: true,
+export async function getRoles({
+  projectId,
+  skip,
+  take,
+}: {
+  projectId: string;
+  skip: number;
+  take: number;
+}) {
+  return prisma.$transaction(async (tx) => {
+    const roles = await prisma.role.findMany({
+      where: {
+        projectId,
+      },
+      take,
+      skip,
+      select: {
+        id: true,
+        name: true,
+        createdAt: true,
+        permissions: {
+          select: {
+            key: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  return roles;
+    const count = await tx.role.count({ where: { projectId } });
+
+    return { data: roles, count };
+  });
 }
 
 export async function createRole(
@@ -105,7 +119,10 @@ export async function updateRole(
   });
 
   // Float this project to the top of the actor's "Recents".
-  await touchProjectActivity({ userId: actorUserId, projectId: newRole.projectId });
+  await touchProjectActivity({
+    userId: actorUserId,
+    projectId: newRole.projectId,
+  });
 
   return newRole;
 }

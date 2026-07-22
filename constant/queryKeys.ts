@@ -6,7 +6,7 @@ export const QUERY_KEYS = {
     page?: number,
     ...rest: string[]
   ) => ["project", "members", projectId, page, ...rest] as const,
-  ROLES: (projectId: string | null) => ["roles", projectId] as const,
+  ROLES: (projectId?: string | null) => ["roles", projectId] as const,
   TASK_BOARDS: (projectId?: string | null) => ["boards", projectId] as const,
   TASK: (id?: string) => ["task", id] as const,
   TASK_SEARCH: (projectId?: string | null, query?: string) =>

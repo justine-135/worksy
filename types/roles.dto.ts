@@ -7,7 +7,7 @@ export interface RolesTableDTO {
   }[];
 }
 
-export interface RolesResponseDTO {
+export interface RolesDataDTO {
   id: string;
   name: string;
   createdAt: Date;
@@ -15,6 +15,11 @@ export interface RolesResponseDTO {
   permissions: {
     key: string;
   }[];
+}
+
+export interface RolesResponseDTO {
+  data: RolesDataDTO[];
+  count: number;
 }
 
 export interface AddRoleDTO {

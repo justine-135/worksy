@@ -5,12 +5,16 @@ import { useSessionStore } from "@/store/session.store";
 import { ProjectMemberTableDTO } from "@/types/projectMember.dto";
 
 import { CustomTable } from "../common/custom/table/CustomTable";
+import usePagination from "../common/custom/table/usePagination";
 import memberTableColumns from "./memberTableColumns";
 
 export function MembersTable() {
   const projectId = useSessionStore((s) => s.projectId);
-  const { data, isLoading, setPage, page } = useGetProjectMembers({
+  const { page, setPage } = usePagination();
+
+  const { data, isLoading } = useGetProjectMembers({
     projectId,
+    page,
   });
   const { columns } = memberTableColumns();
 
