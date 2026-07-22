@@ -1,6 +1,14 @@
 "use client";
 
-import { Form, Input, Label, ListBox, Select, TextField } from "@heroui/react";
+import {
+  Form,
+  Input,
+  Label,
+  ListBox,
+  Select,
+  Skeleton,
+  TextField,
+} from "@heroui/react";
 import { Button } from "@heroui/react/button";
 import { Modal } from "@heroui/react/modal";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,9 +45,18 @@ export default function AddTaskModal({
   projectId?: string | null;
   taskBoardID: string;
 }) {
-  const { data } = useGetProjectMembers({ projectId });
-  const { data: project } = useGetProject(projectId);
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const { data } = useGetProjectMembers({
+    projectId,
+    skip: 0,
+    take: 100,
+    enabled: isOpen,
+    queryKey: [taskBoardID],
+  });
+  const { data: project, isLoading } = useGetProject({
+    projectId,
+    enabled: isOpen,
+  });
   const [description, setDescription] = useState("");
   const [selectedAssignees, setSelectedAssignees] = useState<string[]>([]);
   // Null = "follow the project default"; a value = the user picked one. Derived
@@ -153,20 +170,25 @@ export default function AddTaskModal({
                   onChange={(keys) => setSelectedAssignees(keys as string[])}
                 >
                   <Label>Assignees</Label>
-                  <Select.Trigger className="flex w-full items-center justify-between rounded-lg border border-default-200 bg-surface p-2">
-                    <Select.Value />
-                    <Select.Indicator />
-                  </Select.Trigger>
+                  {isLoading ? (
+                    <Skeleton className="h-9.5 w-full" />
+                  ) : (
+                    <Select.Trigger className="flex w-full items-center justify-between rounded-lg border border-default-200 bg-surface p-2">
+                      <Select.Value />
+                      <Select.Indicator />
+                    </Select.Trigger>
+                  )}
+
                   <Select.Popover>
                     <ListBox selectionMode="multiple">
-                      {data.map((member) => (
+                      {data?.data.map((member) => (
                         <ListBox.Item
                           id={member.id}
                           key={member.id}
-                          textValue={member.name}
+                          textValue={member.user.name}
                           className="flex items-center gap-2"
                         >
-                          {member.name}
+                          {member.user.name}
                           <ListBox.ItemIndicator />
                         </ListBox.Item>
                       ))}
@@ -229,7 +251,7 @@ export default function AddTaskModal({
                 <TextField>
                   <Label>Description</Label>
                   <TiptapEditor
-                    users={data}
+                    users={data?.data}
                     value={description}
                     onChange={setDescription}
                   />

@@ -18,7 +18,7 @@ import { createRoot, type Root } from "react-dom/client";
 
 import uploadTaskImage from "@/lib/task/uploadTaskImage.lib";
 import { useSessionStore } from "@/store/session.store";
-import type { ProjectMemberTableDTO } from "@/types/projectMember.dto";
+import type { MemberDataDTO } from "@/types/projectMember.dto";
 
 const MAX_IMAGE_SIZE = 2 * 1024 * 1024;
 const IMAGE_TYPES = [
@@ -49,7 +49,7 @@ type MentionListProps = {
 };
 
 export type TiptapEditorProps = {
-  users?: ProjectMemberTableDTO[];
+  users?: MemberDataDTO[];
   value?: string;
   onChange?: (value: string) => void;
 };
@@ -117,11 +117,11 @@ function MentionList({
   );
 }
 
-function getMentionUsers(users: ProjectMemberTableDTO[]): MentionUser[] {
+function getMentionUsers(users: MemberDataDTO[]): MentionUser[] {
   return users.map((member) => ({
     id: member.user.id,
-    label: member.name,
-    email: member.email,
+    label: member.user.name,
+    email: member.user.email,
     image: member.user.image,
   }));
 }
@@ -413,11 +413,7 @@ function TiptapEditor({ users = [], value = "", onChange }: TiptapEditorProps) {
 
       if (editor.isDestroyed) return;
 
-      editor
-        .chain()
-        .focus()
-        .setImage({ src: blob.url, alt: file.name })
-        .run();
+      editor.chain().focus().setImage({ src: blob.url, alt: file.name }).run();
     } catch (error) {
       setImageError(
         error instanceof Error

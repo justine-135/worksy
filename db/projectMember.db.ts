@@ -24,22 +24,41 @@ export async function touchProjectActivity(
   });
 }
 
-export async function getProjectMembers({ projectId }: { projectId: string }) {
-  return prisma.projectMember.findMany({
-    where: { projectId },
-    select: {
-      id: true,
-      createdAt: true,
-      updatedAt: true,
-      user: true,
-      status: true,
-      role: {
-        select: {
-          id: true,
-          name: true,
+export async function getProjectMembers({
+  projectId,
+  skip,
+  take,
+}: {
+  projectId: string;
+  skip: number;
+  take: number;
+}) {
+  return prisma.$transaction(async (tx) => {
+    const members = await tx.projectMember.findMany({
+      where: { projectId },
+      take,
+      skip,
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        user: true,
+        status: true,
+        role: {
+          select: {
+            id: true,
+            name: true,
+          },
         },
       },
-    },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+    const count = await tx.projectMember.count({ where: { projectId } });
+
+    return { data: members, count };
   });
 }
 

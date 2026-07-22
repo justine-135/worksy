@@ -14,7 +14,7 @@ import { useSessionStore } from "@/store/session.store";
 export default function ProjectSettings() {
   const userId = useSessionStore((s) => s.userId);
   const projectId = useSessionStore((s) => s.projectId);
-  const { data: project, isLoading } = useGetProject(projectId);
+  const { data: project, isLoading } = useGetProject({ projectId });
 
   return (
     <PermissionGate

@@ -14,12 +14,14 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
 
   const projectId = searchParams.get("project_id");
+  const skip = Number(searchParams.get("skip"));
+  const take = Number(searchParams.get("take"));
 
   if (!projectId) {
     return apiError("Missing project id.", 400);
   }
 
-  const data = await getProjectMembers({ projectId });
+  const data = await getProjectMembers({ projectId, skip, take });
 
   return Response.json(data);
 }

@@ -7,7 +7,7 @@ export interface CreateProjectMemberDTO {
   projectId: string;
 }
 
-export interface ProjectMemberResponseDTO {
+export interface MemberDataDTO {
   id: string;
   createdAt: Date;
   updatedAt: Date;
@@ -17,6 +17,11 @@ export interface ProjectMemberResponseDTO {
     id: string;
     name: string;
   };
+}
+
+export interface ProjectMemberResponseDTO {
+  data: MemberDataDTO[];
+  count: number;
 }
 
 export interface ProjectMemberTableDTO {

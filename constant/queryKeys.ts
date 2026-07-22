@@ -1,8 +1,11 @@
 import { TProjectFilter } from "@/types/project.dto";
 
 export const QUERY_KEYS = {
-  PROJECT_MEMBERS: (projectId?: string | null) =>
-    ["project", "members", projectId] as const,
+  PROJECT_MEMBERS: (
+    projectId?: string | null,
+    page?: number,
+    ...rest: string[]
+  ) => ["project", "members", projectId, page, ...rest] as const,
   ROLES: (projectId: string | null) => ["roles", projectId] as const,
   TASK_BOARDS: (projectId?: string | null) => ["boards", projectId] as const,
   TASK: (id?: string) => ["task", id] as const,

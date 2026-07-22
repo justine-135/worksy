@@ -465,14 +465,14 @@ const TaskSidebar = ({
               </Select.Trigger>
               <Select.Popover>
                 <ListBox selectionMode="multiple">
-                  {members.map((member) => (
+                  {members?.data.map((member) => (
                     <ListBox.Item
                       id={member.id}
                       key={member.id}
-                      textValue={member.name}
+                      textValue={member.user.name}
                       className="flex items-center gap-2"
                     >
-                      {member.name}
+                      {member.user.name}
                       <ListBox.ItemIndicator />
                     </ListBox.Item>
                   ))}
