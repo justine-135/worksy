@@ -11,6 +11,7 @@ interface AssignedNotificationData {
   taskId: string;
   projectId: string;
   user: Omit<UserResponseDTO, "id">;
+  name: string;
 }
 
 interface BaseNotificationDataDTO {

@@ -66,6 +66,7 @@ export async function notify({
   body,
   data: payload,
 }: CreateNotificationDTO) {
+  console.log(senderId, receiverId);
   if (senderId === receiverId) return null;
   return prisma.notification.create({
     data: {

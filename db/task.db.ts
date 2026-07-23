@@ -52,8 +52,8 @@ export async function createTaskDB(data: CreateTaskDTO) {
         id: true,
         user: {
           select: {
+            id: true,
             name: true,
-            email: true,
             image: true,
           },
         },
@@ -105,13 +105,14 @@ export async function createTaskDB(data: CreateTaskDTO) {
     if (res.assignees && res.assignees.length > 0) {
       const notificationPromises = res.assignees.map((assignee) =>
         notify({
-          senderId: member?.id || "",
+          senderId: data.userId || "",
           receiverId: assignee.projectMember.userId,
           type: NotificationType.ASSIGNED,
-          title: "assigned you a task",
+          title: "assigned you to",
           data: {
             projectId: data.projectId,
             taskId: res.id,
+            name: res.title,
             user: { ...member?.user },
           },
         }),

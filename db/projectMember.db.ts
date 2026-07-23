@@ -51,9 +51,14 @@ export async function getProjectMembers({
           },
         },
       },
-      orderBy: {
-        createdAt: "asc",
-      },
+      orderBy: [
+        {
+          createdAt: "asc",
+        },
+        {
+          updatedAt: "asc",
+        },
+      ],
     });
 
     const count = await tx.projectMember.count({ where: { projectId } });
@@ -74,6 +79,38 @@ export async function getProjectMember({
       },
     },
   });
+}
+
+export async function getAssignees(projectId: string) {
+  const assignees = await prisma.projectMember.findMany({
+    where: {
+      projectId,
+      status: "active",
+      role: {
+        permissions: {
+          some: {
+            key: {
+              in: ["board.view", "task.view"],
+            },
+          },
+        },
+      },
+    },
+    select: {
+      id: true,
+      createdAt: true,
+      updatedAt: true,
+      user: true,
+      status: true,
+      role: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
+  return { data: assignees };
 }
 
 /**

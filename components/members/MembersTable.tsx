@@ -16,7 +16,7 @@ export function MembersTable() {
     projectId,
     page,
   });
-  const { columns } = memberTableColumns();
+  const { columns } = memberTableColumns(page);
 
   const transformData = (): ProjectMemberTableDTO[] => {
     if (!data) return [];

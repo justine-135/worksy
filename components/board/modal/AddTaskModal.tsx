@@ -28,7 +28,7 @@ import {
 import { Permissions } from "@/enum/permissions.enum";
 import { ETaskPriority } from "@/enum/taskPriority.enum";
 import { useApiMessage } from "@/hooks/common/useApiMessage";
-import { useGetProjectMembers } from "@/hooks/member/useGetProjectMembers";
+import { useGetAssignees } from "@/hooks/member/useGetAssignees";
 import { useGetProject } from "@/hooks/project/useGetProject";
 import useCreateTaskMutation from "@/hooks/task/useCreateTask";
 import useInvalidateQuery from "@/hooks/taskboard/useInvalidateQuery";
@@ -46,12 +46,10 @@ export default function AddTaskModal({
   taskBoardID: string;
 }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const { data } = useGetProjectMembers({
+  const { data } = useGetAssignees({
     projectId,
-    skip: 0,
-    take: 100,
+
     enabled: isOpen,
-    queryKey: [taskBoardID],
   });
   const { data: project, isLoading } = useGetProject({
     projectId,

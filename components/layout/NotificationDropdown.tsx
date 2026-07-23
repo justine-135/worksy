@@ -83,12 +83,12 @@ const NotificationItem = ({ item }: { item: NotificationDataDTO }) => {
 
     case NotificationType.ASSIGNED:
     case NotificationType.COMMENT:
-      const { user, taskId, projectId } = item?.data;
+      const { user, taskId, projectId, name } = item?.data;
       const taskHref = `/projects/${projectId}/board?task=${taskId}`;
       return (
         <Dropdown.Item onClick={handleRead}>
           <Link href={taskHref} className="flex items-start">
-            <NotificationDescription user={user} item={item} title={taskId} />
+            <NotificationDescription user={user} item={item} title={name} />
           </Link>
         </Dropdown.Item>
       );

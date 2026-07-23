@@ -23,7 +23,7 @@ import {
 } from "@/lib/validations/editMember.schema";
 import { useSessionStore } from "@/store/session.store";
 import { ProjectMemberTableDTO } from "@/types/projectMember.dto";
-import { RolesResponseDTO } from "@/types/roles.dto";
+import { RolesDataDTO } from "@/types/roles.dto";
 
 const EditMemberButton = ({ onClick }: { onClick: () => void }) => {
   return (
@@ -74,14 +74,14 @@ interface RoleComboBoxProps {
 function RoleComboBox({ onChange, role }: RoleComboBoxProps) {
   const projectId = useSessionStore((s) => s.projectId);
 
-  const { data: roles } = useGetRoles({ projectId });
+  const { data: roles } = useGetRoles({ projectId, skip: 0, take: 100 });
 
   return (
     <ComboBox
       aria-label="search for roles"
       menuTrigger="focus"
       className="flex! flex-row! items-center gap-2"
-      defaultItems={roles || []}
+      defaultItems={roles?.data || []}
       defaultInputValue={role.name}
       isRequired={true}
       onChange={(e) => onChange(e)}
@@ -94,7 +94,7 @@ function RoleComboBox({ onChange, role }: RoleComboBoxProps) {
 
       <ComboBox.Popover>
         <ListBox>
-          {(item: RolesResponseDTO) => (
+          {(item: RolesDataDTO) => (
             <ListBox.Item key={item.id} id={item.id} textValue={item.name}>
               {item.name}
               <ListBox.ItemIndicator />
@@ -110,13 +110,17 @@ interface EditMemberProps {
   status: StatusDTO;
   role: ProjectMemberTableDTO["role"];
   userId: string;
+  page: number;
 }
 
 export default function EditMember(props: EditMemberProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const projectId = useSessionStore((s) => s.projectId);
 
-  const { mutation } = useUpdateMemberStatusRole({ projectId });
+  const { mutation } = useUpdateMemberStatusRole({
+    projectId,
+    page: props.page,
+  });
 
   const handleOpenChange = () => {
     if (!isOpen) reset();
@@ -137,6 +141,7 @@ export default function EditMember(props: EditMemberProps) {
   });
 
   const onSubmit = (data: EditMemberInput) => {
+    console.log(data);
     mutation.mutate(
       {
         ...data,

@@ -22,6 +22,8 @@ export default function DashboardDetail() {
   });
   const { data: members, isLoading: isLoadingMembers } = useGetProjectMembers({
     projectId,
+    skip: 0,
+    take: 100,
   });
 
   if (isLoadingBoards || isLoadingMembers) return <DashboardSkeleton />;
@@ -76,7 +78,7 @@ export default function DashboardDetail() {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <DashboardActivity projectId={projectId} />
-          <MembersOverview members={members} />
+          <MembersOverview members={members?.data} />
         </div>
         <div className="lg:col-span-1">
           <AssignedToMe tasks={assignedTasks} projectId={projectId} />

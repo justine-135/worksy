@@ -17,26 +17,26 @@ import EditMember from "./modal/EditMember";
 const StatusChip = ({ status }: { status: StatusDTO }) => {
   if (status === StatusDTO.active) {
     return (
-      <Chip color="success">
-        <Chip.Label>Active</Chip.Label>
+      <Chip color="success" variant="primary">
+        <Chip.Label className="text-white">Active</Chip.Label>
       </Chip>
     );
   }
   if (status === StatusDTO.inactive) {
     return (
-      <Chip color="danger">
-        <Chip.Label>Inactive</Chip.Label>
+      <Chip color="danger" variant="primary">
+        <Chip.Label className="text-white">Inactive</Chip.Label>
       </Chip>
     );
   }
   return (
-    <Chip color="warning">
-      <Chip.Label>Pending</Chip.Label>
+    <Chip color="warning" variant="primary">
+      <Chip.Label className="text-white">Pending</Chip.Label>
     </Chip>
   );
 };
 
-export default function memberTableColumns() {
+export default function memberTableColumns(page: number) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const userId = useSessionStore((state) => state.userId);
 
@@ -107,6 +107,7 @@ export default function memberTableColumns() {
               status={member.status}
               role={member.role}
               userId={member.id}
+              page={page}
             />
             <ViewMemberDrawer member={member} />
             <PermissionGuard permission={Permissions.MemberDelete}>

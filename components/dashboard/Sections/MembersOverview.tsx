@@ -3,24 +3,24 @@
 import { MdGroup } from "react-icons/md";
 
 import CustomAvatar from "@/components/common/custom/CustomAvatar";
-import { ProjectMemberTableDTO } from "@/types/projectMember.dto";
+import { MemberDataDTO } from "@/types/projectMember.dto";
 
 import SectionCard from "./SectionCard";
 
 export default function MembersOverview({
   members,
 }: {
-  members: ProjectMemberTableDTO[];
+  members?: MemberDataDTO[];
 }) {
   return (
     <SectionCard
       title="Members"
       icon={<MdGroup size={18} />}
-      count={members.length}
+      count={members?.length}
     >
       <div className="flex flex-wrap gap-2">
-        {members.map((member) => {
-          const label = member.user.name || member.email || "Unknown";
+        {members?.map((member) => {
+          const label = member.user.name || member.user.email || "Unknown";
           return (
             <div
               key={member.id}

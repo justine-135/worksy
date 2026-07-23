@@ -14,7 +14,7 @@ export function useGetRoles({
   take,
 }: {
   projectId?: string | null;
-  page: number;
+  page?: number;
   skip?: number;
   take?: number;
   enabled?: boolean;
@@ -25,7 +25,7 @@ export function useGetRoles({
     queryFn: () =>
       fetchRoles({
         projectId,
-        skip: skip ?? page * PAGE_SIZE,
+        skip: skip ?? (page ?? 1) * PAGE_SIZE,
         take: take ?? PAGE_SIZE,
       }),
     enabled: !!projectId,

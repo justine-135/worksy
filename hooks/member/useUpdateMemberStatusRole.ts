@@ -7,15 +7,17 @@ import editMemberStatusRole from "@/lib/members/editMemberStatusRole";
 
 export default function useUpdateMemberStatusRole({
   projectId,
+  page,
 }: {
   projectId?: string | null;
+  page: number;
 }) {
   const queryClient = useQueryClient();
   const invalidateRecents = useInvalidateRecents();
 
   const memberQueryKey = useMemo(
-    () => QUERY_KEYS.PROJECT_MEMBERS(projectId),
-    [projectId],
+    () => QUERY_KEYS.PROJECT_MEMBERS(projectId, page),
+    [page, projectId],
   );
 
   const invalidateMembers = async () => {
