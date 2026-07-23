@@ -40,7 +40,7 @@ export default function SidebarNavigation() {
   return (
     <nav
       className={`SidebarNavigation bg-surface flex flex-col p-4 fixed border-r border-border min-h-screen transition-[width,min-width] duration-300 ease-in-out ${
-        collapsed ? "w-16 min-w-16" : "w-61.5 min-w-61.5"
+        collapsed ? "w-18 min-w-16" : "w-61.5 min-w-61.5"
       }`}
     >
       <div className="flex flex-col">
@@ -59,7 +59,7 @@ export default function SidebarNavigation() {
             <TbColumns2 />
           </button>
         </div>
-        <ProjectRoutes collapsed={collapsed} />
+        <ProjectRoutes />
         {!collapsed && isLoading && <SkeletonComponent />}
         {!collapsed && (
           <div className="flex flex-col mt-4 space-y-1">

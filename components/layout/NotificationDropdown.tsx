@@ -95,7 +95,13 @@ const NotificationItem = ({ item }: { item: NotificationDataDTO }) => {
   }
 };
 
-export function NotificationDropdown({ collapsed }: { collapsed: boolean }) {
+export function NotificationDropdown({
+  collapsed,
+  collapsedButtonClassName,
+}: {
+  collapsed: boolean;
+  collapsedButtonClassName: string;
+}) {
   const { data } = useGetNotification();
 
   const unreadCount = data?.unreadCount || 0;
@@ -103,7 +109,7 @@ export function NotificationDropdown({ collapsed }: { collapsed: boolean }) {
   return (
     <Dropdown>
       <Button
-        className={`flex flex-col items-start py-0 ${collapsed ? "w-fit pl-2 pr-2" : "w-full pl-3 "}`}
+        className={`flex flex-col items-start py-0 ${collapsedButtonClassName}`}
         aria-label="Notification"
         variant="ghost"
       >
