@@ -9,7 +9,6 @@ export enum ETaskStatus {
   DONE = "DONE",
 }
 
-/** Human-readable labels for the UI (dropdowns, activity feed). */
 export const TASK_STATUS_LABELS: Record<ETaskStatus, string> = {
   [ETaskStatus.TODO]: "Todo",
   [ETaskStatus.IN_PROGRESS]: "In Progress",

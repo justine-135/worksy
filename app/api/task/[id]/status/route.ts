@@ -19,11 +19,11 @@ export async function PATCH(
 
   const { id } = await params;
   const body = await req.json();
-  const { projectId, userId, status } = body;
+  const { projectId, status } = body;
 
   const isValidStatus = Object.values(ETaskStatus).includes(status);
 
-  if (!id || !projectId || !userId || !isValidStatus) {
+  if (!id || !projectId || !isValidStatus) {
     return apiError("Invalid task status.", 400);
   }
 
@@ -38,7 +38,12 @@ export async function PATCH(
   }
 
   try {
-    await updateTaskStatusDB({ projectId, userId, taskId: id, status });
+    await updateTaskStatusDB({
+      projectId,
+      userId: session?.user.id,
+      taskId: id,
+      status,
+    });
 
     return apiSuccess("Task status updated.");
   } catch (error) {

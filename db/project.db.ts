@@ -23,9 +23,9 @@ export async function createProjectDTO(data: CreateProjectDTO) {
 
         taskBoards: {
           create: [
-            { title: "To Do 💻" },
-            { title: "In Progress 🚀" },
-            { title: "Done 👁️" },
+            { title: "To Do 💻", status: "TODO" },
+            { title: "In Progress 🚀", status: "IN_PROGRESS" },
+            { title: "Done 👁️", status: "DONE" },
           ],
         },
       },
