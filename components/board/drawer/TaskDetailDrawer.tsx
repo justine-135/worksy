@@ -282,7 +282,11 @@ const TaskSidebar = ({
     invalidateTaskBoards,
   });
 
-  const { data: members } = useGetProjectMembers({ projectId });
+  const { data: members } = useGetProjectMembers({
+    projectId,
+    skip: 0,
+    take: 100,
+  });
   const { mutation: updateAssignees } = useUpdateTaskAssignees();
   const { mutation: updateStatus } = useUpdateTaskStatus();
   const { mutation: updateRelation } = useUpdateTaskRelation();
@@ -364,6 +368,8 @@ const TaskSidebar = ({
     setSelectedAssignees(currentAssigneeIds);
     setIsEditingAssignees(true);
   };
+
+  console.log(members?.data);
 
   const handleSaveAssignees = () => {
     if (!projectId) return;
