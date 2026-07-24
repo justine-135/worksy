@@ -19,14 +19,21 @@ export async function POST(req: Request) {
     return apiError("Provide at least the title", 400);
   }
 
-  const data = await createProjectDTO({
-    title,
-    description,
-    imageUrl: image_url,
-    ownerId: session?.user?.id,
-  });
+  try {
+    const data = await createProjectDTO({
+      title,
+      description,
+      imageUrl: image_url,
+      ownerId: session?.user?.id,
+    });
 
-  return apiSuccess("Project created.", data);
+    return apiSuccess("Project created.", data);
+  } catch (error) {
+    return apiError(
+      error instanceof Error ? error.message : "Internal server error",
+      400,
+    );
+  }
 }
 
 export async function GET(req: Request) {

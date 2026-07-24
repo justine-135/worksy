@@ -8,6 +8,15 @@ import { CreateProjectInviteDTO } from "@/types/projectInvite.dto";
 import { notify } from "./notification.db";
 
 export async function createProjectInvite(data: CreateProjectInviteDTO) {
+  const isMember = await prisma.projectMember.count({
+    where: {
+      userId: data.receiverId,
+      projectId: data.projectId,
+    },
+  });
+
+  if (isMember > 0) throw new Error("User is already a member");
+
   const res = await prisma.projectInvite.create({
     data: {
       userSender: {
@@ -21,6 +30,7 @@ export async function createProjectInvite(data: CreateProjectInviteDTO) {
       },
     },
     select: {
+      id: true,
       project: {
         select: {
           title: true,
@@ -49,6 +59,7 @@ export async function createProjectInvite(data: CreateProjectInviteDTO) {
     type: NotificationType.INVITE,
     title: "invited you to join",
     data: {
+      id: res.id,
       projectTitle: res.project?.title,
       user: {
         image: res.userSender?.image,

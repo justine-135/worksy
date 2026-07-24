@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 
 import { deleteProject, getProjectDetail } from "@/db/project.db";
 import { getProjectMember } from "@/db/projectMember.db";
+import { apiError } from "@/lib/api/apiResponse.lib";
 import { authConfig } from "@/lib/auth/auth";
 
 export async function GET(
@@ -24,13 +25,13 @@ export async function GET(
   });
 
   if (!member) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return apiError("Forbidden.", 403);
   }
 
   const project = await getProjectDetail(id);
 
   if (!project) {
-    return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    return apiError("Project not found.", 404);
   }
 
   return Response.json({ success: true, data: project });
@@ -43,13 +44,16 @@ export async function DELETE(
   const session = await getServerSession(authConfig);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("You must be signed in to continue.", 401);
   }
 
   const { id } = await params;
 
   try {
-    const data = await deleteProject({ userId: session.user.id, projectId: id });
+    const data = await deleteProject({
+      userId: session.user.id,
+      projectId: id,
+    });
     return Response.json({ success: true, data });
   } catch (error) {
     // Surface only the known "Owner only" sentinel; collapse everything else to

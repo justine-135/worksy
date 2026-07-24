@@ -37,12 +37,20 @@ export async function PATCH(req: Request) {
   }
 
   try {
-    await updateTaskRelationDB({ projectId, userId, parentId, childId, action });
+    await updateTaskRelationDB({
+      projectId,
+      userId,
+      parentId,
+      childId,
+      action,
+    });
   } catch (error) {
     // Surface cycle-guard / access errors as a 400 so the client toast can show
     // why the link was rejected.
     return apiError(
-      error instanceof Error ? error.message : "Failed to update the task link.",
+      error instanceof Error
+        ? error.message
+        : "Failed to update the task link.",
       400,
     );
   }

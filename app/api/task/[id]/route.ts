@@ -72,12 +72,19 @@ export async function PATCH(
     return apiError("Forbidden", 403);
   }
 
-  await updateTaskAssigneesDB({
-    projectId,
-    userId: session?.user.id,
-    taskId: id,
-    assignees,
-  });
+  try {
+    await updateTaskAssigneesDB({
+      projectId,
+      userId: session?.user.id,
+      taskId: id,
+      assignees,
+    });
 
-  return apiSuccess("Assignees updated.");
+    return apiSuccess("Assignees updated.");
+  } catch (error) {
+    return apiError(
+      error instanceof Error ? error.message : "Internal server error",
+      400,
+    );
+  }
 }

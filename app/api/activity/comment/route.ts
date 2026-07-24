@@ -18,13 +18,20 @@ export async function POST(req: Request) {
     return apiError("Please provide a comment.", 400);
   }
 
-  const data = await createComment({
-    projectId,
-    taskId,
-    userId: session?.user?.id,
-    type,
-    value,
-  });
+  try {
+    const data = await createComment({
+      projectId,
+      taskId,
+      userId: session?.user?.id,
+      type,
+      value,
+    });
 
-  return apiSuccess("Comment added.", data);
+    return apiSuccess("Comment added.", data);
+  } catch (error) {
+    return apiError(
+      error instanceof Error ? error.message : "Internal server error",
+      400,
+    );
+  }
 }

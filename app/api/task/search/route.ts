@@ -21,12 +21,19 @@ export async function GET(req: Request) {
     return apiError("Missing project id.", 400);
   }
 
-  const data = await searchTasksDB({
-    projectId,
-    userId: session.user.id,
-    query,
-    excludeId,
-  });
+  try {
+    const data = await searchTasksDB({
+      projectId,
+      userId: session.user.id,
+      query,
+      excludeId,
+    });
 
-  return Response.json(data);
+    return Response.json(data);
+  } catch (error) {
+    return apiError(
+      error instanceof Error ? error.message : "Internal server error",
+      400,
+    );
+  }
 }

@@ -48,11 +48,18 @@ export async function POST(req: Request) {
     return apiError("Forbidden", 403);
   }
 
-  const data = await createProjectInvite({
-    senderId: session?.user?.id,
-    receiverId: receiver_id,
-    projectId: project_id,
-  });
+  try {
+    const data = await createProjectInvite({
+      senderId: session?.user?.id,
+      receiverId: receiver_id,
+      projectId: project_id,
+    });
 
-  return apiSuccess("Invite sent.", data);
+    return apiSuccess("Invite sent.", data);
+  } catch (error) {
+    return apiError(
+      error instanceof Error ? error.message : "Internal server error",
+      400,
+    );
+  }
 }

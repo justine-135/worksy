@@ -37,7 +37,14 @@ export async function PATCH(
     return apiError("Forbidden", 403);
   }
 
-  await updateTaskStatusDB({ projectId, userId, taskId: id, status });
+  try {
+    await updateTaskStatusDB({ projectId, userId, taskId: id, status });
 
-  return apiSuccess("Task status updated.");
+    return apiSuccess("Task status updated.");
+  } catch (error) {
+    return apiError(
+      error instanceof Error ? error.message : "Internal server error",
+      400,
+    );
+  }
 }

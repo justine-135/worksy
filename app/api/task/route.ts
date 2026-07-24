@@ -36,15 +36,22 @@ export async function PATCH(req: Request) {
     return apiError("Forbidden", 403);
   }
 
-  await updateTaskPositionsDB({
-    projectId,
-    userId: session?.user?.id,
-    taskId,
-    taskBoardId,
-    orderedTaskIdsByBoard,
-  });
+  try {
+    await updateTaskPositionsDB({
+      projectId,
+      userId: session?.user?.id,
+      taskId,
+      taskBoardId,
+      orderedTaskIdsByBoard,
+    });
 
-  return apiSuccess("Tasks reordered.");
+    return apiSuccess("Tasks reordered.");
+  } catch (error) {
+    return apiError(
+      error instanceof Error ? error.message : "Internal server error",
+      400,
+    );
+  }
 }
 
 export async function POST(req: Request) {

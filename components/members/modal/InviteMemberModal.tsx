@@ -2,13 +2,13 @@
 
 import { Form } from "@heroui/react/form";
 import { Modal } from "@heroui/react/modal";
-import { toast } from "@heroui/react/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import CustomButton from "@/components/common/custom/CustomButton";
 import { Permissions } from "@/enum/permissions.enum";
+import useApiMessage from "@/hooks/common/useApiMessage";
 import useCreateInvite from "@/hooks/invite/useCreateInvite";
 import {
   InviteMemberInput,
@@ -36,6 +36,8 @@ export default function InviteMemberModal() {
     setIsOpen(!isOpen);
   };
 
+  const { showSuccess, showError } = useApiMessage();
+
   const {
     register,
     handleSubmit,
@@ -60,15 +62,15 @@ export default function InviteMemberModal() {
         ...data,
       },
       {
-        onSuccess: () => {
+        onSuccess: (result) => {
           reset();
           setIsOpen(false);
-          toast("Invite sent successfully");
+          showSuccess(result);
         },
-        onError: () => {
+        onError: (result) => {
           reset();
           setIsOpen(false);
-          toast.danger("Failed to send invite");
+          showError(result);
         },
       },
     );

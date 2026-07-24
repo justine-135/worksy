@@ -64,13 +64,20 @@ export async function PATCH(req: Request) {
     return apiError("Forbidden", 403);
   }
 
-  await updateTaskBoardOrdersDB({
-    projectId,
-    userId: session?.user?.id,
-    orderedTaskBoardIds,
-  });
+  try {
+    await updateTaskBoardOrdersDB({
+      projectId,
+      userId: session?.user?.id,
+      orderedTaskBoardIds,
+    });
 
-  return apiSuccess("Columns reordered.");
+    return apiSuccess("Columns reordered.");
+  } catch (error) {
+    return apiError(
+      error instanceof Error ? error.message : "Internal server error",
+      400,
+    );
+  }
 }
 
 export async function PUT(req: Request) {
