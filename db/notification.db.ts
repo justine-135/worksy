@@ -75,39 +75,42 @@ export async function markAllAsReadNotification(userId: string) {
   });
 }
 
-export async function notify({
-  senderId,
-  receiverId,
-  type,
-  title,
-  body,
-  data: payload,
-}: CreateNotificationDTO) {
+export async function notify(
+  {
+    senderId,
+    receiverId,
+    type,
+    title,
+    body,
+    data: payload,
+  }: CreateNotificationDTO,
+  tx?: Prisma.TransactionClient,
+) {
+  const client = tx || prisma;
+
   if (senderId === receiverId) return null;
 
-  return prisma.$transaction(async (tx) => {
-    const member = await tx.projectMember.findUnique({
-      where: {
-        id: receiverId,
-      },
-      select: {
-        user: {
-          select: {
-            id: true,
-          },
+  const member = await client.projectMember.findUnique({
+    where: {
+      id: receiverId,
+    },
+    select: {
+      user: {
+        select: {
+          id: true,
         },
       },
-    });
+    },
+  });
 
-    return tx.notification.create({
-      data: {
-        userId: member?.user.id || receiverId,
-        type,
-        title,
-        body,
-        data: payload as Prisma.InputJsonValue,
-      },
-    });
+  return client.notification.create({
+    data: {
+      userId: member?.user.id || receiverId,
+      type,
+      title,
+      body,
+      data: payload as Prisma.InputJsonValue,
+    },
   });
 }
 

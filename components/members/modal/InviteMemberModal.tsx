@@ -26,7 +26,7 @@ export default function InviteMemberModal() {
 
   const projectId = useSessionStore((s) => s.projectId);
 
-  const { mutation } = useCreateInvite({ receiverId: member?.id });
+  const { mutation } = useCreateInvite();
 
   const handleOpenChange = () => {
     if (!isOpen) {

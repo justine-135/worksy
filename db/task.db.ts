@@ -13,7 +13,7 @@ import {
   UpdateTaskStatusDTO,
 } from "@/types/task.dto";
 
-import { bulkNotify, notify } from "./notification.db";
+import { bulkNotify } from "./notification.db";
 
 export async function createTaskDB(data: CreateTaskDTO) {
   return prisma.$transaction(async (tx) => {
@@ -88,9 +88,12 @@ export async function createTaskDB(data: CreateTaskDTO) {
         },
         creatorId: member?.id || "",
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        createdAt: true,
         assignees: {
-          include: {
+          select: {
             projectMember: {
               select: {
                 userId: true,
@@ -101,12 +104,13 @@ export async function createTaskDB(data: CreateTaskDTO) {
       },
     });
 
-    // If assignees are created, call notify
     if (res.assignees && res.assignees.length > 0) {
-      const notificationPromises = res.assignees.map((assignee) =>
-        notify({
-          senderId: data.userId || "",
-          receiverId: assignee.projectMember.userId,
+      await bulkNotify(
+        {
+          senderId: data.userId,
+          receiverIds: res.assignees.map(
+            (assignee) => assignee.projectMember.userId,
+          ),
           type: NotificationType.ASSIGNED,
           title: "assigned you to",
           data: {
@@ -115,13 +119,9 @@ export async function createTaskDB(data: CreateTaskDTO) {
             name: res.title,
             user: { ...member?.user },
           },
-        }),
+        },
+        tx,
       );
-
-      // Run all notifications concurrently outside the critical transaction path
-      Promise.all(notificationPromises).catch((err) => {
-        console.error("Failed to send some notifications:", err);
-      });
     }
 
     // Optionally link the new task under a parent (chosen in AddTaskModal). A
@@ -146,10 +146,10 @@ export async function createTaskDB(data: CreateTaskDTO) {
     }
 
     // Float this project to the top of the user's "Recents".
-    await touchProjectActivity(
-      { userId: data.userId, projectId: data.projectId },
-      tx,
-    );
+    await touchProjectActivity({
+      userId: data.userId,
+      projectId: data.projectId,
+    });
 
     return res;
   });

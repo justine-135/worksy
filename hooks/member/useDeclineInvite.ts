@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { QUERY_KEYS } from "@/constant/queryKeys";
-import createInvite from "@/lib/invite/createInvite";
+import declineInvite from "@/lib/members/declineInvite";
 
-export default function useCreateInvite() {
+export default function useDeclineInvite() {
   const queryClient = useQueryClient();
 
   const invalidateInvites = async () => {
@@ -13,7 +13,7 @@ export default function useCreateInvite() {
   };
 
   const mutation = useMutation({
-    mutationFn: createInvite,
+    mutationFn: declineInvite,
     onSettled: invalidateInvites,
   });
 

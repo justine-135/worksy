@@ -1,7 +1,7 @@
 import { throwApiError } from "@/lib/api/apiMessage.lib";
 
-export default async function inviteMember({ inviteId }: { inviteId: string }) {
-  const response = await fetch("/api/member/invite", {
+export default async function acceptInvite({ inviteId }: { inviteId: string }) {
+  const response = await fetch("/api/invite/accept", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -8,68 +8,85 @@ import { CreateProjectInviteDTO } from "@/types/projectInvite.dto";
 import { notify } from "./notification.db";
 
 export async function createProjectInvite(data: CreateProjectInviteDTO) {
-  const isMember = await prisma.projectMember.count({
-    where: {
-      userId: data.receiverId,
-      projectId: data.projectId,
-    },
-  });
+  return prisma.$transaction(async (tx) => {
+    const isMember = await tx.projectMember.count({
+      where: {
+        userId: data.receiverId,
+        projectId: data.projectId,
+      },
+    });
 
-  if (isMember > 0) throw new Error("User is already a member");
+    if (isMember > 0) throw new Error("User is already a member.");
 
-  const res = await prisma.projectInvite.create({
-    data: {
-      userSender: {
-        connect: { id: data.senderId },
+    const alreadyInvited = await tx.projectInvite.count({
+      where: {
+        receiverId: data.receiverId,
+        projectId: data.projectId,
+        status: "PENDING",
       },
-      userReceiver: {
-        connect: { id: data.receiverId },
-      },
-      project: {
-        connect: { id: data.projectId },
-      },
-    },
-    select: {
-      id: true,
-      project: {
-        select: {
-          title: true,
+    });
+
+    if (alreadyInvited > 0)
+      throw new Error("Already invited. Please wait for user to respond.");
+
+    const res = await tx.projectInvite.create({
+      data: {
+        userSender: {
+          connect: { id: data.senderId },
+        },
+        userReceiver: {
+          connect: { id: data.receiverId },
+        },
+        project: {
+          connect: { id: data.projectId },
         },
       },
-      userSender: {
-        select: {
-          id: true,
-          image: true,
-          name: true,
-          email: true,
+      select: {
+        id: true,
+        project: {
+          select: {
+            title: true,
+          },
+        },
+        userSender: {
+          select: {
+            id: true,
+            image: true,
+            name: true,
+            email: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  // Sending an invite is an action on the project for the sender.
-  await touchProjectActivity({
-    userId: data.senderId,
-    projectId: data.projectId,
-  });
+    if (res) {
+      await touchProjectActivity({
+        userId: data.senderId,
+        projectId: data.projectId,
+      });
 
-  await notify({
-    senderId: res.userSender?.id,
-    receiverId: data.receiverId,
-    type: NotificationType.INVITE,
-    title: "invited you to join",
-    data: {
-      id: res.id,
-      projectTitle: res.project?.title,
-      user: {
-        image: res.userSender?.image,
-        name: res.userSender?.name,
-        email: res.userSender?.email,
-      },
-    },
-  });
+      await notify(
+        {
+          senderId: res.userSender?.id,
+          receiverId: data.receiverId,
+          type: NotificationType.INVITE,
+          title: "invited you to join",
+          data: {
+            id: res.id,
+            projectTitle: res.project?.title,
+            user: {
+              image: res.userSender?.image,
+              name: res.userSender?.name,
+              email: res.userSender?.email,
+            },
+          },
+        },
+        tx,
+      );
+    }
 
-  return res;
+    return res;
+  });
 }
 
 export async function getProjectInvitesByReceiverId({
@@ -138,11 +155,22 @@ export async function acceptInvite(inviteId: string) {
     });
 
     // Accepting an invite is the receiver's first action on this project.
-    await touchProjectActivity(
-      { userId: invite.receiverId, projectId: invite.projectId },
-      tx,
-    );
+    await touchProjectActivity({
+      userId: invite.receiverId,
+      projectId: invite.projectId,
+    });
 
     return member;
+  });
+}
+
+export async function declineInvite(inviteId: string) {
+  return await prisma.projectInvite.update({
+    where: {
+      id: inviteId,
+    },
+    data: {
+      status: "REJECTED",
+    },
   });
 }

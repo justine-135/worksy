@@ -5,7 +5,7 @@ export default async function createInvite({
   receiverId,
   projectId,
 }: CreateProjectInvitePayload) {
-  const response = await fetch(`/api/project/invite`, {
+  const response = await fetch(`/api/invite`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

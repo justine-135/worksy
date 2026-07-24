@@ -1,11 +1,12 @@
-import { toast } from "@heroui/react";
 import { Surface } from "@heroui/react/surface";
 import { Typography } from "@heroui/react/typography";
 import Image from "next/image";
 import { GoClock } from "react-icons/go";
 import { MdPerson } from "react-icons/md";
 
-import useInviteMember from "@/hooks/member/useInviteMember";
+import useApiMessage from "@/hooks/common/useApiMessage";
+import useAcceptInvite from "@/hooks/member/useAcceptInvite";
+import useDeclineInvite from "@/hooks/member/useDeclineInvite";
 import { useSessionStore } from "@/store/session.store";
 import { ProjectsResponseDTO } from "@/types/project.dto";
 import { ProjectInviteResponseDTO } from "@/types/projectInvite.dto";
@@ -38,9 +39,10 @@ const InviteInformation = ({
   invite: ProjectInviteResponseDTO;
 }) => {
   const userId = useSessionStore((state) => state.userId);
-  const { mutation: inviteMemberMutation } = useInviteMember({
-    receiverId: userId,
-  });
+  const { mutation: inviteMemberMutation } = useAcceptInvite();
+  const { mutation: declineMember } = useDeclineInvite();
+  const { showSuccess } = useApiMessage();
+
   const membersCount = project.members.length || 0;
 
   const handleAcceptInvite = () => {
@@ -50,8 +52,22 @@ const InviteInformation = ({
         inviteId: invite.id,
       },
       {
-        onSuccess: () => {
-          toast("Invite accepted");
+        onSuccess: (result) => {
+          showSuccess(result);
+        },
+      },
+    );
+  };
+
+  const handleDeclineInvite = () => {
+    if (!userId) return;
+    declineMember.mutate(
+      {
+        inviteId: invite.id,
+      },
+      {
+        onSuccess: (result) => {
+          showSuccess(result);
         },
       },
     );
@@ -104,8 +120,16 @@ const InviteInformation = ({
           onClick={handleAcceptInvite}
           isPending={inviteMemberMutation.isPending}
           loadingTitle="Accepting"
+          isDisabled={inviteMemberMutation.isPending || declineMember.isPending}
         />
-        <CustomButton variant="outline" title="Decline" />
+        <CustomButton
+          variant="outline"
+          title="Decline"
+          onClick={handleDeclineInvite}
+          isPending={declineMember.isPending}
+          loadingTitle="Declining"
+          isDisabled={inviteMemberMutation.isPending || declineMember.isPending}
+        />
       </div>
     </Surface>
   );

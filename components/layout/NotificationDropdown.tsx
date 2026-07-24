@@ -68,16 +68,17 @@ const NotificationItem = ({ item }: { item: NotificationDataDTO }) => {
   switch (item.type) {
     case NotificationType.INVITE:
       const { user: userInvite, projectTitle } = item?.data;
+      const inviteHref = `/invites`;
 
       return (
         <Dropdown.Item onClick={handleRead}>
-          <div className="flex items-start">
+          <Link href={inviteHref} className="flex items-start">
             <NotificationDescription
               user={userInvite}
               item={item}
               title={projectTitle}
             />
-          </div>
+          </Link>
         </Dropdown.Item>
       );
 
