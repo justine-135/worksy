@@ -77,7 +77,6 @@ export async function getTaskBoard({
                 select: {
                   user: {
                     select: {
-                      id: true,
                       image: true,
                       name: true,
                     },

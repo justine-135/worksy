@@ -56,9 +56,9 @@ export async function PATCH(
 
   const { id } = await params;
   const body = await req.json();
-  const { projectId, userId, assignees } = body;
+  const { projectId, assignees } = body;
 
-  if (!id || !projectId || !userId || !Array.isArray(assignees)) {
+  if (!id || !projectId || !Array.isArray(assignees)) {
     return apiError("Invalid request. Please check the assignees.", 400);
   }
 
@@ -72,7 +72,12 @@ export async function PATCH(
     return apiError("Forbidden", 403);
   }
 
-  await updateTaskAssigneesDB({ projectId, userId, taskId: id, assignees });
+  await updateTaskAssigneesDB({
+    projectId,
+    userId: session?.user.id,
+    taskId: id,
+    assignees,
+  });
 
   return apiSuccess("Assignees updated.");
 }

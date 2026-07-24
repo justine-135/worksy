@@ -3,7 +3,7 @@ import { NotificationType } from "@/enum/notifications.enum";
 import { prisma } from "@/lib/prisma";
 import { CreateCommentDTO } from "@/types/activityLog.dto";
 
-import { notify } from "./notification.db";
+import { bulkNotify } from "./notification.db";
 
 /**
  * Most recent activity across a whole project, newest first.
@@ -171,27 +171,34 @@ export async function createComment({
   // Float this project to the top of the user's "Recents".
   await touchProjectActivity({ userId, projectId });
 
-  const recipientIds = new Set([
-    res.task.createdBy.userId,
-    ...res.task.assignees.map((assignee) => assignee.projectMember.user.id),
-  ]);
+  // const recipientIds = new Set([
+  //   res.task.createdBy.userId,
+  //   ...res.task.assignees.map((assignee) => assignee.projectMember.user.id),
+  // ]);
 
-  const notificationPromises = [...recipientIds].map((receiverId) =>
-    notify({
-      senderId: userId,
-      receiverId,
-      type: NotificationType.COMMENT,
-      title: "left a comment",
-      data: {
-        projectId,
-        taskId,
-        user: currentMember.user,
-      },
-    }),
+  // Get user id for each assignees
+  const mappedAssignees = res.task.assignees.map(
+    (assignee) => assignee.projectMember.user.id,
   );
 
-  Promise.all(notificationPromises).catch((err) => {
-    console.error("Failed to send some notifications:", err);
+  // To avoid duplicate user id due to included createdby userId
+  const filterCreatedById = mappedAssignees.filter(
+    (id) => res.task.createdBy.userId != id,
+  );
+
+  const newRecipientIds = [res.task.createdBy.userId, ...filterCreatedById];
+
+  // Notify participants of task
+  await bulkNotify({
+    senderId: userId,
+    receiverIds: newRecipientIds,
+    type: NotificationType.COMMENT,
+    title: "left a comment",
+    data: {
+      projectId,
+      taskId,
+      user: currentMember.user,
+    },
   });
 
   return res;

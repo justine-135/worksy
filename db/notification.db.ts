@@ -9,7 +9,24 @@ export async function getNotifications(
   //   { cursor, limit = 20 }: { cursor?: string; limit?: number },
 ) {
   const notifications = await prisma.notification.findMany({
-    where: { userId },
+    where: {
+      OR: [
+        // Condition 1: Notification belongs directly to the user
+        { userId },
+
+        // Condition 2: User is a member of the group/resource tied to this notification
+        {
+          user: {
+            memberships: {
+              some: {
+                userId: userId, // Directly checks the foreign key in the membership table
+              },
+            },
+          },
+        },
+      ],
+    },
+
     orderBy: { createdAt: "desc" },
     // take: limit + 1, // fetch one extra to know if there's a next page
     // ...(cursor && { cursor: { id: cursor }, skip: 1 }),
@@ -66,15 +83,57 @@ export async function notify({
   body,
   data: payload,
 }: CreateNotificationDTO) {
-  console.log(senderId, receiverId);
   if (senderId === receiverId) return null;
-  return prisma.notification.create({
-    data: {
+
+  return prisma.$transaction(async (tx) => {
+    const member = await tx.projectMember.findUnique({
+      where: {
+        id: receiverId,
+      },
+      select: {
+        user: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    return tx.notification.create({
+      data: {
+        userId: member?.user.id || receiverId,
+        type,
+        title,
+        body,
+        data: payload as Prisma.InputJsonValue,
+      },
+    });
+  });
+}
+
+interface CreateBulkNotifyDTO extends Omit<
+  CreateNotificationDTO,
+  "receiverId"
+> {
+  receiverIds: string[];
+}
+
+export async function bulkNotify(
+  { senderId, receiverIds, type, title, data }: CreateBulkNotifyDTO,
+  tx?: Prisma.TransactionClient,
+) {
+  const client = tx || prisma;
+
+  if (!receiverIds || receiverIds.length === 0) return null;
+  const withoutSender = receiverIds.filter((id) => id !== senderId);
+
+  return await client.notification.createMany({
+    data: withoutSender.map((receiverId) => ({
       userId: receiverId,
       type,
       title,
-      body,
-      data: payload as Prisma.InputJsonValue,
-    },
+      // Prisma safely casts JS objects to Json columns natively
+      data: data as unknown as Prisma.InputJsonValue,
+    })),
   });
 }

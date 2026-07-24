@@ -13,7 +13,7 @@ import {
   UpdateTaskStatusDTO,
 } from "@/types/task.dto";
 
-import { notify } from "./notification.db";
+import { bulkNotify, notify } from "./notification.db";
 
 export async function createTaskDB(data: CreateTaskDTO) {
   return prisma.$transaction(async (tx) => {
@@ -305,7 +305,7 @@ export async function updateTaskAssigneesDB({
         members: { some: { userId } },
       },
     },
-    select: { id: true },
+    select: { id: true, title: true },
   });
 
   if (!task) {
@@ -317,6 +317,17 @@ export async function updateTaskAssigneesDB({
       userId_projectId: { userId, projectId },
     },
     select: { id: true },
+  });
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      name: true,
+      image: true,
+      email: true,
+    },
   });
 
   if (!currentMember) {
@@ -335,6 +346,31 @@ export async function updateTaskAssigneesDB({
           taskId,
           projectMemberId,
         })),
+      });
+
+      const members = await tx.projectMember.findMany({
+        where: {
+          id: { in: assignees },
+        },
+        select: {
+          userId: true,
+        },
+      });
+
+      const targetUserIds = members.map((m) => m.userId);
+
+      // Notify users that are assigned
+      await bulkNotify({
+        senderId: userId,
+        receiverIds: targetUserIds,
+        type: NotificationType.ASSIGNED,
+        title: task.title,
+        data: {
+          projectId,
+          taskId,
+          name: task.title,
+          user,
+        },
       });
     }
 
