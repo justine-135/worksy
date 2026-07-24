@@ -140,6 +140,12 @@ export async function updateMemberStatusRole(
         roleId: data.roleId,
         status: data.status,
       },
+      select: {
+        id: true,
+        status: true,
+        updatedAt: true,
+        projectId: true,
+      },
     });
 
     // The actor (whoever made the change) recently acted on this project.
