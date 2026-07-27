@@ -8,7 +8,10 @@ import FieldError from "@/components/common/FieldError";
 import ImageDropZone from "@/components/common/ImageDropZone";
 import SettingsSection from "@/components/settings/SettingsSection";
 import { useProfileForm } from "@/hooks/user/useProfileForm";
-import { formatFileSize, USER_AVATAR_MAX_SIZE_BYTES } from "@/lib/blob/userAvatar";
+import {
+  formatFileSize,
+  USER_AVATAR_MAX_SIZE_BYTES,
+} from "@/lib/blob/userAvatar";
 import { UserProfileDTO } from "@/types/user.dto";
 
 export default function ProfileCard({ profile }: { profile: UserProfileDTO }) {

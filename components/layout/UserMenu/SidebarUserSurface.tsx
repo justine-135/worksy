@@ -1,13 +1,11 @@
 import { Surface } from "@heroui/react/surface";
-import { signOut } from "next-auth/react";
-import { LuLogOut } from "react-icons/lu";
 
-import CustomButton from "@/components/common/custom/CustomButton";
 import { PROJECT_IMAGE_PLACEHOLDER } from "@/components/projects/ProjectCard";
 import { useGetUser } from "@/hooks/user/useGetUser";
 import { useSidebarStore } from "@/store/sidebar.store";
 
-import CustomAvatar from "../common/custom/CustomAvatar";
+import CustomAvatar from "../../common/custom/CustomAvatar";
+import UserMenuDropDown from "./UserMenuDropDown";
 
 export default function SidebarUserSurface() {
   const { data } = useGetUser();
@@ -35,13 +33,8 @@ export default function SidebarUserSurface() {
           </div>
         </>
       )}
-      <CustomButton
-        className="ml-auto"
-        size="sm"
-        onClick={() => signOut()}
-        variant="outline"
-        title={<LuLogOut />}
-      />
+
+      <UserMenuDropDown />
     </Surface>
   );
 }
