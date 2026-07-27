@@ -16,6 +16,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Typography } from "@heroui/react";
 import { Card } from "@heroui/react/card";
 import { ScrollShadow } from "@heroui/react/scroll-shadow";
 import { useQueryClient } from "@tanstack/react-query";
@@ -28,6 +29,7 @@ import useSaveTaskPositionMutation from "@/hooks/taskboard/useSaveTaskPositionMu
 import { useSessionStore } from "@/store/session.store";
 import { TaskResponseDTO } from "@/types/task.dto";
 import { TaskBoardResponseDTO } from "@/types/taskboard.dto";
+import { UserResponseDTO } from "@/types/user.dto";
 
 import CustomAvatar from "../common/custom/CustomAvatar";
 import BoardSkeleton from "./BoardSkeleton";
@@ -42,6 +44,54 @@ const transition = {
   easing: "cubic-bezier(0.2, 1, 0.36, 1)",
 };
 
+const ASSIGNEES_LIMIT = 4;
+
+const AssigneesIcons = ({
+  assignees,
+}: {
+  assignees:
+    | {
+        projectMember: {
+          id: string;
+          user: UserResponseDTO;
+        };
+      }[]
+    | undefined;
+}) => {
+  if (assignees && assignees.length > 0)
+    return (
+      <div className="flex -space-x-1 pt-1">
+        {assignees?.slice(0, ASSIGNEES_LIMIT).map((assignee, idx) => {
+          const imageUrl = assignee.projectMember.user.image;
+          const name = assignee.projectMember.user.name;
+
+          return (
+            <CustomAvatar
+              key={idx}
+              avatarProps={{ className: "size-6 shrink-0" }}
+              avatarImageProps={{ src: imageUrl || "", alt: name }}
+              avatarFallbackProps={{ className: "text-xs" }}
+              fallback={name}
+            />
+          );
+        })}
+        {assignees?.length - ASSIGNEES_LIMIT > 0 && (
+          <CustomAvatar
+            avatarProps={{ className: "size-6 shrink-0" }}
+            avatarFallbackProps={{ className: "text-xs" }}
+            fallback={`+ ${assignees?.length - ASSIGNEES_LIMIT}`}
+          />
+        )}
+      </div>
+    );
+
+  return (
+    <Typography type="body-xs" color="muted">
+      <i> Unassigned</i>
+    </Typography>
+  );
+};
+
 const TaskCardContent = ({
   data,
   dragging = false,
@@ -53,7 +103,7 @@ const TaskCardContent = ({
 }) => {
   const { id, title, ticketNumber, assignees } = data;
 
-  const fullTicketId = `${projectTitle}-${String(ticketNumber).padStart(4, "0")}`;
+  const fullTicketId = `${projectTitle} #${String(ticketNumber)}`;
 
   return (
     <Card
@@ -66,27 +116,14 @@ const TaskCardContent = ({
       ].join(" ")}
     >
       <Card.Header className="min-w-0">
-        <Card.Description>#{fullTicketId}</Card.Description>
+        <div className="flex items-center justify-between">
+          <Card.Description>{fullTicketId}</Card.Description>
+          <AssigneesIcons assignees={assignees} />
+        </div>
         <TaskDetailDrawer id={id} title={title} />
       </Card.Header>
 
-      <Card.Footer className="flex min-w-0 gap-2">
-        <div className="flex -space-x-1">
-          {assignees?.slice(0, 6).map((assignee, idx) => {
-            const imageUrl = assignee.projectMember.user.image;
-            const name = assignee.projectMember.user.name;
-            return (
-              <CustomAvatar
-                key={idx}
-                avatarProps={{ className: "size-6 shrink-0" }}
-                avatarImageProps={{ src: imageUrl || "", alt: name }}
-                avatarFallbackProps={{ className: "text-xs" }}
-                fallback={name}
-              />
-            );
-          })}
-        </div>
-      </Card.Footer>
+      <Card.Footer className="flex min-w-0 gap-2"></Card.Footer>
     </Card>
   );
 };
@@ -235,7 +272,7 @@ const TaskBoardContent = ({
       {...(!dragDisabled ? dragHandleAttributes : {})}
       {...(!dragDisabled ? dragHandleListeners : {})}
       className={[
-        "flex h-full min-h-72 w-75 flex-col rounded-xl border border-default-200/80 p-1 shadow-sm",
+        "flex h-full min-h-72 w-90 flex-col rounded-xl border border-default-200/80 p-1 shadow-sm",
         dragDisabled
           ? "bg-content1/95 cursor-default"
           : "bg-content1/95 cursor-grab active:cursor-grabbing hover:bg-surface-muted active:opacity-70",

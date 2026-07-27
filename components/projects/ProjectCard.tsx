@@ -8,7 +8,7 @@ interface Props {
   id: string;
   title: string;
   memberCount: number;
-  owner: string;
+  owner: { name: string; image?: string };
   imageUrl?: string | null;
 }
 
@@ -47,13 +47,13 @@ export function ProjectCard({
               className: "size-5",
             }}
             avatarImageProps={{
-              src: "https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/red.jpg",
+              src: owner?.image || PROJECT_IMAGE_PLACEHOLDER,
               alt: title,
             }}
             fallback={title || ""}
           />
 
-          <span className="text-xs">By {owner}</span>
+          <span className="text-xs">By {owner?.name}</span>
         </Card.Footer>
       </Card>
     </Link>

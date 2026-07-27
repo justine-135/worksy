@@ -104,25 +104,31 @@ export async function getProjects({
             },
           };
 
-  return prisma.project.findMany({
+  const projects = await prisma.project.findMany({
     where,
     select: {
       id: true,
       title: true,
       description: true,
       imageUrl: true,
-      members: {
-        select: {
-          id: true,
-        },
-      },
       owner: {
         select: {
           name: true,
+          image: true,
+        },
+      },
+      _count: {
+        select: {
+          members: true,
         },
       },
     },
   });
+
+  return projects.map(({ _count, ...rest }) => ({
+    ...rest,
+    count: _count.members,
+  }));
 }
 
 export async function getRecentProjects(userId: string) {

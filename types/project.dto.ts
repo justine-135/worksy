@@ -12,19 +12,15 @@ export interface ProjectsResponseDTO {
   title: string;
   description?: string | null;
   imageUrl?: string | null;
-  members: {
-    id: string;
-  }[];
+  count: number;
   owner: {
     name: string;
+    image: string;
   };
 }
 
 export type TProjectFilter = "all" | "owned" | "shared" | "recent";
 
-// Single-project detail used by the Settings tab (and the Add Task priority
-// default). Includes ownerId so the client can decide whether to show
-// owner-only controls.
 export interface ProjectDetailDTO {
   id: string;
   title: string;

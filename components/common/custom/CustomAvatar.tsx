@@ -7,7 +7,7 @@ import {
 
 interface CustomAvatarProps {
   avatarProps?: AvatarProps;
-  avatarImageProps: AvatarImageProps;
+  avatarImageProps?: AvatarImageProps;
   avatarFallbackProps?: AvatarFallbackProps;
   fallback: string;
 }
@@ -20,7 +20,7 @@ export default function CustomAvatar({
 }: CustomAvatarProps) {
   return (
     <Avatar {...avatarProps}>
-      <Avatar.Image {...avatarImageProps} />
+      {avatarImageProps && <Avatar.Image {...avatarImageProps} />}
       <Avatar.Fallback className="text-xs" {...avatarFallbackProps}>
         {fallback
           .split(" ")

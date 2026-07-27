@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Description,
   Dropdown,
   Form,
   Header,
@@ -14,7 +15,7 @@ import { Modal } from "@heroui/react/modal";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import type { Key } from "react-aria-components";
+import { type Key, TextField } from "react-aria-components";
 import { Controller, useForm } from "react-hook-form";
 import {
   BiDotsVerticalRounded,
@@ -302,19 +303,20 @@ export default function EditTaskBoardModal({
             </Modal.Header>
             <Form onSubmit={handleSubmit(onSubmit)}>
               <Modal.Body className="space-y-4 p-1">
-                <div className="space-y-1">
+                <TextField className="space-y-1">
                   <Label>Name</Label>
                   <Input
                     className="w-full"
                     placeholder="e.g: Backlog"
                     {...register("title")}
                   />
+
                   {errors.title && (
                     <p className="text-danger text-sm">
                       {errors.title.message}
                     </p>
                   )}
-                </div>
+                </TextField>
 
                 <Controller
                   name="status"
@@ -326,6 +328,10 @@ export default function EditTaskBoardModal({
                       onChange={(key) => onChange(key as ETaskStatus)}
                     >
                       <Label>Status</Label>
+                      <Description>
+                        Value will determine the status of each tasks created to
+                        this column, and calculated in dashboard.
+                      </Description>
                       <Select.Trigger className="flex items-center justify-between rounded-lg border p-2 bg-surface">
                         <Select.Value />
                         <Select.Indicator />
@@ -346,6 +352,7 @@ export default function EditTaskBoardModal({
                     </Select>
                   )}
                 />
+
                 {errors.status && (
                   <p className="text-danger text-sm">{errors.status.message}</p>
                 )}

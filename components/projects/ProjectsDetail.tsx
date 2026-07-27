@@ -27,14 +27,14 @@ const ProjectList = ({
         <ProjectSkeleton key={index} />
       ))}
       {data?.map((project) => {
-        const { id, title, members, owner, imageUrl } = project;
+        const { id, title, count, owner, imageUrl } = project;
         return (
           <ProjectCard
             key={id}
             id={id}
             title={title}
-            memberCount={members.length}
-            owner={owner.name}
+            memberCount={count}
+            owner={owner}
             imageUrl={imageUrl}
           />
         );
