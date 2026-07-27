@@ -21,3 +21,9 @@ export const TASK_STATUS_OPTIONS: ETaskStatus[] = [
   ETaskStatus.IN_PROGRESS,
   ETaskStatus.DONE,
 ];
+
+export const TASK_STATUS_CHIP: Record<ETaskStatus, string> = {
+  [ETaskStatus.TODO]: "accent",
+  [ETaskStatus.IN_PROGRESS]: "warning",
+  [ETaskStatus.DONE]: "success",
+};

@@ -785,8 +785,6 @@ export default function TaskDetailDrawer({ id, title }: TaskDetailDrawerProps) {
   return (
     <div>
       <Drawer>
-        {/* No task.view → the title stays visible but its click is disabled, so
-            the drawer can't be opened (isOpen also stays false for deep-links). */}
         <button
           type="button"
           disabled={!canViewTask}

@@ -16,12 +16,19 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Typography } from "@heroui/react";
+import {
+  Chip,
+  ChipVariants,
+  CircleDashedIcon,
+  Typography,
+} from "@heroui/react";
 import { Card } from "@heroui/react/card";
 import { ScrollShadow } from "@heroui/react/scroll-shadow";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState, useSyncExternalStore } from "react";
 
+import { PRIORITY_CHIP, TASK_PRIORITY_LABELS } from "@/enum/taskPriority.enum";
+import { TASK_STATUS_CHIP, TASK_STATUS_LABELS } from "@/enum/taskStatus.enum";
 import { useGetTaskBoard } from "@/hooks/taskboard/useGetTaskBoard";
 import useInvalidateQuery from "@/hooks/taskboard/useInvalidateQuery";
 import useSaveTaskBoardPositionMutation from "@/hooks/taskboard/useSaveTaskBoardPositionMutation";
@@ -30,6 +37,7 @@ import { useSessionStore } from "@/store/session.store";
 import { TaskResponseDTO } from "@/types/task.dto";
 import { TaskBoardResponseDTO } from "@/types/taskboard.dto";
 import { UserResponseDTO } from "@/types/user.dto";
+import { notificationTimeAgo } from "@/utils/timeAgo";
 
 import CustomAvatar from "../common/custom/CustomAvatar";
 import BoardSkeleton from "./BoardSkeleton";
@@ -101,7 +109,8 @@ const TaskCardContent = ({
   dragging?: boolean;
   projectTitle?: string;
 }) => {
-  const { id, title, ticketNumber, assignees } = data;
+  const { id, title, ticketNumber, assignees, status, priority, createdAt } =
+    data;
 
   const fullTicketId = `${projectTitle} #${String(ticketNumber)}`;
 
@@ -123,7 +132,26 @@ const TaskCardContent = ({
         <TaskDetailDrawer id={id} title={title} />
       </Card.Header>
 
-      <Card.Footer className="flex min-w-0 gap-2"></Card.Footer>
+      <Card.Footer className="flex min-w-0 gap-2">
+        {/*Task status label*/}
+        <Chip
+          color={TASK_STATUS_CHIP[status] as ChipVariants["color"]}
+          variant="soft"
+        >
+          <CircleDashedIcon /> {TASK_STATUS_LABELS[status]}
+        </Chip>{" "}
+        {/*Task priority label*/}
+        {priority && (
+          <Chip
+            color={PRIORITY_CHIP[priority] as ChipVariants["color"]}
+            variant="primary"
+          >
+            {TASK_PRIORITY_LABELS[priority]}
+          </Chip>
+        )}{" "}
+        {/*Task created at date label*/}
+        <Chip>{notificationTimeAgo(createdAt)}</Chip>
+      </Card.Footer>
     </Card>
   );
 };

@@ -1,3 +1,4 @@
+import { ETaskPriority } from "@/enum/taskPriority.enum";
 import { ETaskStatus } from "@/enum/taskStatus.enum";
 
 import { ActivityLogResponseDTO } from "./activityLog.dto";
@@ -11,7 +12,7 @@ export interface TaskResponseDTO {
   title: string;
   ticketNumber: number;
   description?: string | null;
-  priority?: string | null;
+  priority: ETaskPriority;
   assignees?: {
     projectMember: {
       id: string;
