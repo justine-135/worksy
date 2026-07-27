@@ -176,9 +176,9 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
-  const { projectId, title } = body;
+  const { projectId, title, status } = body;
 
-  if (!projectId || !title) {
+  if (!projectId || !title || !status) {
     return apiError("Please provide a column title.", 400);
   }
 
@@ -195,7 +195,8 @@ export async function POST(req: Request) {
   await createTaskBoard({
     projectId,
     title,
+    status,
   });
 
-  return apiSuccess("Column created.");
+  return apiSuccess("Column created.", { projectId, title, status });
 }

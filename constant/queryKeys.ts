@@ -23,4 +23,5 @@ export const QUERY_KEYS = {
   MEMBER_ACTIVITY: (projectId?: string | null, memberId?: string | null) =>
     ["activity", "member", projectId, memberId] as const,
   NOTIFICATION: () => ["notification"] as const,
+  DASHBOARD: () => ["dashboard"] as const,
 };

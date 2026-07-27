@@ -8,7 +8,6 @@ import {
   Form,
   ListBox,
   Select,
-  Skeleton,
   Typography,
 } from "@heroui/react";
 import { Modal } from "@heroui/react/modal";
@@ -53,6 +52,8 @@ import { useSessionStore } from "@/store/session.store";
 import { TaskResponseDTO, TaskSearchResultDTO } from "@/types/task.dto";
 import { UserResponseDTO } from "@/types/user.dto";
 import { timeAgo } from "@/utils/timeAgo";
+
+import { TaskDetailDrawerSkeleton } from "./TaskDetailDrawerSkeleton";
 
 // "parent": move THIS task under the picked task (this.parentId = picked.id).
 // "child":  add the picked task as a subtask of THIS task (picked.parentId = this.id).
@@ -200,7 +201,7 @@ const AssigneeDisplay = ({
 
   return (
     <div className="flex -space-x-1">
-      {assignees.slice(0, 6).map((assignee) => (
+      {assignees.map((assignee) => (
         <CustomAvatar
           key={assignee.name}
           avatarProps={{ className: "size-6 shrink-0" }}
@@ -732,48 +733,6 @@ const TaskSidebar = ({
   );
 };
 
-/**
- * Placeholder shown while the task detail query is in flight. Mirrors the real
- * drawer's two-column layout (details/activity on the left, sidebar on the
- * right) so the content doesn't visually jump when data arrives.
- */
-const TaskDetailSkeleton = () => (
-  <div className="flex gap-6">
-    {/* Left: author row + description + activity/comment placeholders */}
-    <div className="min-w-0 flex-1">
-      <div className="flex gap-4">
-        <Skeleton className="size-10 shrink-0 rounded-full" />
-        <div className="flex w-full flex-col gap-2">
-          <Skeleton className="h-4 w-48" />
-          <Skeleton className="mt-1 h-32 w-full rounded-xl" />
-        </div>
-      </div>
-
-      <div className="mt-8 space-y-4">
-        {Array.from({ length: 3 }).map((_, idx) => (
-          <div key={idx} className="flex gap-4">
-            <Skeleton className="size-8 shrink-0 rounded-full" />
-            <div className="flex w-full flex-col gap-2">
-              <Skeleton className="h-3 w-32" />
-              <Skeleton className="h-4 w-3/4" />
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-
-    {/* Right: sidebar sections (assignees, column, status, participants) */}
-    <aside className="w-64 shrink-0 space-y-6 border-l border-default-200 pl-6">
-      {Array.from({ length: 4 }).map((_, idx) => (
-        <div key={idx} className="space-y-2">
-          <Skeleton className="h-3 w-20" />
-          <Skeleton className="h-9 w-full rounded-lg" />
-        </div>
-      ))}
-    </aside>
-  </div>
-);
-
 interface TaskDetailDrawerProps {
   id: string;
   title: string;
@@ -855,7 +814,7 @@ export default function TaskDetailDrawer({ id, title }: TaskDetailDrawerProps) {
                 onPointerDown={(e) => e.stopPropagation()}
               >
                 {isLoading || !data ? (
-                  <TaskDetailSkeleton />
+                  <TaskDetailDrawerSkeleton />
                 ) : (
                   <div className="flex gap-6">
                     {/* Left: task details, activity, comments */}

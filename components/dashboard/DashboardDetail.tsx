@@ -1,8 +1,8 @@
 "use client";
 
 import { ETaskStatus } from "@/enum/taskStatus.enum";
+import { useGetDashboardData } from "@/hooks/dashboard/useGetDashboardData";
 import { useGetProjectMembers } from "@/hooks/member/useGetProjectMembers";
-import { useGetTaskBoard } from "@/hooks/taskboard/useGetTaskBoard";
 import { useSessionStore } from "@/store/session.store";
 
 import DashboardActivity from "./DashboardActivity";
@@ -14,27 +14,26 @@ import OverallProgress from "./Sections/OverallProgress";
 import StatCard from "./Sections/StatCard";
 
 export default function DashboardDetail() {
-  const userId = useSessionStore((s) => s.userId);
   const projectId = useSessionStore((s) => s.projectId);
 
-  const { data: boards, isLoading: isLoadingBoards } = useGetTaskBoard({
-    projectId: projectId ?? "",
-  });
+  const { data: dashboardData, isLoading: isLoadingDashboard } =
+    useGetDashboardData({
+      projectId: projectId ?? "",
+    });
+
   const { data: members, isLoading: isLoadingMembers } = useGetProjectMembers({
     projectId,
     skip: 0,
     take: 100,
   });
 
-  if (isLoadingBoards || isLoadingMembers) return <DashboardSkeleton />;
+  if (isLoadingDashboard || isLoadingMembers) return <DashboardSkeleton />;
 
-  const allBoards = boards ?? [];
+  const allBoards = dashboardData ?? [];
   const allTasks = allBoards.flatMap((board) =>
     board.tasks.map((task) => ({ ...task, boardTitle: board.title })),
   );
 
-  // Progress is driven by each task's `status` field (independent of which
-  // board column it sits in), not by board position.
   const total = allTasks.length;
   const doneCount = allTasks.filter(
     (task) => task.status === ETaskStatus.DONE,
@@ -47,9 +46,7 @@ export default function DashboardDetail() {
   ).length;
 
   const assignedTasks: AssignedTask[] = allTasks
-    .filter((task) =>
-      task.assignees?.some((a) => a.projectMember.user.id === userId),
-    )
+    .filter((task) => task.assignees.length > 0)
     .map((task) => ({
       id: task.id,
       ticketNumber: task.ticketNumber,

@@ -34,6 +34,7 @@ export interface TaskBoardPositionMutationDTO extends Omit<
 export interface CreateTaskBoardDTO {
   title: string;
   projectId: string;
+  status: ETaskStatus;
 }
 
 export interface UpdateTaskBoardDTO {

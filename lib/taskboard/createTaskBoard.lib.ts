@@ -4,6 +4,7 @@ import { CreateTaskBoardDTO } from "@/types/taskboard.dto";
 export default async function createTaskBoard({
   title,
   projectId,
+  status,
 }: CreateTaskBoardDTO) {
   const response = await fetch("/api/taskboard", {
     method: "POST",
@@ -13,10 +14,12 @@ export default async function createTaskBoard({
     body: JSON.stringify({
       title,
       projectId,
+      status,
     }),
   });
 
-  if (!response.ok) await throwApiError(response, "Failed to create task board");
+  if (!response.ok)
+    await throwApiError(response, "Failed to create task board");
 
   return response.json();
 }

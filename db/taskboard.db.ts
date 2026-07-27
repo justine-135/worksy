@@ -216,3 +216,57 @@ export async function deleteAllTasksInBoardDB({
     await touchProjectActivity({ userId, projectId }, tx);
   });
 }
+
+export async function getDashboardData({
+  userId,
+  projectId,
+}: UserProjectParamsDTO) {
+  const data = await prisma.taskBoard.findMany({
+    where: {
+      project: {
+        id: projectId,
+        members: {
+          some: {
+            userId,
+          },
+        },
+      },
+    },
+    orderBy: {
+      order: "asc",
+    },
+    select: {
+      id: true,
+      title: true,
+      status: true,
+      tasks: {
+        select: {
+          id: true,
+          status: true,
+          title: true,
+          ticketNumber: true,
+          assignees: {
+            where: {
+              projectMember: {
+                userId,
+              },
+            },
+            select: {
+              projectMember: {
+                select: {
+                  user: {
+                    select: {
+                      name: true,
+                      image: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+  return data;
+}

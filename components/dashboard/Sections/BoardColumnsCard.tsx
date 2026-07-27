@@ -1,13 +1,13 @@
 import { MdViewColumn } from "react-icons/md";
 
-import { TaskBoardResponseDTO } from "@/types/taskboard.dto";
+import { DashboardDataResponseDTO } from "@/types/dashboard.dto";
 
 import SectionCard from "./SectionCard";
 
 export default function BoardColumnsCard({
   boards,
 }: {
-  boards: TaskBoardResponseDTO[];
+  boards: DashboardDataResponseDTO[];
 }) {
   const maxTasks = Math.max(1, ...boards.map((b) => b.tasks.length));
 

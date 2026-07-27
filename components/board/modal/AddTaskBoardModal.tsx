@@ -1,16 +1,30 @@
 "use client";
 
-import { Form, Input, toast } from "@heroui/react";
+import {
+  Description,
+  Form,
+  Input,
+  Label,
+  ListBox,
+  Select,
+  TextField,
+  toast,
+} from "@heroui/react";
 import { Button } from "@heroui/react/button";
 import { Modal } from "@heroui/react/modal";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { BiPlus } from "react-icons/bi";
 
 import CustomButton from "@/components/common/custom/CustomButton";
 import PermissionGuard from "@/components/common/PermissionGuard";
 import { Permissions } from "@/enum/permissions.enum";
+import {
+  ETaskStatus,
+  TASK_STATUS_LABELS,
+  TASK_STATUS_OPTIONS,
+} from "@/enum/taskStatus.enum";
 import useCreateTaskBoardMutation from "@/hooks/taskboard/useCreateTaskBoardMutation";
 import {
   CreateTaskBoardInput,
@@ -22,7 +36,7 @@ const AddNewTaskBoard = ({ onClick }: { onClick: () => void }) => {
 
   return (
     <Button
-      className="flex h-full w-65 flex-col rounded-xl border border-default-200/80 p-1 shadow-none opacity-50 hover:opacity-100"
+      className="flex h-full w-90 flex-col rounded-xl border border-default-200/80 p-1 shadow-none opacity-50 hover:opacity-100"
       variant="ghost"
       onMouseOver={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -50,9 +64,14 @@ export default function AddTaskBoardModal({
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors },
   } = useForm<CreateTaskBoardInput>({
     resolver: zodResolver(createTaskBoardSchema),
+    values: {
+      title: "",
+      status: ETaskStatus.TODO,
+    },
   });
 
   const onSubmit = (data: CreateTaskBoardInput) => {
@@ -90,12 +109,53 @@ export default function AddTaskBoardModal({
             </Modal.Header>
             <Form onSubmit={handleSubmit(onSubmit)}>
               <Modal.Body className="space-y-4 p-1">
-                <Input
-                  className="w-full"
-                  {...register("title")}
-                  placeholder="e.g: Backlog"
+                <TextField>
+                  <Label>Title</Label>
+                  <Input
+                    className="w-full"
+                    {...register("title")}
+                    placeholder="e.g: Backlog"
+                  />
+                  {errors.title && <p>{errors.title.message}</p>}
+                </TextField>
+                <Controller
+                  name="status"
+                  control={control}
+                  render={({ field: { value, onChange } }) => (
+                    <Select
+                      className="flex flex-col gap-1"
+                      value={value}
+                      onChange={(key) => onChange(key as ETaskStatus)}
+                    >
+                      <Label>Status</Label>
+                      <Description>
+                        Value will determine the status of each tasks created to
+                        this column, and calculated in dashboard.
+                      </Description>
+                      <Select.Trigger className="flex items-center justify-between rounded-lg border p-2 bg-surface">
+                        <Select.Value />
+                        <Select.Indicator />
+                      </Select.Trigger>
+                      <Select.Popover>
+                        <ListBox>
+                          {TASK_STATUS_OPTIONS.map((status) => (
+                            <ListBox.Item
+                              key={status}
+                              id={status}
+                              textValue={TASK_STATUS_LABELS[status]}
+                            >
+                              {TASK_STATUS_LABELS[status]}
+                            </ListBox.Item>
+                          ))}
+                        </ListBox>
+                      </Select.Popover>
+                    </Select>
+                  )}
                 />
-                {errors.title && <p>{errors.title.message}</p>}
+
+                {errors.status && (
+                  <p className="text-danger text-sm">{errors.status.message}</p>
+                )}
               </Modal.Body>
               <Modal.Footer>
                 <CustomButton

@@ -141,7 +141,6 @@ export default function EditMember(props: EditMemberProps) {
   });
 
   const onSubmit = (data: EditMemberInput) => {
-    console.log(data);
     mutation.mutate(
       {
         ...data,
