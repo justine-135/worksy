@@ -14,13 +14,13 @@ const SETTINGS_TABS: {
   segment: string;
   permission?: Permissions;
 }[] = [
-  { name: "Appearance", segment: "appearance" },
-  { name: "Profile", segment: "profile" },
   {
     name: "Project",
     segment: "project",
     permission: Permissions.SettingsProjectView,
   },
+  { name: "Appearance", segment: "appearance" },
+  { name: "Profile", segment: "profile" },
 ];
 
 export default function SettingsNav() {

@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { useApiMessage } from "@/hooks/common/useApiMessage";
@@ -14,16 +14,7 @@ import {
 import { useSessionStore } from "@/store/session.store";
 import { UserProfileDTO } from "@/types/user.dto";
 
-/**
- * Owns everything the Profile settings form *does* (as opposed to how it
- * looks): the react-hook-form instance, the pending avatar file, and the
- * "upload the blob, then save the profile" orchestration.
- *
- * Keeping this out of `ProfileCard` follows SRP — the card renders inputs and
- * nothing else — and DIP: the card depends on this hook's small surface rather
- * than reaching directly for the Vercel Blob `uploadAvatar` lib.
- */
-export function useProfileForm(profile: UserProfileDTO) {
+export function useProfileForm(profile?: UserProfileDTO) {
   const userId = useSessionStore((s) => s.userId);
   const { mutateAsync, isPending } = useUpdateUserProfile();
   const { showSuccess, showError } = useApiMessage();
@@ -35,16 +26,24 @@ export function useProfileForm(profile: UserProfileDTO) {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<UpdateProfileInput>({
     resolver: zodResolver(updateProfileSchema),
-    values: { name: profile.name ?? "", image: profile.image },
+    values: { name: profile?.name ?? "", image: profile?.image },
   });
+
+  useEffect(() => {
+    if (profile?.name) {
+      setValue("name", profile.name);
+      console.log(profile.name);
+    }
+  }, [profile, setValue]);
 
   const submit = handleSubmit(async (data) => {
     if (!userId) return;
 
     try {
-      let imageUrl = profile.image ?? null;
+      let imageUrl = profile?.image ?? null;
 
       // Upload the newly-picked avatar first so we persist its blob URL, not
       // the stale one, alongside the rest of the profile in a single save.
@@ -53,7 +52,7 @@ export function useProfileForm(profile: UserProfileDTO) {
 
         // Remove the previous blob so replacing an avatar doesn't orphan it in
         // storage. Best-effort: a failed cleanup must not block the new upload.
-        if (profile.image) {
+        if (profile?.image) {
           try {
             await fetch("/api/user/avatar", {
               method: "DELETE",

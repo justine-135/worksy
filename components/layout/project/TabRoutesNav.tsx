@@ -49,8 +49,7 @@ export const ROUTES = [
     icon: FiSettings,
     name: "Settings",
     path: PATHS.settings,
-    // No dedicated permission yet — always visible to project members.
-    permission: undefined,
+    permission: Permissions.SettingsProjectView,
   },
 ];
 

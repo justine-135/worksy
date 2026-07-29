@@ -7,5 +7,5 @@ export default async function SettingsIndexPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  redirect(`/projects/${id}/settings/appearance`);
+  redirect(`/projects/${id}/settings/project`);
 }

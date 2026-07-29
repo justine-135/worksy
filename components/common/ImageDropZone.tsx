@@ -1,7 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+  CSSProperties,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { FiImage, FiUploadCloud } from "react-icons/fi";
 
 interface ImageDropZoneProps {
@@ -12,6 +19,7 @@ interface ImageDropZoneProps {
   label?: string;
   description?: string;
   className?: string;
+  buttonStyle?: CSSProperties;
 }
 
 export default function ImageDropZone({
@@ -19,9 +27,10 @@ export default function ImageDropZone({
   value = null,
   onChange,
   previewUrl,
-  label = "Project icon",
+  label,
   description = "Drop an image here or browse from your device.",
   className,
+  buttonStyle,
 }: ImageDropZoneProps) {
   const fallbackId = useId();
   const inputId = id ?? fallbackId;
@@ -75,13 +84,18 @@ export default function ImageDropZone({
       />
 
       <div className="space-y-3">
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-foreground">{label}</p>
-        </div>
+        {label && (
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-foreground text-center">
+              {label}
+            </p>
+          </div>
+        )}
 
         <button
           type="button"
           onClick={openPicker}
+          style={buttonStyle}
           onDragEnter={(event) => {
             event.preventDefault();
             setIsDragging(true);
@@ -118,7 +132,7 @@ export default function ImageDropZone({
             <>
               {/* Plain img keeps object URL previews simple for local files. */}
               <Image
-                alt="Selected project icon preview"
+                alt="Selected avatar icon preview"
                 className="h-full w-full object-cover"
                 src={activePreview}
                 fill
@@ -155,9 +169,7 @@ export default function ImageDropZone({
                 <p className="text-sm font-semibold text-foreground">
                   {isDragging ? "Drop file here" : "Drag and drop your image"}
                 </p>
-                <p className="text-xs leading-5 text-muted">
-                  {description}
-                </p>
+                <p className="text-xs leading-5 text-muted">{description}</p>
               </div>
 
               <span className="rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground shadow-sm">

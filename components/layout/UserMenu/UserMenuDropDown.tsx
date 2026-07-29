@@ -1,11 +1,15 @@
 import { Description, Dropdown, Header, Label, Separator } from "@heroui/react";
 import { signOut } from "next-auth/react";
+import { useState } from "react";
 import { IconType } from "react-icons";
 import { BiDotsVertical } from "react-icons/bi";
 import { BsGear, BsPersonCircle } from "react-icons/bs";
 import { LuLogOut } from "react-icons/lu";
 
 import CustomButton from "@/components/common/custom/CustomButton";
+
+import GeneralSettingModal from "./generalSettings/GeneralSettingModal";
+import ProfileModal from "./profileSettings/ProfileModal";
 
 interface MenuItem {
   id: string;
@@ -41,66 +45,92 @@ const UserActionItem: MenuItem[] = [
 ];
 
 export default function UserMenuDropDown() {
+  const [activeModalId, setActiveModalId] = useState<string | undefined>(
+    undefined,
+  );
+
+  const handleAction = (id: string) => {
+    if (!id) return;
+    setActiveModalId(id);
+  };
+
+  const closeModal = () => setActiveModalId(undefined);
+
   return (
-    <Dropdown className="ml-auto">
-      <CustomButton
-        title={<BiDotsVertical />}
-        size="sm"
-        onClick={() => signOut()}
-        variant="secondary"
-        className="ml-auto"
+    <>
+      <Dropdown className="ml-auto">
+        <CustomButton
+          title={<BiDotsVertical />}
+          size="sm"
+          onClick={() => signOut()}
+          variant="secondary"
+          className="ml-auto"
+        />
+        <Dropdown.Popover>
+          <Dropdown.Menu>
+            <Dropdown.Section>
+              <Header>Actions</Header>
+              {ActionMenuItem.map((item, idx) => {
+                const Icon = item.icon;
+                return (
+                  <Dropdown.Item
+                    id={item.id}
+                    textValue={item.label}
+                    key={idx}
+                    onClick={() => handleAction(item.id)}
+                  >
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2 pt-px">
+                        <Icon />
+                        <Label>{item.label}</Label>
+                      </div>
+                      {item.description && (
+                        <Description className="ml-5.5">
+                          {item?.description}
+                        </Description>
+                      )}
+                    </div>
+                  </Dropdown.Item>
+                );
+              })}
+            </Dropdown.Section>
+            <Separator />
+            <Dropdown.Section>
+              {UserActionItem.map((item, idx) => {
+                const Icon = item.icon;
+                return (
+                  <Dropdown.Item
+                    id={item.id}
+                    textValue={item.label}
+                    key={idx}
+                    onAction={item.action}
+                  >
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2 pt-px">
+                        <Icon />
+                        <Label>{item.label}</Label>
+                      </div>
+                      {item.description && (
+                        <Description className="ml-5.5">
+                          {item?.description}
+                        </Description>
+                      )}
+                    </div>
+                  </Dropdown.Item>
+                );
+              })}
+            </Dropdown.Section>
+          </Dropdown.Menu>
+        </Dropdown.Popover>
+      </Dropdown>
+      <ProfileModal
+        isOpen={activeModalId === "update-profile"}
+        onOpenChange={closeModal}
       />
-      <Dropdown.Popover>
-        <Dropdown.Menu>
-          <Dropdown.Section>
-            <Header>Actions</Header>
-            {ActionMenuItem.map((item, idx) => {
-              const Icon = item.icon;
-              return (
-                <Dropdown.Item id={item.id} textValue={item.label} key={idx}>
-                  <div className="flex flex-col">
-                    <div className="flex items-center gap-2 pt-px">
-                      <Icon />
-                      <Label>{item.label}</Label>
-                    </div>
-                    {item.description && (
-                      <Description className="ml-5.5">
-                        {item?.description}
-                      </Description>
-                    )}
-                  </div>
-                </Dropdown.Item>
-              );
-            })}
-          </Dropdown.Section>
-          <Separator />
-          <Dropdown.Section>
-            {UserActionItem.map((item, idx) => {
-              const Icon = item.icon;
-              return (
-                <Dropdown.Item
-                  id={item.id}
-                  textValue={item.label}
-                  key={idx}
-                  onAction={item.action}
-                >
-                  <div className="flex flex-col">
-                    <div className="flex items-center gap-2 pt-px">
-                      <Icon />
-                      <Label>{item.label}</Label>
-                    </div>
-                    {item.description && (
-                      <Description className="ml-5.5">
-                        {item?.description}
-                      </Description>
-                    )}
-                  </div>
-                </Dropdown.Item>
-              );
-            })}
-          </Dropdown.Section>
-        </Dropdown.Menu>
-      </Dropdown.Popover>
-    </Dropdown>
+      <GeneralSettingModal
+        isOpen={activeModalId === "update-settings"}
+        onOpenChange={closeModal}
+      />
+    </>
   );
 }
