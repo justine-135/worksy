@@ -7,7 +7,7 @@ import { authConfig } from "@/lib/auth/auth";
 
 export async function PUT(
   _: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await getServerSession(authConfig);
 
@@ -15,9 +15,11 @@ export async function PUT(
     return apiError("You must be signed in to continue.", 401);
   }
 
+  const id = (await params).id;
+
   const data = await markAsReadNotification({
     userId: session.user?.id,
-    id: params.id,
+    id,
   });
   return apiSuccess("Marked as read", data);
 }

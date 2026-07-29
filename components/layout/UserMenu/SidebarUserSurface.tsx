@@ -1,3 +1,5 @@
+"use client";
+
 import { Surface } from "@heroui/react/surface";
 
 import { PROJECT_IMAGE_PLACEHOLDER } from "@/components/projects/ProjectCard";

@@ -43,7 +43,7 @@ const InviteInformation = ({
   const { mutation: declineMember } = useDeclineInvite();
   const { showSuccess } = useApiMessage();
 
-  const membersCount = project.members.length || 0;
+  const membersCount = project.count || 0;
 
   const handleAcceptInvite = () => {
     if (!userId) return;
