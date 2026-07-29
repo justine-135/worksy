@@ -1,6 +1,6 @@
 import { Modal } from "@heroui/react/modal";
 
-import ProfileCard from "@/components/layout/userMenu/profileSettings/ProfileCard";
+import ProfileCard from "@/components/layout/user-menu/profileSettings/ProfileCard";
 
 export default function ProfileModal({
   isOpen,

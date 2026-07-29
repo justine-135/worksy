@@ -12,7 +12,7 @@ import { useSidebarStore } from "@/store/sidebar.store";
 
 import { PATHS } from "./project/TabRoutesNav";
 import ProjectRoutes from "./ProjectRoutes";
-import SidebarUserSurface from "./userMenu/SidebarUserSurface";
+import SidebarUserSurface from "./user-menu/SidebarUserSurface";
 
 const SkeletonItem = () => <Skeleton className="h-9 w-53.5 rounded-full" />;
 
