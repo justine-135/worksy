@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { CgBoard } from "react-icons/cg";
 import { FiHome, FiSettings } from "react-icons/fi";
 import { GoPeople } from "react-icons/go";
 import { MdOutlinePersonOutline } from "react-icons/md";
 
+import { CustomLink } from "@/components/common/custom/CustomLink";
 import { Permissions } from "@/enum/permissions.enum";
 import { usePermission } from "@/hooks/permission/usePermission";
 
@@ -83,12 +83,12 @@ export default function TabRoutesNav() {
               <div
                 className={`flex flex-col items-start w-full pb-1 pt-4 ${isActive ? "border-b-2 border-primary opacity-100" : "opacity-40"}`}
               >
-                <Link href={href} className="w-full ">
+                <CustomLink href={href} className="w-full ">
                   <div className="flex items-center space-x-1">
                     <Icon size={16} className="-translate-y-px" />
                     <span className="text-sm font-medium">{route.name}</span>
                   </div>
-                </Link>
+                </CustomLink>
               </div>
             </div>
           );

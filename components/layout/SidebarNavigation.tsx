@@ -2,7 +2,6 @@
 
 import { Button } from "@heroui/react/button";
 import { Skeleton } from "@heroui/react/skeleton";
-import Link from "next/link";
 import { useParams } from "next/navigation";
 import { BsBoxFill } from "react-icons/bs";
 import { TbColumns2 } from "react-icons/tb";
@@ -10,6 +9,7 @@ import { TbColumns2 } from "react-icons/tb";
 import { useGetProjects } from "@/hooks/project/useGetProjects";
 import { useSidebarStore } from "@/store/sidebar.store";
 
+import { CustomLink } from "../common/custom/CustomLink";
 import { PATHS } from "./project/TabRoutesNav";
 import ProjectRoutes from "./ProjectRoutes";
 import SidebarUserSurface from "./user-menu/SidebarUserSurface";
@@ -77,14 +77,14 @@ export default function SidebarNavigation() {
                     className={`flex flex-col items-start w-53.5 p-0 ${isActive ? "bg-surface shadow-xl/10" : ""}`}
                     variant="ghost"
                   >
-                    <Link
+                    <CustomLink
                       href={`${PATHS.projects}/${route.id}/${params.section || "dashboard"}`}
                       className="w-full pl-3 pr-23.5"
                     >
                       <div className="flex items-center space-x-2">
                         <span>{route.title}</span>
                       </div>
-                    </Link>
+                    </CustomLink>
                   </Button>
                 </div>
               );

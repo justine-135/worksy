@@ -3,6 +3,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
+import { ProgressProvider } from "@/components/provider/ProgressProvider";
 import { NO_FLASH_THEME_SCRIPT } from "@/lib/theme/theme";
 
 const geistSans = Geist({
@@ -35,7 +36,9 @@ export default async function RootLayout({
         {/* Applies the saved theme before paint to avoid a light-mode flash. */}
         <script dangerouslySetInnerHTML={{ __html: NO_FLASH_THEME_SCRIPT }} />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <ProgressProvider>{children} </ProgressProvider>
+      </body>
     </html>
   );
 }
