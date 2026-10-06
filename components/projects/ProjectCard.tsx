@@ -1,8 +1,8 @@
 import { Card } from "@heroui/react";
 import Image from "next/image";
-import Link from "next/link";
 
 import CustomAvatar from "../common/custom/CustomAvatar";
+import { CustomLink } from "../common/custom/CustomLink";
 
 interface Props {
   id: string;
@@ -23,7 +23,7 @@ export function ProjectCard({
   imageUrl,
 }: Props) {
   return (
-    <Link href={`/projects/${id}/dashboard`}>
+    <CustomLink href={`/projects/${id}/dashboard`}>
       <Card className="h-auto w-51.25 gap-2 hover:cursor-pointer hover:opacity-80">
         <div className="relative aspect-square w-14 overflow-hidden rounded-2xl">
           <Image
@@ -56,6 +56,6 @@ export function ProjectCard({
           <span className="text-xs">By {owner?.name}</span>
         </Card.Footer>
       </Card>
-    </Link>
+    </CustomLink>
   );
 }
