@@ -20,6 +20,8 @@ export const authConfig = {
   ],
   session: {
     strategy: "database",
+    maxAge: 2 * 60 * 60, // 2 hours
+    updateAge: 60, // refresh DB session at most once/min on API activity
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {

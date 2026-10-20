@@ -5,6 +5,7 @@ import { Inter } from "next/font/google";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 
+import IdleSessionGuard from "@/components/common/IdleSessionGuard";
 import LinesBg from "@/components/common/LinesBg";
 import SessionHydrator from "@/components/common/SessionHydrator";
 import SidebarSpacer from "@/components/layout/SidebarSpacer";
@@ -44,6 +45,7 @@ export default async function ProjectLayout({
           </main>
         </div>
         <SessionHydrator userId={session?.user.id} />
+        <IdleSessionGuard />
       </ToastLayout>
     </div>
   );
