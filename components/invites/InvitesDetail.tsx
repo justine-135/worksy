@@ -1,6 +1,7 @@
 "use client";
 
 import { Skeleton, Surface, Typography } from "@heroui/react";
+import { useState } from "react";
 
 import { useGetInvites } from "@/hooks/invite/useGetInvites";
 import { ProjectInviteResponseDTO } from "@/types/projectInvite.dto";
@@ -41,9 +42,11 @@ const SkeletonInviteInformation = () => {
 const InvitesListWrapper = ({
   data,
   isLoading,
+  emptyMessage = "No invites yet",
 }: {
   data: ProjectInviteResponseDTO[] | undefined;
   isLoading: boolean;
+  emptyMessage?: string;
 }) => {
   return (
     <>
@@ -51,13 +54,25 @@ const InvitesListWrapper = ({
         <SkeletonInviteInformation key={index} />
       ))}
       <InvitesList data={data} />
-      {!data?.length && !isLoading && <CustomEmpty message="No invites yet" />}
+      {!data?.length && !isLoading && <CustomEmpty message={emptyMessage} />}
     </>
   );
 };
 
 export default function InviteDetail() {
   const { data, isLoading } = useGetInvites();
+  const [search, setSearch] = useState("");
+
+  const filtered = search
+    ? data?.filter((invite) => {
+        const q = search.toLowerCase();
+        return (
+          invite.project.title.toLowerCase().includes(q) ||
+          invite.userSender.name?.toLowerCase().includes(q) ||
+          invite.userSender.email.toLowerCase().includes(q)
+        );
+      })
+    : data;
 
   return (
     <div className="InvitesDetail flex flex-col space-y-6">
@@ -71,9 +86,15 @@ export default function InviteDetail() {
               >
                 Invites
               </Typography.Heading>
-              <CustomSearchField />
+              <CustomSearchField value={search} onChange={setSearch} />
             </div>
-            <InvitesListWrapper data={data} isLoading={isLoading} />
+            <InvitesListWrapper
+              data={filtered}
+              isLoading={isLoading}
+              emptyMessage={
+                search ? "No invites match your search" : "No invites yet"
+              }
+            />
           </div>
         </div>
       </section>

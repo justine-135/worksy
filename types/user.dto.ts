@@ -13,3 +13,7 @@ export interface UserProfileDTO {
   email: string | null;
   image: string | null;
 }
+
+export interface NotificationSettingsDTO {
+  notificationsEnabled: boolean;
+}

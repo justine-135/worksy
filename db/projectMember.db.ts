@@ -28,14 +28,30 @@ export async function getProjectMembers({
   projectId,
   skip,
   take,
+  search,
 }: {
   projectId: string;
   skip: number;
   take: number;
+  search?: string;
 }) {
+  const where = {
+    projectId,
+    ...(search
+      ? {
+          user: {
+            OR: [
+              { name: { contains: search, mode: "insensitive" as const } },
+              { email: { contains: search, mode: "insensitive" as const } },
+            ],
+          },
+        }
+      : {}),
+  };
+
   return prisma.$transaction(async (tx) => {
     const members = await tx.projectMember.findMany({
-      where: { projectId },
+      where,
       take,
       skip,
       select: {
@@ -61,7 +77,7 @@ export async function getProjectMembers({
       ],
     });
 
-    const count = await tx.projectMember.count({ where: { projectId } });
+    const count = await tx.projectMember.count({ where });
 
     return { data: members, count };
   });

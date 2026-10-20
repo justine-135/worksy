@@ -6,7 +6,8 @@ export const QUERY_KEYS = {
     page?: number,
     ...rest: string[]
   ) => ["project", "members", projectId, page, ...rest] as const,
-  ROLES: (projectId?: string | null) => ["roles", projectId] as const,
+  ROLES: (projectId?: string | null, search?: string) =>
+    ["roles", projectId, search] as const,
   TASK_BOARDS: (projectId?: string | null) => ["boards", projectId] as const,
   TASK: (id?: string) => ["task", id] as const,
   TASK_SEARCH: (projectId?: string | null, query?: string) =>
@@ -23,5 +24,7 @@ export const QUERY_KEYS = {
   MEMBER_ACTIVITY: (projectId?: string | null, memberId?: string | null) =>
     ["activity", "member", projectId, memberId] as const,
   NOTIFICATION: () => ["notification"] as const,
+  USER_NOTIFICATION_SETTINGS: (userId?: string | null) =>
+    ["user", "notification-settings", userId] as const,
   DASHBOARD: () => ["dashboard"] as const,
 };

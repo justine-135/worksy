@@ -16,12 +16,13 @@ export async function GET(req: Request) {
   const projectId = searchParams.get("project_id");
   const skip = Number(searchParams.get("skip"));
   const take = Number(searchParams.get("take"));
+  const search = searchParams.get("search") ?? undefined;
 
   if (!projectId) {
     return apiError("Missing project id.", 400);
   }
 
-  const data = await getProjectMembers({ projectId, skip, take });
+  const data = await getProjectMembers({ projectId, skip, take, search });
 
   return Response.json(data);
 }

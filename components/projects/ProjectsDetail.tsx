@@ -45,10 +45,15 @@ const ProjectList = ({
 
 export default function ProjectsDetail() {
   const [filter, setFilter] = useState<TProjectFilter>("all");
+  const [search, setSearch] = useState("");
 
   const { data, isLoading } = useGetProjects({
     filter,
   });
+
+  const filtered = search
+    ? data?.filter((p) => p.title.toLowerCase().includes(search.toLowerCase()))
+    : data;
 
   return (
     <div className="ProjectDetail flex flex-col space-y-6">
@@ -62,13 +67,13 @@ export default function ProjectsDetail() {
               >
                 Projects
               </Typography.Heading>
-              <CustomSearchField />
+              <CustomSearchField value={search} onChange={setSearch} />
             </div>
             <div className="my-7">
               <ProjectFilter filter={filter} setFilter={setFilter} />
             </div>
             <div className="flex flex-wrap mr-auto gap-4 max-w-230">
-              <ProjectList data={data} isLoading={isLoading} />
+              <ProjectList data={filtered} isLoading={isLoading} />
               {!isLoading && filter !== "shared" && <AddProjectModal />}
             </div>
           </div>

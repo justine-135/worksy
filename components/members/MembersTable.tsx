@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { useGetProjectMembers } from "@/hooks/member/useGetProjectMembers";
 import { useSessionStore } from "@/store/session.store";
 import { ProjectMemberTableDTO } from "@/types/projectMember.dto";
@@ -8,13 +10,18 @@ import { CustomTable } from "../common/custom/table/CustomTable";
 import usePagination from "../common/custom/table/usePagination";
 import memberTableColumns from "./memberTableColumns";
 
-export function MembersTable() {
+export function MembersTable({ search }: { search?: string }) {
   const projectId = useSessionStore((s) => s.projectId);
   const { page, setPage } = usePagination();
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, setPage]);
 
   const { data, isLoading } = useGetProjectMembers({
     projectId,
     page,
+    search,
   });
   const { columns } = memberTableColumns(page);
 

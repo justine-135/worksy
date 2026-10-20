@@ -63,6 +63,27 @@ export async function getUserProfile({ userId }: { userId: string }) {
   });
 }
 
+export async function getNotificationSettings({ userId }: { userId: string }) {
+  return prisma.user.findUnique({
+    where: { id: userId },
+    select: { notificationsEnabled: true },
+  });
+}
+
+export async function updateNotificationSettings({
+  userId,
+  notificationsEnabled,
+}: {
+  userId: string;
+  notificationsEnabled: boolean;
+}) {
+  return prisma.user.update({
+    where: { id: userId },
+    data: { notificationsEnabled },
+    select: { notificationsEnabled: true },
+  });
+}
+
 // User-global update — no ActivityLog / touchProjectActivity (those are project-audit constructs; editing your own profile isn't a project action).
 export async function updateUserProfile({
   userId,

@@ -7,6 +7,7 @@ import { BiBell } from "react-icons/bi";
 import { NotificationType } from "@/enum/notifications.enum";
 import { useGetNotification } from "@/hooks/notification/useGetNotification";
 import useReadNotification from "@/hooks/notification/useReadNotification";
+import { useGetNotificationSettings } from "@/hooks/user/useGetNotificationSettings";
 import { NotificationDataDTO } from "@/types/notification.dto";
 import { UserResponseDTO } from "@/types/user.dto";
 import { notificationTimeAgo } from "@/utils/timeAgo";
@@ -104,8 +105,10 @@ export function NotificationDropdown({
   collapsedButtonClassName: string;
 }) {
   const { data } = useGetNotification();
+  const { data: notificationSettings } = useGetNotificationSettings();
 
   const unreadCount = data?.unreadCount || 0;
+  const notificationsEnabled = notificationSettings?.notificationsEnabled ?? true;
 
   return (
     <Dropdown>
@@ -117,7 +120,7 @@ export function NotificationDropdown({
         <div className="flex items-center space-x-2">
           <Badge.Anchor>
             <BiBell size={18} />
-            {unreadCount > 0 && (
+            {notificationsEnabled && unreadCount > 0 && (
               <Badge color="danger" size="sm">
                 {unreadCount}
               </Badge>

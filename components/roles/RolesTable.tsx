@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 import { useGetRoles } from "@/hooks/role/useGetRoles";
 import { useSessionStore } from "@/store/session.store";
 import { RolesTableDTO } from "@/types/roles.dto";
@@ -6,11 +8,16 @@ import { CustomTable } from "../common/custom/table/CustomTable";
 import usePagination from "../common/custom/table/usePagination";
 import rolesTableColumns from "./rolesTableColumns";
 
-export default function RolesTable() {
+export default function RolesTable({ search }: { search?: string }) {
   const projectId = useSessionStore((s) => s.projectId);
   const { columns } = rolesTableColumns();
   const { page, setPage } = usePagination();
-  const { data, isLoading } = useGetRoles({ projectId, page });
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, setPage]);
+
+  const { data, isLoading } = useGetRoles({ projectId, page, search });
 
   const transformData = (): RolesTableDTO[] => {
     if (!data) return [];

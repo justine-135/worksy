@@ -6,16 +6,23 @@ export async function getRoles({
   projectId,
   skip,
   take,
+  search,
 }: {
   projectId: string;
   skip: number;
   take: number;
+  search?: string;
 }) {
+  const where = {
+    projectId,
+    ...(search
+      ? { name: { contains: search, mode: "insensitive" as const } }
+      : {}),
+  };
+
   return prisma.$transaction(async (tx) => {
     const roles = await prisma.role.findMany({
-      where: {
-        projectId,
-      },
+      where,
       take,
       skip,
       select: {
@@ -30,7 +37,7 @@ export async function getRoles({
       },
     });
 
-    const count = await tx.role.count({ where: { projectId } });
+    const count = await tx.role.count({ where });
 
     return { data: roles, count };
   });
