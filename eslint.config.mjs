@@ -15,6 +15,13 @@ const eslintConfig = defineConfig([
       "simple-import-sort/exports": "error",
     },
   },
+  // jest.config.js must use require() — it's loaded by Jest in CJS mode before any transform.
+  {
+    files: ["jest.config.js"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

@@ -370,8 +370,6 @@ const TaskSidebar = ({
     setIsEditingAssignees(true);
   };
 
-  console.log(members?.data);
-
   const handleSaveAssignees = () => {
     if (!projectId) return;
 

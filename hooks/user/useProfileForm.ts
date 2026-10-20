@@ -35,7 +35,6 @@ export function useProfileForm(profile?: UserProfileDTO) {
   useEffect(() => {
     if (profile?.name) {
       setValue("name", profile.name);
-      console.log(profile.name);
     }
   }, [profile, setValue]);
 
