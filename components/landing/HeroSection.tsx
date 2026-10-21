@@ -1,9 +1,22 @@
 import Link from "next/link";
 
-import Avatar from "./Avatar";
+import FauxDashboardCard from "./FauxDashboardCard";
 
-const bars = [40, 55, 35, 60, 48, 95, 52, 38, 62, 30, 58, 42];
-const highlightedBar = 5;
+const stats = [
+  { label: "Total", value: "24", color: "text-foreground" },
+  { label: "In progress", value: "9", color: "text-stat-progress" },
+  { label: "Done", value: "15", color: "text-stat-completed" },
+];
+
+const tasks = [
+  { label: "Design review", status: "In progress" },
+  { label: "API integration", status: "Done" },
+];
+
+const taskStatusClass: Record<string, string> = {
+  "In progress": "text-stat-progress bg-warning-soft",
+  Done: "text-stat-completed bg-success-soft",
+};
 
 export default function HeroSection() {
   return (
@@ -42,36 +55,31 @@ export default function HeroSection() {
         </div>
 
         {/* Right: faux product screenshot */}
-        <div className="rounded-card border border-border bg-surface p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-foreground">
-              Acme Inc.
-            </span>
-            <div className="flex -space-x-2">
-              <Avatar
-                initials="A"
-                gradient="from-rose-400 to-pink-500"
-                className="h-6 w-6 ring-2! text-[10px]"
-              />
-              <Avatar
-                initials="B"
-                gradient="from-sky-400 to-indigo-500"
-                className="h-6 w-6 ring-2! text-[10px]"
-              />
-              <Avatar
-                initials="C"
-                gradient="from-amber-400 to-orange-500"
-                className="h-6 w-6 ring-2! text-[10px]"
-              />
+        <FauxDashboardCard
+          chartContainerClassName="mt-4 h-28 gap-1"
+          inactiveClass="bg-primary/15"
+          footer={
+            <div className="mt-4 space-y-2">
+              {tasks.map((task) => (
+                <div
+                  key={task.label}
+                  className="flex items-center justify-between rounded-md bg-background px-3 py-2"
+                >
+                  <span className="text-xs font-medium text-foreground">
+                    {task.label}
+                  </span>
+                  <span
+                    className={`rounded px-2 py-0.5 text-xs font-medium ${taskStatusClass[task.status]}`}
+                  >
+                    {task.status}
+                  </span>
+                </div>
+              ))}
             </div>
-          </div>
-
+          }
+        >
           <div className="mt-4 grid grid-cols-3 gap-3">
-            {[
-              { label: "Total", value: "24", color: "text-foreground" },
-              { label: "In progress", value: "9", color: "text-stat-progress" },
-              { label: "Done", value: "15", color: "text-stat-completed" },
-            ].map((stat) => (
+            {stats.map((stat) => (
               <div
                 key={stat.label}
                 className="rounded-card border border-border bg-background p-3"
@@ -83,40 +91,7 @@ export default function HeroSection() {
               </div>
             ))}
           </div>
-
-          <div className="mt-4 flex h-28 items-end justify-between gap-1">
-            {bars.map((h, i) => (
-              <div
-                key={i}
-                style={{ height: `${h}%` }}
-                className={`w-full rounded-t-sm ${
-                  i === highlightedBar ? "bg-primary" : "bg-primary/15"
-                }`}
-              />
-            ))}
-          </div>
-
-          <div className="mt-4 space-y-2">
-            {[
-              { label: "Design review", status: "In progress", color: "text-stat-progress bg-warning-soft" },
-              { label: "API integration", status: "Done", color: "text-stat-completed bg-success-soft" },
-            ].map((task) => (
-              <div
-                key={task.label}
-                className="flex items-center justify-between rounded-md bg-background px-3 py-2"
-              >
-                <span className="text-xs font-medium text-foreground">
-                  {task.label}
-                </span>
-                <span
-                  className={`rounded px-2 py-0.5 text-xs font-medium ${task.color}`}
-                >
-                  {task.status}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+        </FauxDashboardCard>
       </div>
     </section>
   );

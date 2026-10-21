@@ -1,9 +1,8 @@
+import Link from "next/link";
 import { LuMessageSquare, LuPlus } from "react-icons/lu";
 
 import Avatar from "./Avatar";
-
-const bars = [40, 55, 35, 60, 48, 95, 52, 38, 62, 30, 58, 42];
-const highlightedBar = 5;
+import FauxDashboardCard from "./FauxDashboardCard";
 
 const notifications = [
   { label: "New messages, comments, or replies", on: true },
@@ -51,49 +50,15 @@ export default function FeaturesSection() {
               Get real-time visibility into progress, workload, and risk across
               every project — with data-driven insights that help you act early.
             </p>
-            <a
+            <Link
               href="/sign-in"
               className="mt-5 inline-flex rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
             >
               Explore all
-            </a>
+            </Link>
           </div>
 
-          <div className="rounded-card border border-border bg-surface p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-foreground">
-                Acme Inc.
-              </span>
-              <div className="flex -space-x-2">
-                <Avatar
-                  initials="A"
-                  gradient="from-rose-400 to-pink-500"
-                  className="h-6 w-6 ring-2! text-[10px]"
-                />
-                <Avatar
-                  initials="B"
-                  gradient="from-sky-400 to-indigo-500"
-                  className="h-6 w-6 ring-2! text-[10px]"
-                />
-                <Avatar
-                  initials="C"
-                  gradient="from-amber-400 to-orange-500"
-                  className="h-6 w-6 ring-2! text-[10px]"
-                />
-              </div>
-            </div>
-            <div className="mt-5 flex h-32 items-end justify-between gap-1.5">
-              {bars.map((h, i) => (
-                <div
-                  key={i}
-                  style={{ height: `${h}%` }}
-                  className={`w-full rounded-t-sm ${
-                    i === highlightedBar ? "bg-primary" : "bg-primary/20"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
+          <FauxDashboardCard />
         </article>
 
         <div className="grid gap-6 md:grid-cols-2">

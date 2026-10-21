@@ -39,7 +39,7 @@ export default function SidebarNavigation() {
 
   return (
     <nav
-      className={`SidebarNavigation bg-surface flex flex-col p-4 fixed border-r border-border min-h-screen transition-[width,min-width] duration-300 ease-in-out ${
+      className={`bg-surface flex flex-col p-4 fixed border-r border-border min-h-screen transition-[width,min-width] duration-300 ease-in-out ${
         collapsed ? "w-18 min-w-16" : "w-61.5 min-w-61.5"
       }`}
     >
@@ -72,21 +72,20 @@ export default function SidebarNavigation() {
               const isActive = route.id === params.id;
 
               return (
-                <div key={route.id}>
-                  <Button
-                    className={`flex flex-col items-start w-53.5 p-0 ${isActive ? "bg-primary-soft text-primary font-semibold" : ""}`}
-                    variant="ghost"
+                <Button
+                  key={route.id}
+                  className={`flex flex-col items-start w-53.5 p-0 ${isActive ? "bg-primary-soft" : ""}`}
+                  variant="ghost"
+                >
+                  <CustomLink
+                    href={`${PATHS.projects}/${route.id}/${params.section || "dashboard"}`}
+                    className={`w-full pl-3 pr-23.5 ${isActive ? "text-primary font-semibold" : ""}`}
                   >
-                    <CustomLink
-                      href={`${PATHS.projects}/${route.id}/${params.section || "dashboard"}`}
-                      className="w-full pl-3 pr-23.5"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <span>{route.title}</span>
-                      </div>
-                    </CustomLink>
-                  </Button>
-                </div>
+                    <div className="flex items-center space-x-2">
+                      <span>{route.title}</span>
+                    </div>
+                  </CustomLink>
+                </Button>
               );
             })}
           </div>
