@@ -10,30 +10,30 @@
  */
 :root {
   /* Surfaces & text */
-  --background: #fafafa;
-  --foreground: #171717;
+  --background: #F2F5FA;
+  --foreground: #192035;
   --surface: #ffffff;
-  --surface-muted: #f4f4f5;
-  --border: #ececef;
-  --muted: #6b7280; /* secondary text */
-  --subtle: #9aa0aa; /* tertiary / labels */
+  --surface-muted: #E8EDF5;
+  --border: #CDD3E8;
+  --muted: #5B6B8E; /* secondary text */
+  --subtle: #8A97B8; /* tertiary / labels */
 
   /* Brand */
-  --primary: #3b82f6;
-  --primary-soft: #eaf2ff;
+  --primary: #2563EB;
+  --primary-soft: #DBEAFE;
 
   /* Status (semantic) */
-  --success: #15803d;
-  --success-soft: #dcfce7;
-  --warning: #b45309;
-  --warning-soft: #ffedd5;
-  --danger: #dc2626;
-  --danger-soft: #fee2e2;
-  --info: #0e7490;
-  --info-soft: #cffafe;
+  --success: #16783D;
+  --success-soft: #DCFCE7;
+  --warning: #B45309;
+  --warning-soft: #FEF3C7;
+  --danger: #DC2626;
+  --danger-soft: #FEE2E2;
+  --info: #0369A1;
+  --info-soft: #E0F2FE;
 
   /* Dashboard stat accents */
-  --stat-total: #171717;
+  --stat-total: #192035;
   --stat-completed: #0f766e; /* teal */
   --stat-progress: #c2410c; /* orange */
   --stat-todo: #be185d; /* pink */
@@ -51,17 +51,17 @@
  */
 .dark {
   /* Surfaces & text */
-  --background: #0b0e14;
-  --foreground: #e6e8eb;
-  --surface: #151922;
-  --surface-muted: #1e242e;
-  --border: #2a313c;
-  --muted: #9aa3af;
-  --subtle: #6b7280;
+  --background: #1A1F35;
+  --foreground: #C8D2EB;
+  --surface: #222840;
+  --surface-muted: #2A304E;
+  --border: #3A4268;
+  --muted: #8696BA;
+  --subtle: #6B7A9E;
 
   /* Brand */
-  --primary: #60a5fa;
-  --primary-soft: #17233b;
+  --primary: #4B87EE;
+  --primary-soft: #1C2E5A;
 
   /* Status (semantic) */
   --success: #4ade80;
@@ -70,11 +70,11 @@
   --warning-soft: #3a2a10;
   --danger: #f87171;
   --danger-soft: #3a1414;
-  --info: #22d3ee;
-  --info-soft: #0c2f36;
+  --info: #38bdf8;
+  --info-soft: #0c2536;
 
   /* Dashboard stat accents */
-  --stat-total: #e6e8eb;
+  --stat-total: #C8D2EB;
   --stat-completed: #2dd4bf;
   --stat-progress: #fb923c;
   --stat-todo: #f472b6;
@@ -115,11 +115,11 @@
   --color-accent-to: var(--accent-to);
 
   /* Radii */
-  --radius-card: 1rem;
+  --radius-card: 8px;
   --radius-pill: 9999px;
 
   /* Shadows */
-  --shadow-card: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.06);
+  --shadow-card: none;
 
   /* Fonts */
   --font-sans: var(--font-geist-sans);

@@ -14,7 +14,7 @@ import { PATHS } from "./project/TabRoutesNav";
 import ProjectRoutes from "./ProjectRoutes";
 import SidebarUserSurface from "./user-menu/SidebarUserSurface";
 
-const SkeletonItem = () => <Skeleton className="h-9 w-53.5 rounded-full" />;
+const SkeletonItem = () => <Skeleton className="h-9 w-53.5 rounded-md" />;
 
 const SkeletonComponent = () => {
   return (
@@ -74,7 +74,7 @@ export default function SidebarNavigation() {
               return (
                 <div key={route.id}>
                   <Button
-                    className={`flex flex-col items-start w-53.5 p-0 ${isActive ? "bg-surface shadow-xl/10" : ""}`}
+                    className={`flex flex-col items-start w-53.5 p-0 ${isActive ? "bg-primary-soft text-primary font-semibold" : ""}`}
                     variant="ghost"
                   >
                     <CustomLink

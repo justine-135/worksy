@@ -33,13 +33,13 @@ export default function LandingNavbar() {
         <div className="flex items-center gap-3">
           <Link
             href="/sign-in"
-            className="hidden rounded-full px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-surface-muted sm:inline-flex"
+            className="hidden rounded-md px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-surface-muted sm:inline-flex"
           >
-            Log In
+            Log in
           </Link>
           <Link
             href="/sign-in"
-            className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary/90"
+            className="rounded-md bg-primary px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
           >
             Start Now
           </Link>

@@ -9,8 +9,6 @@ import { LuArrowLeft } from "react-icons/lu";
 
 import { Logo } from "@/components/landing/Logo";
 
-import LinesBg from "../common/LinesBg";
-
 const providers = [
   {
     id: "google",
@@ -26,17 +24,11 @@ const providers = [
 
 export default function SignInComponent() {
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-6 py-16">
-      <LinesBg />
-
-      <div className="relative w-full max-w-md">
-        <div className="rounded-card border border-border bg-surface p-8 shadow-card">
+    <main className="flex min-h-screen items-center justify-center bg-background px-6 py-16">
+      <div className="w-full max-w-md">
+        <div className="rounded-card border border-border bg-surface p-8">
           <div className="flex flex-col items-center gap-4 text-center">
             <Logo />
-
-            <span className="inline-flex items-center gap-1.5 rounded-pill border border-border bg-surface px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary shadow-sm">
-              Welcome back
-            </span>
 
             <div className="space-y-1.5">
               <h1 className="text-2xl font-semibold tracking-tight text-foreground">
@@ -55,7 +47,7 @@ export default function SignInComponent() {
                 onClick={() => {
                   signIn(provider.id, { callbackUrl: "/projects" });
                 }}
-                className="flex w-full items-center justify-center gap-2.5 rounded-pill border border-border bg-surface px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-surface-muted"
+                className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-border bg-surface px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-surface-muted"
               >
                 {provider.icon}
                 {provider.label}

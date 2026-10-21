@@ -26,7 +26,7 @@ interface StatCardProps {
 export default function StatCard({ label, value, accent }: StatCardProps) {
   return (
     <div className="rounded-card border border-border bg-surface p-5 shadow-card">
-      <p className="text-xs font-medium uppercase tracking-wide text-subtle">
+      <p className="text-xs font-medium text-subtle">
         {label}
       </p>
       <p className={cn("mt-2 text-3xl font-bold", valueColor[accent])}>
