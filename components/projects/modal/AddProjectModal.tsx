@@ -108,6 +108,7 @@ export default function AddProjectModal() {
     <div>
       <Button
         variant="ghost"
+        aria-label="Add project"
         className="flex flex-col items-center justify-center h-42 w-51.25 gap-2 bg-surface-muted hover:cursor-pointer hover:bg-surface-muted"
         onClick={() => setIsOpen(!isOpen)}
       >
@@ -126,6 +127,7 @@ export default function AddProjectModal() {
                   <Label>Title</Label>
                   <Input
                     {...register("title")}
+                    aria-label="Title"
                     placeholder="e.g: Jira-style App"
                   />
                   {errors.title && <p>{errors.title.message}</p>}

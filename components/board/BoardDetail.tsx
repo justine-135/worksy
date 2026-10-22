@@ -432,6 +432,7 @@ export default function BoardDetail() {
 
   const {
     activeTask,
+    activeTaskColumnId,
     activeColumn,
     handleDragStart,
     handleDragOver,
@@ -506,7 +507,13 @@ export default function BoardDetail() {
               projectId={projectId || ""}
             />
             <DragOverlay adjustScale={false}>
-              {activeTask && <TaskCardContent data={activeTask} dragging />}
+              {activeTask && (
+                <TaskCardContent
+                  data={activeTask}
+                  dragging
+                  projectTitle={columns.find((c) => c.id === activeTaskColumnId)?.project.title}
+                />
+              )}
 
               {!activeTask && activeColumn && (
                 <div className="w-[20rem]">

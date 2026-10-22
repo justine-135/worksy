@@ -34,6 +34,7 @@ export default function useDragState({
   }) => void;
 }) {
   const [activeTask, setActiveTask] = useState<TaskResponseDTO | null>(null);
+  const [activeTaskColumnId, setActiveTaskColumnId] = useState<string | null>(null);
   const [activeColumn, setActiveColumn] = useState<TaskBoardResponseDTO | null>(
     null,
   );
@@ -48,6 +49,7 @@ export default function useDragState({
 
     if (activeData?.type === "task") {
       setActiveTask(activeData.task as TaskResponseDTO);
+      setActiveTaskColumnId(activeData.columnId as string);
       return;
     }
 
@@ -161,6 +163,7 @@ export default function useDragState({
     const overData = over?.data.current;
 
     setActiveTask(null);
+    setActiveTaskColumnId(null);
     setActiveColumn(null);
 
     if (!over) {
@@ -314,6 +317,7 @@ export default function useDragState({
   return {
     columns,
     activeTask,
+    activeTaskColumnId,
     activeColumn,
     handleDragStart,
     getTaskId,
