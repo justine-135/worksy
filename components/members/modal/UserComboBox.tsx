@@ -1,8 +1,7 @@
 "use client";
 
 import { Skeleton } from "@heroui/react";
-import { useLayoutEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { useRef, useState } from "react";
 import { LuSearch, LuUser } from "react-icons/lu";
 
 import CustomAvatar from "@/components/common/custom/CustomAvatar";
@@ -28,13 +27,12 @@ interface Props {
 export function UserComboBox({ onSelect }: Props) {
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
-  const [dropdownRect, setDropdownRect] = useState<DOMRect | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const userId = useSessionStore((s) => s.userId);
 
   const trimmed = query.trim();
   const debouncedQuery = useDebounce(trimmed, 300);
+  const isTyping = trimmed !== debouncedQuery;
 
   const { data, isLoading } = useSearchUser({
     query: debouncedQuery,
@@ -44,13 +42,7 @@ export function UserComboBox({ onSelect }: Props) {
   const showDropdown = isFocused && trimmed.length >= 1;
   const needsMoreInput = trimmed.length === 1;
   const showEmpty =
-    showDropdown && !needsMoreInput && !isLoading && data.length === 0;
-
-  useLayoutEffect(() => {
-    if (showDropdown && containerRef.current) {
-      setDropdownRect(containerRef.current.getBoundingClientRect());
-    }
-  }, [showDropdown]);
+    showDropdown && !needsMoreInput && !isLoading && !isTyping && data.length === 0;
 
   const handleSelect = (user: UserResponseDTO) => {
     onSelect(user);
@@ -58,77 +50,66 @@ export function UserComboBox({ onSelect }: Props) {
     inputRef.current?.blur();
   };
 
-  const dropdown =
-    showDropdown && dropdownRect
-      ? createPortal(
-          <div
-            style={{
-              position: "fixed",
-              top: dropdownRect.bottom + 6,
-              left: dropdownRect.left,
-              width: dropdownRect.width,
-              zIndex: 9999,
-            }}
-            className="overflow-hidden rounded-xl border border-default-200 bg-content1 shadow-lg"
-          >
-            {needsMoreInput ? (
-              <div className="px-3 py-4 text-center text-sm text-default-400">
-                Keep typing to search…
-              </div>
-            ) : isLoading ? (
-              <div className="divide-y divide-default-100">
-                <ResultSkeleton />
-                <ResultSkeleton />
-              </div>
-            ) : showEmpty ? (
-              <div className="flex flex-col items-center gap-2 py-6 text-center">
-                <LuUser className="size-8 text-default-300" />
-                <p className="text-sm text-default-500">
-                  No users found for{" "}
-                  <span className="font-medium text-default-700">
-                    &ldquo;{trimmed}&rdquo;
+  const dropdown = showDropdown ? (
+    <div className="z-50 w-full overflow-hidden rounded-xl border border-default-200 bg-content1 shadow-lg">
+      {needsMoreInput ? (
+        <div className="px-3 py-4 text-center text-sm text-default-400">
+          Keep typing to search…
+        </div>
+      ) : isLoading || isTyping ? (
+        <div className="divide-y divide-default-100">
+          <ResultSkeleton />
+          <ResultSkeleton />
+        </div>
+      ) : showEmpty ? (
+        <div className="flex flex-col items-center gap-2 py-6 text-center">
+          <LuUser className="size-8 text-default-300" />
+          <p className="text-sm text-default-500">
+            No users found for{" "}
+            <span className="font-medium text-default-700">
+              &ldquo;{trimmed}&rdquo;
+            </span>
+          </p>
+        </div>
+      ) : (
+        <ul className="max-h-56 divide-y divide-default-100 overflow-y-auto">
+          {data.map((user) => (
+            <li key={user.id}>
+              <button
+                type="button"
+                className="flex w-full items-center gap-3 bg-content1 px-3 py-2.5 text-left transition-colors hover:bg-default-100 focus-visible:bg-default-100 focus-visible:outline-none"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  handleSelect(user);
+                }}
+              >
+                <CustomAvatar
+                  avatarProps={{ size: "sm" }}
+                  avatarImageProps={{
+                    src: user.image || "",
+                    alt: user.name || "User",
+                  }}
+                  avatarFallbackProps={{ className: "text-xs" }}
+                  fallback={user.name || ""}
+                />
+                <div className="flex min-w-0 flex-col">
+                  <span className="truncate text-sm font-medium">
+                    {user.name}
                   </span>
-                </p>
-              </div>
-            ) : (
-              <ul className="divide-y divide-default-100">
-                {data.map((user) => (
-                  <li key={user.id}>
-                    <button
-                      type="button"
-                      className="flex w-full items-center gap-3 bg-content1 px-3 py-2.5 text-left transition-colors hover:bg-default-100 focus-visible:bg-default-100 focus-visible:outline-none"
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => handleSelect(user)}
-                    >
-                      <CustomAvatar
-                        avatarProps={{ size: "sm" }}
-                        avatarImageProps={{
-                          src: user.image || "",
-                          alt: user.name || "User",
-                        }}
-                        avatarFallbackProps={{ className: "text-xs" }}
-                        fallback={user.name || ""}
-                      />
-                      <div className="flex min-w-0 flex-col">
-                        <span className="truncate text-sm font-medium">
-                          {user.name}
-                        </span>
-                        <span className="truncate text-xs text-default-500">
-                          {user.email}
-                        </span>
-                      </div>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>,
-          document.body,
-        )
-      : null;
+                  <span className="truncate text-xs text-default-500">
+                    {user.email}
+                  </span>
+                </div>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  ) : null;
 
   return (
-    <div className="relative" ref={containerRef}>
+    <div>
       <div
         className={`flex items-center gap-2.5 rounded-xl border px-3 py-2 transition-colors ${
           isFocused

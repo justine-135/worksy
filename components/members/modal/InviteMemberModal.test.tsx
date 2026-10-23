@@ -55,7 +55,7 @@ async function openModal() {
   const user = userEvent.setup()
   renderWithProviders(<InviteMemberModal />)
   await user.click(screen.getByRole('button', { name: /invite member/i }))
-  await screen.findByText('Invite Member')
+  await screen.findByRole('heading', { name: /invite member/i })
   return user
 }
 
