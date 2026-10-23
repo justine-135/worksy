@@ -221,70 +221,140 @@ export async function getDashboardData({
   userId,
   projectId,
 }: UserProjectParamsDTO) {
-  const [boards, overdueTasks] = await Promise.all([
-    prisma.taskBoard.findMany({
-      where: {
-        project: {
-          id: projectId,
-          members: { some: { userId } },
+  const now = new Date();
+  const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+  const [boards, overdueTasks, upcomingTasksRaw, memberWorkloadRaw] =
+    await Promise.all([
+      prisma.taskBoard.findMany({
+        where: {
+          project: {
+            id: projectId,
+            members: { some: { userId } },
+          },
         },
-      },
-      orderBy: { order: "asc" },
-      select: {
-        id: true,
-        title: true,
-        status: true,
-        tasks: {
-          select: {
-            id: true,
-            status: true,
-            title: true,
-            ticketNumber: true,
-            priority: true,
-            dueDate: true,
-            assignees: {
-              where: { projectMember: { userId } },
-              select: {
-                projectMember: {
-                  select: {
-                    user: { select: { name: true, image: true } },
+        orderBy: { order: "asc" },
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          tasks: {
+            select: {
+              id: true,
+              status: true,
+              title: true,
+              ticketNumber: true,
+              priority: true,
+              dueDate: true,
+              assignees: {
+                where: { projectMember: { userId } },
+                select: {
+                  projectMember: {
+                    select: {
+                      user: { select: { name: true, image: true } },
+                    },
                   },
                 },
               },
             },
           },
         },
-      },
-    }),
-    prisma.task.findMany({
-      where: {
-        projectId,
-        dueDate: { lt: new Date() },
-        status: { not: "DONE" },
-        project: { members: { some: { userId } } },
-      },
-      orderBy: { dueDate: "asc" },
-      take: 10,
-      select: {
-        id: true,
-        ticketNumber: true,
-        title: true,
-        priority: true,
-        dueDate: true,
-        taskBoard: { select: { title: true } },
-      },
-    }),
-  ]);
+      }),
+      prisma.task.findMany({
+        where: {
+          projectId,
+          dueDate: { lt: now },
+          status: { not: "DONE" },
+          project: { members: { some: { userId } } },
+        },
+        orderBy: { dueDate: "asc" },
+        take: 10,
+        select: {
+          id: true,
+          ticketNumber: true,
+          title: true,
+          priority: true,
+          dueDate: true,
+          taskBoard: { select: { title: true } },
+        },
+      }),
+      prisma.task.findMany({
+        where: {
+          projectId,
+          dueDate: { gte: now, lte: sevenDaysFromNow },
+          status: { not: "DONE" },
+          project: { members: { some: { userId } } },
+        },
+        orderBy: { dueDate: "asc" },
+        take: 10,
+        select: {
+          id: true,
+          ticketNumber: true,
+          title: true,
+          priority: true,
+          dueDate: true,
+          taskBoard: { select: { title: true } },
+        },
+      }),
+      prisma.projectMember.findMany({
+        where: {
+          projectId,
+          status: "active",
+          project: { members: { some: { userId } } },
+        },
+        select: {
+          id: true,
+          user: { select: { name: true, image: true } },
+          taskAssignments: {
+            select: { task: { select: { status: true } } },
+          },
+        },
+      }),
+    ]);
+
+  const memberWorkload = memberWorkloadRaw
+    .map((m) => ({
+      memberId: m.id,
+      name: m.user.name ?? "Unknown",
+      image: m.user.image,
+      todoCount: m.taskAssignments.filter((a) => a.task.status === "TODO")
+        .length,
+      inProgressCount: m.taskAssignments.filter(
+        (a) => a.task.status === "IN_PROGRESS",
+      ).length,
+      doneCount: m.taskAssignments.filter((a) => a.task.status === "DONE")
+        .length,
+    }))
+    .filter((m) => m.todoCount + m.inProgressCount + m.doneCount > 0)
+    .sort(
+      (a, b) =>
+        b.todoCount +
+        b.inProgressCount +
+        b.doneCount -
+        (a.todoCount + a.inProgressCount + a.doneCount),
+    )
+    .slice(0, 8);
+
+  const mapTask = (t: {
+    id: string;
+    ticketNumber: number;
+    title: string;
+    priority: string | null;
+    dueDate: Date | null;
+    taskBoard: { title: string };
+  }) => ({
+    id: t.id,
+    ticketNumber: t.ticketNumber,
+    title: t.title,
+    priority: t.priority,
+    dueDate: t.dueDate!.toISOString(),
+    boardTitle: t.taskBoard.title,
+  });
 
   return {
     boards,
-    overdueTasks: overdueTasks.map((t) => ({
-      id: t.id,
-      ticketNumber: t.ticketNumber,
-      title: t.title,
-      priority: t.priority,
-      dueDate: t.dueDate!.toISOString(),
-      boardTitle: t.taskBoard.title,
-    })),
+    overdueTasks: overdueTasks.map(mapTask),
+    upcomingTasks: upcomingTasksRaw.map(mapTask),
+    memberWorkload,
   };
 }

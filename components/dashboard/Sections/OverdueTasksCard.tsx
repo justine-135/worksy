@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { MdOutlineAlarm } from "react-icons/md";
 
 import CustomEmpty from "@/components/common/custom/CustomEmpty";
@@ -24,17 +25,31 @@ export default function OverdueTasksCard({
   tasks: OverdueTaskDTO[];
   projectId?: string | null;
 }) {
-  void projectId;
+  const visible = tasks.slice(0, 3);
+  const overflow = tasks.length - visible.length;
+
+  const viewAllAction =
+    overflow > 0 && projectId ? (
+      <Link
+        href={`/projects/${projectId}/board`}
+        className="text-xs font-medium text-primary hover:underline"
+      >
+        View all {tasks.length}
+      </Link>
+    ) : undefined;
 
   return (
     <SectionCard
       title="Overdue"
       icon={<MdOutlineAlarm size={18} />}
+      iconColor="text-danger"
       count={tasks.length}
+      action={viewAllAction}
+      className="border-danger/20 bg-danger/[0.015]"
     >
       {tasks.length > 0 ? (
         <ul className="space-y-3">
-          {tasks.map((task) => (
+          {visible.map((task) => (
             <li
               key={task.id}
               className="rounded-xl border border-danger/20 bg-danger/5 p-4"

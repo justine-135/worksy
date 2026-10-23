@@ -19,6 +19,19 @@ import { timeAgo } from "@/utils/timeAgo";
 
 import SectionCard from "./Sections/SectionCard";
 
+function getDateLabel(createdAt: string): string {
+  const now = new Date();
+  const d = new Date(createdAt);
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dStart = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const diff = Math.round(
+    (todayStart.getTime() - dStart.getTime()) / (1000 * 60 * 60 * 24),
+  );
+  if (diff === 0) return "Today";
+  if (diff === 1) return "Yesterday";
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
 function describe(log: ProjectActivityResponseDTO): {
   verb: string;
   extra?: string;
@@ -87,7 +100,9 @@ function ActivityRow({ log }: { log: ProjectActivityResponseDTO }) {
             TASK-{log.task.ticketNumber}
           </span>
         )}{" "}
-        {extra && <span className="font-medium text-foreground">{extra}</span>}
+        {extra && (
+          <span className="font-medium text-foreground">{extra}</span>
+        )}
       </p>
 
       <span className={iconColor}>{icon}</span>
@@ -103,10 +118,23 @@ export default function DashboardActivity({
 }: {
   projectId?: string | null;
 }) {
-  const { data, isLoading } = useGetActivity({ projectId, limit: 8 });
+  const { data, isLoading } = useGetActivity({ projectId, limit: 15 });
+
+  const grouped = (data ?? []).reduce<
+    Record<string, ProjectActivityResponseDTO[]>
+  >((acc, log) => {
+    const label = getDateLabel(log.createdAt);
+    if (!acc[label]) acc[label] = [];
+    acc[label].push(log);
+    return acc;
+  }, {});
 
   return (
-    <SectionCard title="Activity" icon={<MdInsights size={18} />}>
+    <SectionCard
+      title="Activity"
+      icon={<MdInsights size={18} />}
+      iconColor="text-primary"
+    >
       {isLoading ? (
         <div className="space-y-4">
           {[0, 1, 2].map((i) => (
@@ -117,11 +145,20 @@ export default function DashboardActivity({
           ))}
         </div>
       ) : data && data.length > 0 ? (
-        <ul className="space-y-4">
-          {data.map((log) => (
-            <ActivityRow key={log.id} log={log} />
+        <div className="space-y-5">
+          {Object.entries(grouped).map(([dateLabel, logs]) => (
+            <div key={dateLabel}>
+              <p className="mb-2 text-xs font-medium text-subtle">
+                {dateLabel}
+              </p>
+              <ul className="space-y-4">
+                {logs.map((log) => (
+                  <ActivityRow key={log.id} log={log} />
+                ))}
+              </ul>
+            </div>
           ))}
-        </ul>
+        </div>
       ) : (
         <CustomEmpty
           icon={MdInsights}
