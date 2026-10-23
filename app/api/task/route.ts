@@ -70,6 +70,7 @@ export async function POST(req: Request) {
     priority,
     project_id,
     parent_id,
+    due_date,
   } = body;
 
   if (!title || !task_board_id || !project_id) {
@@ -95,6 +96,7 @@ export async function POST(req: Request) {
     projectId: project_id,
     userId: session?.user?.id,
     parentId: parent_id ?? null,
+    dueDate: due_date ?? null,
   });
 
   return apiSuccess("Task created.", data);

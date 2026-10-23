@@ -14,6 +14,7 @@ export const createTaskSchema = z.object({
   // defaults to the project's configured priority).
   priority: z.enum(ETaskPriority).optional(),
   parentId: z.string().optional(),
+  dueDate: z.string().optional().nullable(),
 });
 
 export type CreateTaskInput = z.infer<typeof createTaskSchema>;

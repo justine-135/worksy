@@ -10,7 +10,6 @@ import {
   TextField,
   toast,
 } from "@heroui/react";
-import { Button } from "@heroui/react/button";
 import { Modal } from "@heroui/react/modal";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -32,20 +31,27 @@ import {
 } from "@/lib/validations/createTaskBoard.schema";
 
 const AddNewTaskBoard = ({ onClick }: { onClick: () => void }) => {
-  const [isHovered, setIsHovered] = useState<boolean>(false);
-
   return (
-    <Button
-      className="flex h-full w-90 flex-col rounded-xl border border-default-200/80 p-1 shadow-none opacity-50 hover:opacity-100"
-      variant="ghost"
-      onMouseOver={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+    <button
+      type="button"
       onClick={onClick}
+      className="group flex shrink-0 flex-col gap-2 rounded-xl -mt-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+      style={{ width: "var(--kanban-column-min-width, 280px)" }}
     >
-      <div className="flex items-center justify-center h-[calc(100vh-12rem)]">
-        {isHovered ? "Add Column" : <BiPlus />}
+      {/* Spacer aligns the dashed panel with sibling column bodies */}
+      <div className="h-7.5 shrink-0" />
+      <div
+        className="flex flex-1 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-default-300 transition-colors duration-150 group-hover:border-primary/50 group-hover:bg-primary/5"
+        style={{ minHeight: "var(--kanban-column-height, 480px)" }}
+      >
+        <div className="flex size-9 items-center justify-center rounded-full bg-default-100 text-default-500 transition-colors duration-150 group-hover:bg-primary/10 group-hover:text-primary">
+          <BiPlus size={20} />
+        </div>
+        <span className="text-sm font-medium text-default-400 transition-colors duration-150 group-hover:text-primary">
+          Add board
+        </span>
       </div>
-    </Button>
+    </button>
   );
 };
 

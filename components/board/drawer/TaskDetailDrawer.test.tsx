@@ -142,12 +142,12 @@ describe('TaskDetailDrawer', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument()
   })
 
-  it('submits comment when tiptap editor is filled and Submit is clicked', async () => {
+  it('submits comment when tiptap editor is filled and Comment is clicked', async () => {
     const user = await openDrawer()
 
     const editor = screen.getByTestId('tiptap-editor')
     await user.type(editor, 'This is a comment')
-    await user.click(screen.getByRole('button', { name: /submit/i }))
+    await user.click(screen.getByRole('button', { name: /^comment$/i }))
 
     await waitFor(() => {
       expect(mockCommentMutate).toHaveBeenCalledWith(
@@ -166,8 +166,26 @@ describe('TaskDetailDrawer', () => {
 
     const editor = screen.getByTestId('tiptap-editor')
     await user.type(editor, 'hi')
-    await user.click(screen.getByRole('button', { name: /submit/i }))
+    await user.click(screen.getByRole('button', { name: /^comment$/i }))
 
     await waitFor(() => expect(mockCommentMutate).not.toHaveBeenCalled())
+  })
+
+  it('clears editor after comment is successfully submitted', async () => {
+    mockCommentMutate.mockImplementation(
+      (_data: unknown, { onSuccess }: { onSuccess: (r: unknown) => void }) => {
+        onSuccess({ message: 'Comment added' })
+      },
+    )
+
+    const user = await openDrawer()
+
+    const editor = screen.getByTestId('tiptap-editor')
+    await user.type(editor, 'This is a comment')
+    await user.click(screen.getByRole('button', { name: /^comment$/i }))
+
+    await waitFor(() => {
+      expect((screen.getByTestId('tiptap-editor') as HTMLTextAreaElement).value).toBe('')
+    })
   })
 })

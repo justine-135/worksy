@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import {
   CreateTaskDTO,
   UpdateTaskAssigneesDTO,
+  UpdateTaskDueDateDTO,
   UpdateTaskPositionDTO,
   UpdateTaskRelationDTO,
   UpdateTaskStatusDTO,
@@ -75,6 +76,7 @@ export async function createTaskDB(data: CreateTaskDTO) {
         ticketNumber: currentTicketNumber,
         description: data.description,
         priority: data.priority,
+        dueDate: data.dueDate ? new Date(data.dueDate) : null,
         status,
         projectId: data.projectId,
         taskBoardId: data.taskBoardId,
@@ -623,6 +625,7 @@ export async function getTaskDetail(id: string, userId: string) {
       status: true,
       title: true,
       description: true,
+      dueDate: true,
       createdAt: true,
       updatedAt: true,
       priority: true,
@@ -752,4 +755,38 @@ export async function getTaskDetail(id: string, userId: string) {
     children: childLinks.map((link) => link.child),
     currentUser: currentUser?.user,
   };
+}
+
+export async function updateTaskDueDateDB({
+  projectId,
+  userId,
+  taskId,
+  dueDate,
+}: UpdateTaskDueDateDTO) {
+  const task = await prisma.task.findFirst({
+    where: {
+      id: taskId,
+      projectId,
+      project: { members: { some: { userId } } },
+    },
+    select: { id: true },
+  });
+
+  if (!task) throw new Error("Task is inaccessible");
+
+  const currentMember = await prisma.projectMember.findUnique({
+    where: { userId_projectId: { userId, projectId } },
+    select: { id: true },
+  });
+
+  if (!currentMember) throw new Error("User is not a member of this project");
+
+  return prisma.$transaction(async (tx) => {
+    await tx.task.update({
+      where: { id: taskId },
+      data: { dueDate: dueDate ? new Date(dueDate) : null },
+    });
+
+    await touchProjectActivity({ userId, projectId }, tx);
+  });
 }

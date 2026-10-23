@@ -22,6 +22,7 @@ export interface TaskResponseDTO {
   createdBy: {
     user: UserResponseDTO;
   };
+  dueDate?: string | null;
   createdAt: string;
   activityLog: ActivityLogResponseDTO[];
   // Task hierarchy is a DAG: a task can have many `parents` and many `children`
@@ -48,6 +49,7 @@ export interface CreateTaskDTO {
   assignees?: string[];
   projectId: string;
   userId: string;
+  dueDate?: string | null;
   // Resolved parent task id (Parent -> selected task; Sibling -> selected
   // task's parent). null/undefined for a top-level task.
   parentId?: string | null;
@@ -77,6 +79,15 @@ export interface UpdateTaskRelationDTO {
 export type UpdateTaskRelationPayload = Omit<UpdateTaskRelationDTO, "userId">;
 
 export type UpdateTaskDTO = Partial<CreateTaskDTO>;
+
+export interface UpdateTaskDueDateDTO {
+  projectId: string;
+  taskId: string;
+  userId: string;
+  dueDate: string | null;
+}
+
+export type UpdateTaskDueDatePayload = Omit<UpdateTaskDueDateDTO, "userId">;
 
 export interface UpdateTaskAssigneesDTO {
   projectId: string;

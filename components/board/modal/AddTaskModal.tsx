@@ -15,7 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { BiPlus } from "react-icons/bi";
+import { BiCalendar, BiPlus, BiX } from "react-icons/bi";
 
 import TaskRelationCombobox from "@/components/board/common/TaskRelationCombobox";
 import CustomButton from "@/components/common/custom/CustomButton";
@@ -46,26 +46,13 @@ export default function AddTaskModal({
   taskBoardID: string;
 }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const { data } = useGetAssignees({
-    projectId,
-
-    enabled: isOpen,
-  });
-  const { data: project, isLoading } = useGetProject({
-    projectId,
-    enabled: isOpen,
-  });
+  const { data } = useGetAssignees({ projectId, enabled: isOpen });
+  const { data: project, isLoading } = useGetProject({ projectId, enabled: isOpen });
   const [description, setDescription] = useState("");
   const [selectedAssignees, setSelectedAssignees] = useState<string[]>([]);
-  // Null = "follow the project default"; a value = the user picked one. Derived
-  // (not effect-synced) so the picker tracks the project default until touched.
-  const [priorityOverride, setPriorityOverride] =
-    useState<ETaskPriority | null>(null);
-  // The task this new one will be a child of (optional). Left empty → the new
-  // task is a top-level parent.
-  const [parentTask, setParentTask] = useState<TaskSearchResultDTO | null>(
-    null,
-  );
+  const [priorityOverride, setPriorityOverride] = useState<ETaskPriority | null>(null);
+  const [parentTask, setParentTask] = useState<TaskSearchResultDTO | null>(null);
+  const [dueDate, setDueDate] = useState<string>("");
 
   const queryClient = useQueryClient();
   const { showSuccess, showError } = useApiMessage();
@@ -75,29 +62,24 @@ export default function AddTaskModal({
   const priority = priorityOverride ?? projectDefaultPriority;
 
   const { invalidateTaskBoards } = useInvalidateQuery(projectId, queryClient);
-
-  const { mutation } = useCreateTaskMutation({
-    invalidateTasks: invalidateTaskBoards,
-  });
+  const { mutation } = useCreateTaskMutation({ invalidateTasks: invalidateTaskBoards });
 
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<CreateTaskInput>({
-    resolver: zodResolver(createTaskSchema),
-  });
+  } = useForm<CreateTaskInput>({ resolver: zodResolver(createTaskSchema) });
 
   const handleOpenChange = (nextOpen: boolean) => {
     setIsOpen(nextOpen);
-
     if (!nextOpen) {
       reset();
       setDescription("");
       setSelectedAssignees([]);
       setParentTask(null);
       setPriorityOverride(null);
+      setDueDate("");
     }
   };
 
@@ -112,8 +94,8 @@ export default function AddTaskModal({
         taskBoardId: taskBoardID,
         assignees: selectedAssignees,
         projectId,
-        // Picking a parent makes this new task its child; otherwise top-level.
         parentId: parentTask?.id,
+        dueDate: dueDate || null,
       },
       {
         onSuccess: () => {
@@ -122,12 +104,10 @@ export default function AddTaskModal({
           setSelectedAssignees([]);
           setParentTask(null);
           setPriorityOverride(null);
+          setDueDate("");
           setIsOpen(false);
           showSuccess("Task created");
-          // Recents/board invalidation lives in useCreateTaskMutation.onSettled.
         },
-        // Leave the form intact on failure so the user can retry without
-        // re-typing everything.
         onError: (error) => {
           showError(error, "Task not created");
         },
@@ -151,78 +131,124 @@ export default function AddTaskModal({
           <Modal.Dialog>
             <Modal.CloseTrigger />
             <Modal.Header>
-              <Modal.Heading className="font-semibold">Add Task</Modal.Heading>
+              <Modal.Heading className="font-semibold">New task</Modal.Heading>
             </Modal.Header>
             <Form onSubmit={handleSubmit(onSubmit)}>
-              <Modal.Body className="space-y-4 p-1">
-                <TextField>
-                  <Label>Title</Label>
-                  <Input placeholder="Enter title" {...register("title")} />
-                  {errors.title && <p>{errors.title.message}</p>}
-                </TextField>
-                <Select
-                  fullWidth
-                  placeholder="Select assignees"
-                  selectionMode="multiple"
-                  value={selectedAssignees}
-                  onChange={(keys) => setSelectedAssignees(keys as string[])}
-                >
-                  <Label>Assignees</Label>
-                  {isLoading ? (
-                    <Skeleton className="h-9.5 w-full" />
-                  ) : (
-                    <Select.Trigger className="flex w-full items-center justify-between rounded-lg border border-default-200 bg-surface p-2">
-                      <Select.Value />
-                      <Select.Indicator />
-                    </Select.Trigger>
-                  )}
+              <Modal.Body className="p-1">
+                {/* Title — most important field, gets the most visual weight */}
+                <div className="mb-5">
+                  <TextField>
+                    <Label className="text-xs font-medium text-muted">Title</Label>
+                    <Input
+                      className="mt-1 text-base"
+                      placeholder="What needs to be done?"
+                      {...register("title")}
+                    />
+                    {errors.title && (
+                      <p className="mt-1 text-xs text-danger">{errors.title.message}</p>
+                    )}
+                  </TextField>
+                </div>
 
-                  <Select.Popover>
-                    <ListBox selectionMode="multiple">
-                      {data?.data.map((member) => (
-                        <ListBox.Item
-                          id={member.id}
-                          key={member.id}
-                          textValue={member.user.name}
-                          className="flex items-center gap-2"
+                {/* Meta row: Priority + Due Date side by side */}
+                <div className="mb-5 grid grid-cols-2 gap-3">
+                  <div>
+                    <Select
+                      aria-label="Task priority"
+                      value={priority}
+                      onChange={(key) => setPriorityOverride(key as ETaskPriority)}
+                    >
+                      <Label className="text-xs font-medium text-muted">Priority</Label>
+                      <Select.Trigger className="mt-1 flex w-full items-center justify-between rounded-lg border border-default-200 bg-surface p-2">
+                        <Select.Value />
+                        <Select.Indicator />
+                      </Select.Trigger>
+                      <Select.Popover>
+                        <ListBox>
+                          {PRIORITY_OPTIONS.map((option) => (
+                            <ListBox.Item
+                              id={option.value}
+                              key={option.value}
+                              textValue={option.label}
+                              className="flex items-center justify-between gap-2"
+                            >
+                              {option.label}
+                              <ListBox.ItemIndicator />
+                            </ListBox.Item>
+                          ))}
+                        </ListBox>
+                      </Select.Popover>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label className="text-xs font-medium text-muted">Due date</Label>
+                    <div className="relative mt-1">
+                      <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-muted">
+                        <BiCalendar size={15} />
+                      </span>
+                      <input
+                        type="date"
+                        value={dueDate}
+                        onChange={(e) => setDueDate(e.target.value)}
+                        min={new Date().toISOString().split("T")[0]}
+                        className="h-[38px] w-full rounded-lg border border-default-200 bg-surface pl-8 pr-2 text-sm text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                      />
+                      {dueDate && (
+                        <button
+                          type="button"
+                          onClick={() => setDueDate("")}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted hover:text-foreground"
+                          aria-label="Clear due date"
                         >
-                          {member.user.name}
-                          <ListBox.ItemIndicator />
-                        </ListBox.Item>
-                      ))}
-                    </ListBox>
-                  </Select.Popover>
-                </Select>
-                <Select
-                  aria-label="Task priority"
-                  value={priority}
-                  onChange={(key) => setPriorityOverride(key as ETaskPriority)}
-                >
-                  <Label>Priority</Label>
-                  <Select.Trigger className="flex w-full items-center justify-between rounded-lg border border-default-200 bg-surface p-2">
-                    <Select.Value />
-                    <Select.Indicator />
-                  </Select.Trigger>
-                  <Select.Popover>
-                    <ListBox>
-                      {PRIORITY_OPTIONS.map((option) => (
-                        <ListBox.Item
-                          id={option.value}
-                          key={option.value}
-                          textValue={option.label}
-                          className="flex items-center justify-between gap-2"
-                        >
-                          {option.label}
-                          <ListBox.ItemIndicator />
-                        </ListBox.Item>
-                      ))}
-                    </ListBox>
-                  </Select.Popover>
-                </Select>
-                <div className="space-y-2">
-                  <Label>Child of (optional)</Label>
+                          <BiX size={15} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Assignees */}
+                <div className="mb-5">
+                  <Select
+                    fullWidth
+                    placeholder="Select assignees"
+                    selectionMode="multiple"
+                    value={selectedAssignees}
+                    onChange={(keys) => setSelectedAssignees(keys as string[])}
+                  >
+                    <Label className="text-xs font-medium text-muted">Assignees</Label>
+                    {isLoading ? (
+                      <Skeleton className="mt-1 h-9.5 w-full" />
+                    ) : (
+                      <Select.Trigger className="mt-1 flex w-full items-center justify-between rounded-lg border border-default-200 bg-surface p-2">
+                        <Select.Value />
+                        <Select.Indicator />
+                      </Select.Trigger>
+                    )}
+                    <Select.Popover>
+                      <ListBox selectionMode="multiple">
+                        {data?.data.map((member) => (
+                          <ListBox.Item
+                            id={member.id}
+                            key={member.id}
+                            textValue={member.user.name}
+                            className="flex items-center gap-2"
+                          >
+                            {member.user.name}
+                            <ListBox.ItemIndicator />
+                          </ListBox.Item>
+                        ))}
+                      </ListBox>
+                    </Select.Popover>
+                  </Select>
+                </div>
+
+                {/* Parent task — optional hierarchy link */}
+                <div className="mb-5 space-y-1.5">
+                  <Label className="text-xs font-medium text-muted">Parent task</Label>
                   {parentTask ? (
-                    <div className="flex items-center justify-between rounded-lg border border-default-200 px-3 py-2">
+                    <div className="mt-1 flex items-center justify-between rounded-lg border border-default-200 px-3 py-2">
                       <span className="truncate text-sm">
                         <span className="mr-1 text-xs font-medium text-subtle">
                           #{parentTask.ticketNumber}
@@ -239,26 +265,34 @@ export default function AddTaskModal({
                       </Button>
                     </div>
                   ) : (
-                    <TaskRelationCombobox
-                      projectId={projectId}
-                      onSelect={setParentTask}
-                      placeholder="Search a parent task…"
-                    />
+                    <div className="mt-1">
+                      <TaskRelationCombobox
+                        projectId={projectId}
+                        onSelect={setParentTask}
+                        placeholder="Search a parent task…"
+                      />
+                    </div>
                   )}
                 </div>
-                <TextField>
-                  <Label>Description</Label>
-                  <TiptapEditor
-                    users={data?.data}
-                    value={description}
-                    onChange={setDescription}
-                  />
-                </TextField>
+
+                {/* Description — full width, last field */}
+                <div className="mb-1">
+                  <TextField>
+                    <Label className="text-xs font-medium text-muted">Description</Label>
+                    <div className="mt-1">
+                      <TiptapEditor
+                        users={data?.data}
+                        value={description}
+                        onChange={setDescription}
+                      />
+                    </div>
+                  </TextField>
+                </div>
               </Modal.Body>
               <Modal.Footer>
                 <CustomButton
                   className="font-semibold"
-                  title="Create"
+                  title="Create task"
                   isPending={mutation.isPending}
                   loadingTitle="Creating"
                 />

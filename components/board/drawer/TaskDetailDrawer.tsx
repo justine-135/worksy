@@ -18,7 +18,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import type { Key } from "react-aria-components";
 import { useForm } from "react-hook-form";
-import { BiCog, BiTrash } from "react-icons/bi";
+import { BiCalendar, BiCog, BiTrash, BiX } from "react-icons/bi";
 
 import TaskRelationCombobox from "@/components/board/common/TaskRelationCombobox";
 import ActivityLog from "@/components/common/ActivityLog";
@@ -39,6 +39,7 @@ import { useGetProjectMembers } from "@/hooks/member/useGetProjectMembers";
 import { usePermission } from "@/hooks/permission/usePermission";
 import { useGetTaskDetail } from "@/hooks/task/useGetTaskDetail";
 import useUpdateTaskAssignees from "@/hooks/task/useUpdateTaskAssignees";
+import useUpdateTaskDueDate from "@/hooks/task/useUpdateTaskDueDate";
 import useUpdateTaskRelation from "@/hooks/task/useUpdateTaskRelation";
 import useUpdateTaskStatus from "@/hooks/task/useUpdateTaskStatus";
 import { useGetTaskBoard } from "@/hooks/taskboard/useGetTaskBoard";
@@ -70,6 +71,7 @@ const CommentForm = ({
 }) => {
   const { mutation } = useCreateComment({ taskId });
   const { showSuccess, showError } = useApiMessage();
+  const [editorKey, setEditorKey] = useState(0);
 
   const {
     handleSubmit,
@@ -94,6 +96,7 @@ const CommentForm = ({
         onSuccess: (result) => {
           reset();
           setValue("value", "");
+          setEditorKey((k) => k + 1);
           showSuccess(result);
         },
         onError: (error) => {
@@ -121,14 +124,15 @@ const CommentForm = ({
             Add comment
           </Typography.Heading>
           <TiptapEditor
+            key={editorKey}
             onChange={(e) => {
               setValue("value", e);
             }}
           />
           {errors.value && <p>{errors.value.message}</p>}
           <CustomButton
-            title="Submit"
-            loadingTitle="Submitting"
+            title="Comment"
+            loadingTitle="Commenting"
             type="submit"
             isPending={mutation.isPending}
             className="ml-auto"
@@ -291,6 +295,7 @@ const TaskSidebar = ({
   const { mutation: updateAssignees } = useUpdateTaskAssignees();
   const { mutation: updateStatus } = useUpdateTaskStatus();
   const { mutation: updateRelation } = useUpdateTaskRelation();
+  const { mutation: updateDueDate } = useUpdateTaskDueDate();
   const { showSuccess, showError } = useApiMessage();
 
   // Every mutating control in this sidebar (assignees, relationships, column,
@@ -351,6 +356,30 @@ const TaskSidebar = ({
         onSuccess: (result) => showSuccess(result),
         onError: (error) => showError(error, "Failed to remove link"),
         onSettled: () => setParentToRemove(null),
+      },
+    );
+  };
+
+  // Due date inline editor
+  const [isEditingDueDate, setIsEditingDueDate] = useState(false);
+  const [dueDateInput, setDueDateInput] = useState("");
+
+  const openDueDateEditor = () => {
+    const existing = task.dueDate
+      ? new Date(task.dueDate).toISOString().split("T")[0]
+      : "";
+    setDueDateInput(existing);
+    setIsEditingDueDate(true);
+  };
+
+  const handleSaveDueDate = (value: string | null) => {
+    if (!projectId) return;
+    updateDueDate.mutate(
+      { taskId: task.id, projectId, dueDate: value },
+      {
+        onSuccess: () => showSuccess("Due date updated"),
+        onError: (error) => showError(error, "Failed to update due date"),
+        onSettled: () => setIsEditingDueDate(false),
       },
     );
   };
@@ -668,6 +697,90 @@ const TaskSidebar = ({
             </ListBox>
           </Select.Popover>
         </Select>
+      </SidebarSection>
+
+      <SidebarSection
+        title="Due date"
+        action={
+          !isEditingDueDate && canEditTask ? (
+            <Button
+              aria-label="Edit due date"
+              variant="tertiary"
+              className="h-6 px-1 text-muted"
+              onClick={openDueDateEditor}
+            >
+              <BiCog className="size-4" />
+            </Button>
+          ) : null
+        }
+      >
+        {isEditingDueDate ? (
+          <div className="space-y-2">
+            <div className="relative">
+              <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-muted">
+                <BiCalendar size={14} />
+              </span>
+              <input
+                type="date"
+                value={dueDateInput}
+                onChange={(e) => setDueDateInput(e.target.value)}
+                className="h-9 w-full rounded-lg border border-default-200 bg-surface pl-8 pr-2 text-sm text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                autoFocus
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              {dueDateInput && (
+                <Button
+                  variant="tertiary"
+                  className="h-7 px-2 text-sm text-danger"
+                  type="button"
+                  onClick={() => handleSaveDueDate(null)}
+                  isDisabled={updateDueDate.isPending}
+                >
+                  <BiX className="size-4" />
+                  Clear
+                </Button>
+              )}
+              <Button
+                variant="tertiary"
+                className="h-7 px-2 text-sm"
+                onClick={() => setIsEditingDueDate(false)}
+                isDisabled={updateDueDate.isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                className="h-7 px-3 text-sm"
+                onClick={() => handleSaveDueDate(dueDateInput || null)}
+                isDisabled={updateDueDate.isPending}
+              >
+                Save
+              </Button>
+            </div>
+          </div>
+        ) : task.dueDate ? (
+          (() => {
+            const due = new Date(task.dueDate);
+            const isOverdue =
+              due < new Date() && task.status !== "DONE";
+            return (
+              <div className={`flex items-center gap-1.5 text-sm ${isOverdue ? "text-danger font-medium" : "text-foreground"}`}>
+                <BiCalendar className="size-4 shrink-0" />
+                {due.toLocaleDateString(undefined, {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+                {isOverdue && (
+                  <span className="text-xs font-normal text-danger">(overdue)</span>
+                )}
+              </div>
+            );
+          })()
+        ) : (
+          <p className="text-sm text-subtle">No due date</p>
+        )}
       </SidebarSection>
 
       <SidebarSection title="Participants">
