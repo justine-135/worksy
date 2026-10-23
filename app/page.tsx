@@ -1,6 +1,7 @@
 import CtaSection from "@/components/landing/CtaSection";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 import HeroSection from "@/components/landing/HeroSection";
+import HowItWorksTeaser from "@/components/landing/HowItWorksTeaser";
 import LandingFooter from "@/components/landing/LandingFooter";
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import StatsSection from "@/components/landing/StatsSection";
@@ -13,6 +14,7 @@ export default function Home() {
       <main>
         <HeroSection />
         <FeaturesSection />
+        <HowItWorksTeaser />
         <TestimonialSection />
         <StatsSection />
         <CtaSection />

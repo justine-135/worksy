@@ -1,12 +1,11 @@
 import Link from "next/link";
-import { LuChevronDown } from "react-icons/lu";
 
 import { Logo } from "./Logo";
 
 const navLinks = [
-  { label: "Solutions", hasMenu: true },
-  { label: "Customers", hasMenu: true },
-  { label: "Pricing", hasMenu: false },
+  { label: "Features", href: "#features" },
+  { label: "How it works", href: "/how-it-works" },
+  { label: "Pricing", href: "#" },
 ];
 
 export default function LandingNavbar() {
@@ -19,11 +18,10 @@ export default function LandingNavbar() {
             {navLinks.map((link) => (
               <li key={link.label}>
                 <Link
-                  href="#features"
-                  className="flex items-center gap-1 text-sm font-medium text-muted transition-colors hover:text-foreground"
+                  href={link.href}
+                  className="text-sm font-medium text-muted transition-colors hover:text-foreground"
                 >
                   {link.label}
-                  {link.hasMenu && <LuChevronDown className="h-3.5 w-3.5" />}
                 </Link>
               </li>
             ))}
