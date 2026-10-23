@@ -24,3 +24,17 @@ export interface DashboardDataResponseDTO {
   status: ETaskStatus;
   tasks: DashboardTaskResponse[];
 }
+
+export interface OverdueTaskDTO {
+  id: string;
+  ticketNumber: number;
+  title: string;
+  priority?: string | null;
+  dueDate: string;
+  boardTitle: string;
+}
+
+export interface DashboardFullResponseDTO {
+  boards: DashboardDataResponseDTO[];
+  overdueTasks: OverdueTaskDTO[];
+}

@@ -20,6 +20,10 @@ export async function GET(req: Request) {
     return apiError("Missing search parameters.", 400);
   }
 
+  if (query.length < 2) {
+    return Response.json([]);
+  }
+
   const data = await getUser({ query, currentUserId: currentId });
 
   return Response.json(data);

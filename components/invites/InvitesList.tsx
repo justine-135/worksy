@@ -1,8 +1,6 @@
-import { Surface } from "@heroui/react/surface";
-import { Typography } from "@heroui/react/typography";
+"use client";
+
 import Image from "next/image";
-import { GoClock } from "react-icons/go";
-import { MdPerson } from "react-icons/md";
 
 import useApiMessage from "@/hooks/common/useApiMessage";
 import useAcceptInvite from "@/hooks/member/useAcceptInvite";
@@ -16,21 +14,6 @@ import CustomAvatar from "../common/custom/CustomAvatar";
 import CustomButton from "../common/custom/CustomButton";
 import { PROJECT_IMAGE_PLACEHOLDER } from "../projects/ProjectCard";
 
-const InviteInformationTypography = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  return (
-    <Typography.Paragraph
-      size="sm"
-      className="text-muted flex items-center gap-1"
-    >
-      {children}
-    </Typography.Paragraph>
-  );
-};
-
 const InviteInformation = ({
   project,
   invite,
@@ -39,99 +22,94 @@ const InviteInformation = ({
   invite: ProjectInviteResponseDTO;
 }) => {
   const userId = useSessionStore((state) => state.userId);
-  const { mutation: inviteMemberMutation } = useAcceptInvite();
-  const { mutation: declineMember } = useDeclineInvite();
+  const { mutation: acceptMutation } = useAcceptInvite();
+  const { mutation: declineMutation } = useDeclineInvite();
   const { showSuccess } = useApiMessage();
 
   const membersCount = project.count || 0;
+  const isProcessing = acceptMutation.isPending || declineMutation.isPending;
 
-  const handleAcceptInvite = () => {
+  const handleAccept = () => {
     if (!userId) return;
-    inviteMemberMutation.mutate(
-      {
-        inviteId: invite.id,
-      },
-      {
-        onSuccess: (result) => {
-          showSuccess(result);
-        },
-      },
+    acceptMutation.mutate(
+      { inviteId: invite.id },
+      { onSuccess: (result) => showSuccess(result) },
     );
   };
 
-  const handleDeclineInvite = () => {
+  const handleDecline = () => {
     if (!userId) return;
-    declineMember.mutate(
-      {
-        inviteId: invite.id,
-      },
-      {
-        onSuccess: (result) => {
-          showSuccess(result);
-        },
-      },
+    declineMutation.mutate(
+      { inviteId: invite.id },
+      { onSuccess: (result) => showSuccess(result) },
     );
   };
 
   return (
-    <Surface
-      className="flex items-center gap-4 p-2 rounded-3xl"
-      variant="secondary"
-    >
-      <div className="relative aspect-square w-14 overflow-hidden rounded-2xl">
+    <div className="flex gap-4 rounded-2xl border border-default-200/60 bg-content1 p-4 transition-shadow hover:shadow-sm">
+      <div className="relative h-18 w-18 shrink-0 overflow-hidden rounded-xl">
         <Image
-          alt={`${project.title} project icon`}
-          className="pointer-events-none object-cover select-none"
+          alt={`${project.title} project`}
+          className="pointer-events-none select-none object-cover"
           fill
-          sizes="56px"
+          sizes="72px"
           src={project.imageUrl || PROJECT_IMAGE_PLACEHOLDER}
         />
       </div>
-      <div>
-        <Typography.Paragraph weight="medium">
-          {project.title}
-        </Typography.Paragraph>
-        <div className="flex items-center space-x-4 flex-wrap">
-          <InviteInformationTypography>
+
+      <div className="flex min-w-0 flex-1 items-center gap-4">
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold">{project.title}</p>
+          <div className="mt-0.5 flex items-center gap-1.5 text-xs text-default-500">
             <CustomAvatar
-              avatarProps={{ className: "size-5" }}
+              avatarProps={{ className: "size-4" }}
               avatarImageProps={{
                 src: invite.userSender.image || PROJECT_IMAGE_PLACEHOLDER,
                 alt: invite.userSender.name,
               }}
               fallback={invite.userSender.name}
             />
-            {invite.userSender.name}
-          </InviteInformationTypography>
-          <InviteInformationTypography>
-            <MdPerson />
-            {membersCount} {membersCount === 1 ? "member" : "members"}
-          </InviteInformationTypography>
-          <InviteInformationTypography>
-            <GoClock />
-            {timeAgo(invite.createdAt)}
-          </InviteInformationTypography>
+            <span>
+              Invited by{" "}
+              <span className="font-medium text-default-700 dark:text-default-300">
+                {invite.userSender.name}
+              </span>
+            </span>
+          </div>
+          <div className="mt-1 flex items-center gap-1.5 text-xs text-default-400">
+            <span>
+              {membersCount} {membersCount === 1 ? "member" : "members"}
+            </span>
+            <span aria-hidden="true">·</span>
+            <span>{timeAgo(invite.createdAt)}</span>
+          </div>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-2">
+          <CustomButton
+            type="button"
+            size="sm"
+            variant="outline"
+            className="font-normal text-default-500"
+            title="Decline"
+            loadingTitle="Declining"
+            isPending={declineMutation.isPending}
+            isDisabled={isProcessing}
+            onClick={handleDecline}
+          />
+          <CustomButton
+            type="button"
+            size="sm"
+            variant="primary"
+            title="Accept"
+            loadingTitle="Accepting"
+            isPending={acceptMutation.isPending}
+            isDisabled={isProcessing}
+            onClick={handleAccept}
+          />
         </div>
       </div>
-      <div className="ml-auto flex flex-wrap space-x-4">
-        <CustomButton
-          variant="outline"
-          title="Accept"
-          onClick={handleAcceptInvite}
-          isPending={inviteMemberMutation.isPending}
-          loadingTitle="Accepting"
-          isDisabled={inviteMemberMutation.isPending || declineMember.isPending}
-        />
-        <CustomButton
-          variant="outline"
-          title="Decline"
-          onClick={handleDeclineInvite}
-          isPending={declineMember.isPending}
-          loadingTitle="Declining"
-          isDisabled={inviteMemberMutation.isPending || declineMember.isPending}
-        />
-      </div>
-    </Surface>
+    </div>
   );
 };
 
@@ -141,15 +119,14 @@ interface InvitesListProps {
 
 export default function InvitesList({ data }: InvitesListProps) {
   return (
-    <div className="flex flex-wrap w-full">
-      {data?.map((invite) => {
-        const { id, project } = invite;
-        return (
-          <div key={id} className="w-full p-2 space-y-2">
-            <InviteInformation project={project} invite={invite} />
-          </div>
-        );
-      })}
+    <div className="flex w-full flex-col gap-3">
+      {data?.map((invite) => (
+        <InviteInformation
+          key={invite.id}
+          project={invite.project}
+          invite={invite}
+        />
+      ))}
     </div>
   );
 }

@@ -47,7 +47,7 @@ describe('AddRoleDrawer', () => {
     const checkboxes = screen.getAllByRole('checkbox')
     await user.click(checkboxes[0])
 
-    await user.click(screen.getByRole('button', { name: /submit/i }))
+    await user.click(screen.getByRole('button', { name: /create role/i }))
 
     await waitFor(() => {
       expect(mockMutate).toHaveBeenCalledTimes(1)
@@ -67,7 +67,7 @@ describe('AddRoleDrawer', () => {
 
     const checkboxes = screen.getAllByRole('checkbox')
     await user.click(checkboxes[0])
-    await user.click(screen.getByRole('button', { name: /submit/i }))
+    await user.click(screen.getByRole('button', { name: /create role/i }))
 
     await waitFor(() => expect(mockMutate).not.toHaveBeenCalled())
   })
@@ -76,7 +76,7 @@ describe('AddRoleDrawer', () => {
     const user = await openDrawer()
 
     await user.type(screen.getByPlaceholderText(/enter role name/i), 'Developer')
-    await user.click(screen.getByRole('button', { name: /submit/i }))
+    await user.click(screen.getByRole('button', { name: /create role/i }))
 
     await waitFor(() => expect(mockMutate).not.toHaveBeenCalled())
   })

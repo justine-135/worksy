@@ -22,9 +22,9 @@ import {
   CircleDashedIcon,
   Typography,
 } from "@heroui/react";
-import { Card } from "@heroui/react/card";
 import { ScrollShadow } from "@heroui/react/scroll-shadow";
 import { useQueryClient } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useState, useSyncExternalStore } from "react";
 
 import { PRIORITY_CHIP, TASK_PRIORITY_LABELS } from "@/enum/taskPriority.enum";
@@ -50,6 +50,13 @@ import useDragState, { getColumnId, getTaskId } from "./useDragState";
 const transition = {
   duration: 220,
   easing: "cubic-bezier(0.2, 1, 0.36, 1)",
+};
+
+/** Matches HeroUI Pro Kanban column indicator dot colors by task status. */
+const COLUMN_INDICATOR: Record<string, string> = {
+  TODO: "bg-default-400",
+  IN_PROGRESS: "bg-warning",
+  DONE: "bg-success",
 };
 
 const ASSIGNEES_LIMIT = 4;
@@ -115,32 +122,31 @@ const TaskCardContent = ({
   const fullTicketId = `${projectTitle} #${String(ticketNumber)}`;
 
   return (
-    <Card
+    <div
       className={[
-        "w-full min-w-0 gap-2 rounded-lg border border-default-200/80 bg-content1/95 px-2 py-1",
-        "transition-[box-shadow,transform,opacity] duration-200 ease-out will-change-transform",
+        "w-full min-w-0 rounded-xl bg-content1 p-3",
+        "transition-[box-shadow,opacity] duration-200 ease-out",
         dragging
-          ? "cursor-grabbing shadow-xl ring-1 ring-primary/20"
-          : "cursor-grab active:cursor-grabbing shadow-sm",
+          ? "cursor-grabbing shadow-lg ring-2 ring-primary/20"
+          : "cursor-grab shadow-sm hover:shadow-md active:cursor-grabbing",
       ].join(" ")}
     >
-      <Card.Header className="min-w-0">
-        <div className="flex items-center justify-between">
-          <Card.Description>{fullTicketId}</Card.Description>
-          <AssigneesIcons assignees={assignees} />
-        </div>
-        <TaskDetailDrawer id={id} title={title} />
-      </Card.Header>
+      <div className="mb-2 flex items-start justify-between gap-2">
+        <span className="text-xs text-default-500">{fullTicketId}</span>
+        <AssigneesIcons assignees={assignees} />
+      </div>
 
-      <Card.Footer className="flex min-w-0 gap-2">
-        {/*Task status label*/}
+      <div className="mb-3">
+        <TaskDetailDrawer id={id} title={title} />
+      </div>
+
+      <div className="flex flex-wrap gap-1.5">
         <Chip
           color={TASK_STATUS_CHIP[status] as ChipVariants["color"]}
           variant="soft"
         >
           <CircleDashedIcon /> {TASK_STATUS_LABELS[status]}
-        </Chip>{" "}
-        {/*Task priority label*/}
+        </Chip>
         {priority && (
           <Chip
             color={PRIORITY_CHIP[priority] as ChipVariants["color"]}
@@ -148,11 +154,10 @@ const TaskCardContent = ({
           >
             {TASK_PRIORITY_LABELS[priority]}
           </Chip>
-        )}{" "}
-        {/*Task created at date label*/}
+        )}
         <Chip>{notificationTimeAgo(createdAt)}</Chip>
-      </Card.Footer>
-    </Card>
+      </div>
+    </div>
   );
 };
 
@@ -185,19 +190,26 @@ const TaskCard = ({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition: sortableTransition,
-    opacity: isDragging ? 0.35 : 1,
   };
 
   return (
-    <div
+    <motion.div
+      layout
+      layoutId={`task-${data.id}`}
       ref={setNodeRef}
       style={style}
       {...attributes}
       {...listeners}
+      animate={{ opacity: isDragging ? 0.5 : 1 }}
+      transition={
+        isDragging
+          ? { duration: 0 }
+          : { layout: { type: "spring", damping: 25, stiffness: 300 } }
+      }
       className="touch-none"
     >
       <TaskCardContent data={data} dragging={isDragging} projectTitle={title} />
-    </div>
+    </motion.div>
   );
 };
 
@@ -225,17 +237,19 @@ const EmptyColumnDropZone = ({ columnId }: { columnId: string }) => {
   });
 
   return (
-    <div
+    <motion.div
       ref={setNodeRef}
+      animate={{ height: isOver ? 80 : 56 }}
+      transition={{ type: "spring", damping: 20, stiffness: 300 }}
       className={[
-        "grid min-h-24 place-items-center rounded-lg border border-dashed text-xs transition-colors",
+        "flex items-center justify-center rounded-lg border border-dashed text-xs transition-colors",
         isOver
-          ? "border-primary/40 bg-default-100/70 text-default-700"
-          : "border-default-200 text-default-500",
+          ? "border-primary/50 bg-primary/5 text-primary-500"
+          : "border-default-200 text-default-400",
       ].join(" ")}
     >
-      Drop a task here
-    </div>
+      {isOver ? "Release to drop" : "Drop a task here"}
+    </motion.div>
   );
 };
 
@@ -248,22 +262,24 @@ const TaskList = ({
 }) => {
   return (
     <div className="flex max-h-[calc(100vh-18rem)] min-h-24 flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto p-1">
-      {sortable
-        ? column.tasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              data={task}
-              title={column.project.title}
-              columnId={column.id}
-            />
-          ))
-        : column.tasks.map((task) => (
-            <StaticTaskCard
-              key={task.id}
-              data={task}
-              title={column.project.title}
-            />
-          ))}
+      <AnimatePresence initial={false}>
+        {sortable
+          ? column.tasks.map((task) => (
+              <TaskCard
+                key={task.id}
+                data={task}
+                title={column.project.title}
+                columnId={column.id}
+              />
+            ))
+          : column.tasks.map((task) => (
+              <StaticTaskCard
+                key={task.id}
+                data={task}
+                title={column.project.title}
+              />
+            ))}
+      </AnimatePresence>
       {column.tasks.length === 0 ? (
         <EmptyColumnDropZone columnId={column.id} />
       ) : null}
@@ -295,42 +311,49 @@ const TaskBoardContent = ({
   projectId?: string | null;
 }) => {
   return (
-    <Card
+    <div
       ref={setDragHandleRef}
       {...(!dragDisabled ? dragHandleAttributes : {})}
       {...(!dragDisabled ? dragHandleListeners : {})}
       className={[
-        "flex h-full min-h-72 w-90 flex-col rounded-xl border border-default-200/80 p-1 shadow-sm",
-        dragDisabled
-          ? "bg-content1/95 cursor-default"
-          : "bg-content1/95 cursor-grab active:cursor-grabbing hover:bg-surface-muted active:opacity-70",
-        dragging ? "shadow-xl ring-1 ring-primary/20" : "",
+        "group flex shrink-0 flex-col gap-2",
+        dragDisabled ? "cursor-default" : "cursor-grab active:cursor-grabbing",
+        dragging ? "opacity-50" : "",
       ].join(" ")}
+      style={{ width: "var(--kanban-column-min-width, 280px)" }}
     >
+      {/* Column header */}
+      <div className="flex items-center gap-2 px-1">
+        <div
+          className={[
+            "size-2.5 shrink-0 rounded-full",
+            COLUMN_INDICATOR[column.status] ?? "bg-default-300",
+          ].join(" ")}
+        />
+        <div className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
+          {column.title}
+        </div>
+        <div className="shrink-0 rounded-md bg-default-100 px-1.5 py-0.5 text-xs font-medium text-default-600">
+          {column.tasks.length}
+        </div>
+        {/* Stop pointer-downs from reaching the dnd-kit drag handle so
+            react-aria overlays (Dropdown) still open. Fade in on hover. */}
+        <div
+          className="ml-1 flex shrink-0 items-center gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          <EditTaskBoardModal column={column} />
+          <AddTaskModal projectId={projectId} taskBoardID={column.id} />
+        </div>
+      </div>
+
+      {/* Column body — rounded background panel */}
       <div
-        className="TaskDetail h-full rounded-lg bg-surface p-1 cursor-default"
+        className="flex flex-1 flex-col rounded-xl border border-default-200 bg-content2 p-2 dark:bg-default-100/30"
+        style={{ minHeight: "var(--kanban-column-height, 480px)" }}
         onMouseEnter={onTaskDetailEnter}
         onMouseLeave={onTaskDetailLeave}
       >
-        <div className="mb-3 flex items-center gap-2">
-          <div className="truncate font-semibold">{column.title}</div>
-          <div className="flex items-center gap-2">
-            <div className="rounded-full bg-default-100 px-2 py-0 text-xs text-default-600">
-              {column.tasks.length}
-            </div>
-          </div>
-          {/* Stop pointer-downs from reaching the card's dnd-kit drag handle,
-              otherwise the sensor swallows the press and react-aria overlays
-              (the actions Dropdown) never open. */}
-          <div
-            className="ml-auto flex items-center justify-center gap-1"
-            onPointerDown={(e) => e.stopPropagation()}
-          >
-            <EditTaskBoardModal column={column} />
-            <AddTaskModal projectId={projectId} taskBoardID={column.id} />
-          </div>
-        </div>
-
         {sortable ? (
           <SortableContext
             id={getColumnId(column.id)}
@@ -343,7 +366,7 @@ const TaskBoardContent = ({
           <TaskList column={column} sortable={false} />
         )}
       </div>
-    </Card>
+    </div>
   );
 };
 
@@ -377,7 +400,6 @@ const TaskBoard = ({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition: sortableTransition,
-    opacity: isDragging ? 0.45 : 1,
   };
 
   return (
@@ -516,7 +538,7 @@ export default function BoardDetail() {
               )}
 
               {!activeTask && activeColumn && (
-                <div className="w-[20rem]">
+                <div style={{ width: "var(--kanban-column-min-width, 280px)" }}>
                   <TaskBoardContent column={activeColumn} dragging />
                 </div>
               )}

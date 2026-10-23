@@ -27,15 +27,6 @@ export default function InviteMemberModal() {
   const projectId = useSessionStore((s) => s.projectId);
 
   const { mutation } = useCreateInvite();
-
-  const handleOpenChange = () => {
-    if (!isOpen) {
-      setMember(undefined);
-    }
-
-    setIsOpen(!isOpen);
-  };
-
   const { showSuccess, showError } = useApiMessage();
 
   const {
@@ -48,66 +39,77 @@ export default function InviteMemberModal() {
     resolver: zodResolver(inviteMemberSchema),
   });
 
+  const handleOpen = () => {
+    setMember(undefined);
+    reset();
+    setIsOpen(true);
+  };
+
+  const handleClose = () => {
+    setMember(undefined);
+    reset();
+    setIsOpen(false);
+  };
+
   useEffect(() => {
-    if (member) {
-      setValue("receiverId", member.id);
-    } else {
-      setValue("receiverId", "");
-    }
+    setValue("receiverId", member?.id ?? "");
   }, [member, setValue]);
 
   const onSubmit = (data: InviteMemberInput) => {
-    mutation.mutate(
-      {
-        ...data,
+    mutation.mutate(data, {
+      onSuccess: (result) => {
+        handleClose();
+        showSuccess(result);
       },
-      {
-        onSuccess: (result) => {
-          reset();
-          setIsOpen(false);
-          showSuccess(result);
-        },
-        onError: (result) => {
-          reset();
-          setIsOpen(false);
-          showError(result);
-        },
+      onError: (result) => {
+        showError(result);
       },
-    );
+    });
   };
 
   return (
     <div>
       <CustomButton
-        onClick={handleOpenChange}
+        onClick={handleOpen}
         title="Invite member"
         permission={Permissions.MemberInvite}
       />
-      <Modal.Backdrop isOpen={isOpen} onOpenChange={setIsOpen}>
+      <Modal.Backdrop isOpen={isOpen} onOpenChange={(open) => !open && handleClose()}>
         <Modal.Container>
           <Modal.Dialog>
             <Modal.CloseTrigger />
             <Modal.Header>
-              <Modal.Heading>Invite Member</Modal.Heading>
+              <Modal.Heading>Invite member</Modal.Heading>
             </Modal.Header>
             <Form onSubmit={handleSubmit(onSubmit)}>
-              <Modal.Body className="p-2">
-                <UserComboBox setMember={setMember} />
-                {member && <UserSurface member={member} />}
-                <input
-                  hidden
-                  {...register("projectId")}
-                  value={projectId as string}
-                />
-                {errors.projectId && <p>{errors.projectId.message}</p>}
-                {errors.receiverId && <p>{errors.receiverId.message}</p>}
+              <Modal.Body className="flex flex-col gap-3 p-4">
+                {member ? (
+                  <UserSurface
+                    member={member}
+                    onClear={() => setMember(undefined)}
+                  />
+                ) : (
+                  <UserComboBox onSelect={setMember} />
+                )}
+                {errors.receiverId && (
+                  <p className="text-xs text-danger">
+                    {errors.receiverId.message}
+                  </p>
+                )}
+                <input hidden {...register("projectId")} value={projectId ?? ""} />
+                {errors.projectId && (
+                  <p className="text-xs text-danger">
+                    {errors.projectId.message}
+                  </p>
+                )}
               </Modal.Body>
               <Modal.Footer>
                 <CustomButton
-                  title="Send Invite"
+                  title="Send invite"
                   isPending={mutation.isPending}
-                  loadingTitle="Sending Invite"
+                  loadingTitle="Sending..."
                   type="submit"
+                  isDisabled={!member}
                 />
               </Modal.Footer>
             </Form>

@@ -28,7 +28,7 @@ describe('RoleForm', () => {
     const checkboxes = screen.getAllByRole('checkbox')
     await user.click(checkboxes[0])
 
-    await user.click(screen.getByRole('button', { name: /submit/i }))
+    await user.click(screen.getByRole('button', { name: /create role/i }))
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalledTimes(1)
@@ -48,7 +48,7 @@ describe('RoleForm', () => {
 
     const checkboxes = screen.getAllByRole('checkbox')
     await user.click(checkboxes[0])
-    await user.click(screen.getByRole('button', { name: /submit/i }))
+    await user.click(screen.getByRole('button', { name: /create role/i }))
 
     await waitFor(() => expect(mockOnSubmit).not.toHaveBeenCalled())
   })
@@ -60,7 +60,7 @@ describe('RoleForm', () => {
     await user.type(screen.getByPlaceholderText(/enter role name/i), 'ab')
     const checkboxes = screen.getAllByRole('checkbox')
     await user.click(checkboxes[0])
-    await user.click(screen.getByRole('button', { name: /submit/i }))
+    await user.click(screen.getByRole('button', { name: /create role/i }))
 
     await waitFor(() => expect(mockOnSubmit).not.toHaveBeenCalled())
   })
@@ -70,7 +70,7 @@ describe('RoleForm', () => {
     render(<RoleForm onSubmit={mockOnSubmit} isPending={false} />)
 
     await user.type(screen.getByPlaceholderText(/enter role name/i), 'Developer')
-    await user.click(screen.getByRole('button', { name: /submit/i }))
+    await user.click(screen.getByRole('button', { name: /create role/i }))
 
     await waitFor(() => expect(mockOnSubmit).not.toHaveBeenCalled())
   })

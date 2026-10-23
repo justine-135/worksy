@@ -20,38 +20,20 @@ export const PATHS = {
   invites: "/invites",
 };
 
-export const ROUTES = [
-  {
-    icon: FiHome,
-    name: "Dashboard",
-    path: PATHS.dashboard,
-    permission: Permissions.DashboardView,
-  },
-  {
-    icon: CgBoard,
-    name: "Board",
-    path: PATHS.board,
-    permission: Permissions.BoardView,
-  },
-  {
-    icon: MdOutlinePersonOutline,
-    name: "Members",
-    path: PATHS.members,
-    permission: Permissions.MemberView,
-  },
-  {
-    icon: GoPeople,
-    name: "Roles and Permissions",
-    path: PATHS.roles,
-    permission: Permissions.RolesView,
-  },
-  {
-    icon: FiSettings,
-    name: "Settings",
-    path: PATHS.settings,
-    permission: Permissions.SettingsProjectView,
-  },
+const CORE_ROUTES = [
+  { icon: FiHome, name: "Dashboard", path: PATHS.dashboard, permission: Permissions.DashboardView },
+  { icon: CgBoard, name: "Board", path: PATHS.board, permission: Permissions.BoardView },
+  { icon: MdOutlinePersonOutline, name: "Members", path: PATHS.members, permission: Permissions.MemberView },
+  { icon: GoPeople, name: "Roles and Permissions", path: PATHS.roles, permission: Permissions.RolesView },
 ];
+
+const ADMIN_ROUTES = [
+  { icon: FiSettings, name: "Settings", path: PATHS.settings, permission: Permissions.SettingsProjectView },
+];
+
+export const ROUTES = [...CORE_ROUTES, ...ADMIN_ROUTES];
+
+type Route = (typeof ROUTES)[number];
 
 export default function TabRoutesNav() {
   const params = useParams();
@@ -61,38 +43,44 @@ export default function TabRoutesNav() {
   const projectId = params?.id;
   const projectBase = `${PATHS.projects}/${projectId}`;
 
-  const visibleRoutes = ROUTES.filter(
+  const visibleCore = CORE_ROUTES.filter(
+    (route) => !route.permission || hasPermission(route.permission),
+  );
+  const visibleAdmin = ADMIN_ROUTES.filter(
     (route) => !route.permission || hasPermission(route.permission),
   );
 
+  const renderTab = (route: Route) => {
+    const Icon = route.icon;
+    const href = `${projectBase}${route.path}`;
+    const isActive = pathname === href || pathname.startsWith(`${href}/`);
+
+    return (
+      <CustomLink key={route.name} href={href}>
+        <div
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 ${
+            isActive
+              ? "bg-surface text-primary shadow-sm"
+              : "text-muted hover:text-foreground hover:bg-surface/60"
+          }`}
+        >
+          <Icon size={14} className="-translate-y-px" />
+          <span>{route.name}</span>
+        </div>
+      </CustomLink>
+    );
+  };
+
+  const hasBothGroups = visibleCore.length > 0 && visibleAdmin.length > 0;
+
   return (
-    <nav className="TabRoutesNav border-b border-border px-4 bg-background">
-      <div className="flex gap-6">
-        {visibleRoutes.map((route) => {
-          const Icon = route.icon;
-
-          const href = `${projectBase}${route.path}`;
-
-          // Match the tab's own path and any of its subroutes (e.g. Settings
-          // stays active on /settings/appearance) without cross-matching
-          // sibling tabs (the trailing "/" prevents /board matching /boardX).
-          const isActive = pathname === href || pathname.startsWith(`${href}/`);
-
-          return (
-            <div key={route.name}>
-              <div
-                className={`flex flex-col items-start w-full pb-1 pt-4 ${isActive ? "border-b-2 border-primary opacity-100" : "opacity-40"}`}
-              >
-                <CustomLink href={href} className="w-full ">
-                  <div className="flex items-center space-x-1">
-                    <Icon size={16} className="-translate-y-px" />
-                    <span className="text-sm font-medium">{route.name}</span>
-                  </div>
-                </CustomLink>
-              </div>
-            </div>
-          );
-        })}
+    <nav className="TabRoutesNav border-b border-border px-4 py-3 bg-background">
+      <div className="inline-flex items-center bg-surface-muted rounded-xl p-1 gap-0.5">
+        {visibleCore.map(renderTab)}
+        {hasBothGroups && (
+          <div className="w-px h-4 bg-border mx-1" aria-hidden="true" />
+        )}
+        {visibleAdmin.map(renderTab)}
       </div>
     </nav>
   );

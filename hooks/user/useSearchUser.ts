@@ -20,7 +20,7 @@ export function useSearchUser({
         query,
         currentId,
       }),
-    enabled: !!query && query.length >= 1,
+    enabled: !!query && query.length >= 2,
     staleTime: 1000 * 60,
     gcTime: 1000 * 60 * 5,
   });

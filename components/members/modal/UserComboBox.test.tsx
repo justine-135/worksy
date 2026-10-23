@@ -5,7 +5,7 @@ import { renderWithProviders } from '@/tests/helpers/renderWithProviders'
 
 import { UserComboBox } from './UserComboBox'
 
-const mockSetMember = jest.fn()
+const mockOnSelect = jest.fn()
 
 jest.mock('@/hooks/user/useSearchUser', () => ({
   useSearchUser: ({ query }: { query: string }) => ({
@@ -16,7 +16,6 @@ jest.mock('@/hooks/user/useSearchUser', () => ({
   }),
 }))
 
-// Bypass debounce so value updates immediately in tests
 jest.mock('@/hooks/common/useDebounce', () => ({
   useDebounce: (value: string) => value,
 }))
@@ -30,29 +29,29 @@ describe('UserComboBox', () => {
   beforeEach(() => jest.clearAllMocks())
 
   it('renders the search input', () => {
-    renderWithProviders(<UserComboBox setMember={mockSetMember} />)
-    expect(screen.getByPlaceholderText(/type @ to mention/i)).toBeInTheDocument()
+    renderWithProviders(<UserComboBox onSelect={mockOnSelect} />)
+    expect(screen.getByPlaceholderText(/search by name or email/i)).toBeInTheDocument()
   })
 
-  it('shows matching users when @ mention is typed', async () => {
+  it('shows matching users when text is typed', async () => {
     const user = userEvent.setup()
-    renderWithProviders(<UserComboBox setMember={mockSetMember} />)
+    renderWithProviders(<UserComboBox onSelect={mockOnSelect} />)
 
-    await user.type(screen.getByPlaceholderText(/type @ to mention/i), '@bob')
+    await user.type(screen.getByPlaceholderText(/search by name or email/i), 'bob')
 
     await waitFor(() => expect(screen.getByText('Bob')).toBeInTheDocument())
     expect(screen.getByText('bob@example.com')).toBeInTheDocument()
   })
 
-  it('calls setMember and clears input when a user row is clicked', async () => {
+  it('calls onSelect and clears input when a user row is clicked', async () => {
     const user = userEvent.setup()
-    renderWithProviders(<UserComboBox setMember={mockSetMember} />)
+    renderWithProviders(<UserComboBox onSelect={mockOnSelect} />)
 
-    await user.type(screen.getByPlaceholderText(/type @ to mention/i), '@bob')
+    await user.type(screen.getByPlaceholderText(/search by name or email/i), 'bob')
     await waitFor(() => screen.getByText('Bob'))
     await user.click(screen.getByText('Bob'))
 
-    expect(mockSetMember).toHaveBeenCalledWith(
+    expect(mockOnSelect).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'user-1', name: 'Bob' }),
     )
   })

@@ -221,44 +221,33 @@ export async function getDashboardData({
   userId,
   projectId,
 }: UserProjectParamsDTO) {
-  const data = await prisma.taskBoard.findMany({
-    where: {
-      project: {
-        id: projectId,
-        members: {
-          some: {
-            userId,
-          },
+  const [boards, overdueTasks] = await Promise.all([
+    prisma.taskBoard.findMany({
+      where: {
+        project: {
+          id: projectId,
+          members: { some: { userId } },
         },
       },
-    },
-    orderBy: {
-      order: "asc",
-    },
-    select: {
-      id: true,
-      title: true,
-      status: true,
-      tasks: {
-        select: {
-          id: true,
-          status: true,
-          title: true,
-          ticketNumber: true,
-          assignees: {
-            where: {
-              projectMember: {
-                userId,
-              },
-            },
-            select: {
-              projectMember: {
-                select: {
-                  user: {
-                    select: {
-                      name: true,
-                      image: true,
-                    },
+      orderBy: { order: "asc" },
+      select: {
+        id: true,
+        title: true,
+        status: true,
+        tasks: {
+          select: {
+            id: true,
+            status: true,
+            title: true,
+            ticketNumber: true,
+            priority: true,
+            dueDate: true,
+            assignees: {
+              where: { projectMember: { userId } },
+              select: {
+                projectMember: {
+                  select: {
+                    user: { select: { name: true, image: true } },
                   },
                 },
               },
@@ -266,7 +255,36 @@ export async function getDashboardData({
           },
         },
       },
-    },
-  });
-  return data;
+    }),
+    prisma.task.findMany({
+      where: {
+        projectId,
+        dueDate: { lt: new Date() },
+        status: { not: "DONE" },
+        project: { members: { some: { userId } } },
+      },
+      orderBy: { dueDate: "asc" },
+      take: 10,
+      select: {
+        id: true,
+        ticketNumber: true,
+        title: true,
+        priority: true,
+        dueDate: true,
+        taskBoard: { select: { title: true } },
+      },
+    }),
+  ]);
+
+  return {
+    boards,
+    overdueTasks: overdueTasks.map((t) => ({
+      id: t.id,
+      ticketNumber: t.ticketNumber,
+      title: t.title,
+      priority: t.priority,
+      dueDate: t.dueDate!.toISOString(),
+      boardTitle: t.taskBoard.title,
+    })),
+  };
 }

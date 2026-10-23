@@ -1,6 +1,6 @@
 "use client";
 
-import { Skeleton, Surface, Typography } from "@heroui/react";
+import { Skeleton, Typography } from "@heroui/react";
 import { useState } from "react";
 
 import { useGetInvites } from "@/hooks/invite/useGetInvites";
@@ -12,30 +12,20 @@ import InvitesList from "./InvitesList";
 
 const SkeletonInviteInformation = () => {
   return (
-    <Surface
-      variant="transparent"
-      className="flex items-center gap-4 p-2 rounded-3xl border border-default-200/80"
-    >
-      <Skeleton className="relative aspect-square w-14 overflow-hidden rounded-2xl " />
-      <div className="space-y-2">
-        <Skeleton className="h-5 w-32" />
-        <div className="flex items-center gap-5">
-          <Skeleton>
-            <Skeleton className="size-5 " />
-          </Skeleton>
-          <Skeleton>
-            <Skeleton className=" h-4 w-16" />
-          </Skeleton>
-          <Skeleton>
-            <Skeleton className=" h-4 w-24" />
-          </Skeleton>
+    <div className="flex gap-4 rounded-2xl border border-default-200/40 bg-content1 p-4">
+      <Skeleton className="h-[72px] w-[72px] shrink-0 rounded-xl" />
+      <div className="flex flex-1 items-center gap-4">
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-4 w-36 rounded-lg" />
+          <Skeleton className="h-3 w-48 rounded-lg" />
+          <Skeleton className="h-3 w-24 rounded-lg" />
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <Skeleton className="h-8 w-20 rounded-xl" />
+          <Skeleton className="h-8 w-24 rounded-xl" />
         </div>
       </div>
-      <div className="flex ml-auto space-x-2">
-        <Skeleton className="relative h-9 w-20 overflow-hidden rounded-2xl " />
-        <Skeleton className="relative h-9 w-20 overflow-hidden rounded-2xl " />
-      </div>
-    </Surface>
+    </div>
   );
 };
 
@@ -77,15 +67,19 @@ export default function InviteDetail() {
   return (
     <div className="InvitesDetail flex flex-col space-y-6">
       <section>
-        <div className="flex flex-col gap-4 items-center mt-20 w-full">
-          <div className="flex flex-col gap-4 w-[53%] max-w-217.25">
-            <div className="flex items-center justify-between w-full mr-8">
-              <Typography.Heading
-                level={1}
-                className="font-extralight text-2xl"
-              >
-                Invites
-              </Typography.Heading>
+        <div className="flex flex-col gap-4 items-center mt-16 w-full">
+          <div className="flex flex-col gap-4 w-full max-w-3xl px-4">
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-2">
+                <Typography.Heading level={1} className="text-xl font-semibold">
+                  Invites
+                </Typography.Heading>
+                {data && data.length > 0 && (
+                  <span className="inline-flex items-center rounded-full bg-default-100 px-2 py-0.5 text-xs font-medium text-default-600">
+                    {data.length}
+                  </span>
+                )}
+              </div>
               <CustomSearchField value={search} onChange={setSearch} />
             </div>
             <InvitesListWrapper

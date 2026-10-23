@@ -11,6 +11,7 @@ import AssignedToMe, { AssignedTask } from "./Sections/AssignedToMe";
 import BoardColumnsCard from "./Sections/BoardColumnsCard";
 import MembersOverview from "./Sections/MembersOverview";
 import OverallProgress from "./Sections/OverallProgress";
+import OverdueTasksCard from "./Sections/OverdueTasksCard";
 import StatCard from "./Sections/StatCard";
 
 export default function DashboardDetail() {
@@ -29,7 +30,8 @@ export default function DashboardDetail() {
 
   if (isLoadingDashboard || isLoadingMembers) return <DashboardSkeleton />;
 
-  const allBoards = dashboardData ?? [];
+  const allBoards = dashboardData?.boards ?? [];
+  const overdueTasks = dashboardData?.overdueTasks ?? [];
   const allTasks = allBoards.flatMap((board) =>
     board.tasks.map((task) => ({ ...task, boardTitle: board.title })),
   );
@@ -77,7 +79,8 @@ export default function DashboardDetail() {
           <DashboardActivity projectId={projectId} />
           <MembersOverview members={members?.data} />
         </div>
-        <div className="lg:col-span-1">
+        <div className="space-y-6 lg:col-span-1">
+          <OverdueTasksCard tasks={overdueTasks} projectId={projectId} />
           <AssignedToMe tasks={assignedTasks} projectId={projectId} />
         </div>
       </div>

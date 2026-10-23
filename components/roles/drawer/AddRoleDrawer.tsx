@@ -50,6 +50,9 @@ export default function AddRoleDrawer() {
           <Drawer.Dialog className="min-w-125">
             <Drawer.Header>
               <Drawer.Heading>Add Role</Drawer.Heading>
+              <p className="text-sm text-muted">
+                Define what members with this role can access and do.
+              </p>
               <Separator className="my-2" />
             </Drawer.Header>
             <Drawer.Body>

@@ -1,8 +1,9 @@
 "use client";
 
-import { Button } from "@heroui/react";
+import { Button, Spinner } from "@heroui/react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
+import { useState } from "react";
 import { FaGithub } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import { LuArrowLeft } from "react-icons/lu";
@@ -23,6 +24,13 @@ const providers = [
 ] as const;
 
 export default function SignInComponent() {
+  const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
+
+  const handleSignIn = (providerId: string) => {
+    setLoadingProvider(providerId);
+    signIn(providerId, { callbackUrl: "/projects" });
+  };
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-6 py-16">
       <div className="w-full max-w-md">
@@ -41,18 +49,22 @@ export default function SignInComponent() {
           </div>
 
           <div className="mt-8 space-y-3">
-            {providers.map((provider) => (
-              <Button
-                key={provider.id}
-                onClick={() => {
-                  signIn(provider.id, { callbackUrl: "/projects" });
-                }}
-                className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-border bg-surface px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-surface-muted"
-              >
-                {provider.icon}
-                {provider.label}
-              </Button>
-            ))}
+            {providers.map((provider) => {
+              const isLoading = loadingProvider === provider.id;
+              const isDisabled = loadingProvider !== null && !isLoading;
+
+              return (
+                <Button
+                  key={provider.id}
+                  onClick={() => handleSignIn(provider.id)}
+                  isDisabled={isDisabled || isLoading}
+                  className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-border bg-surface px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isLoading ? <Spinner size="sm" color="current" /> : provider.icon}
+                  {provider.label}
+                </Button>
+              );
+            })}
           </div>
 
           <p className="mt-6 text-center text-xs text-subtle">

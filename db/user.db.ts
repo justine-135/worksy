@@ -7,33 +7,22 @@ export async function getUser({
   query: string;
   currentUserId: string;
 }) {
+  if (query.length < 2) return [];
+
   return prisma.user.findMany({
     where: {
       AND: [
-        {
-          id: {
-            not: currentUserId,
-          },
-        },
+        { id: { not: currentUserId } },
         {
           OR: [
-            {
-              email: {
-                contains: query,
-                mode: "insensitive",
-              },
-            },
-            {
-              name: {
-                contains: query,
-                mode: "insensitive",
-              },
-            },
+            { name: { startsWith: query, mode: "insensitive" } },
+            { email: { contains: query, mode: "insensitive" } },
           ],
         },
       ],
     },
-    take: 10,
+    select: { id: true, name: true, email: true, image: true },
+    take: 5,
   });
 }
 
