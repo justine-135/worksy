@@ -71,6 +71,7 @@ export async function getTaskBoard({
           status: true,
           createdAt: true,
           updatedAt: true,
+          dueDate: true,
           assignees: {
             select: {
               projectMember: {
