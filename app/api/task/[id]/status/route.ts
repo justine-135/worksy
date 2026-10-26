@@ -6,6 +6,7 @@ import { ETaskStatus } from "@/enum/taskStatus.enum";
 import { apiError, apiSuccess } from "@/lib/api/apiResponse.lib";
 import { authConfig } from "@/lib/auth/auth";
 import { hasPermissionInProject } from "@/lib/permission/checkPermission";
+import { broadcastToProject } from "@/lib/ws/boardBroadcaster.lib";
 
 export async function PATCH(
   req: Request,
@@ -43,6 +44,13 @@ export async function PATCH(
       userId: session?.user.id,
       taskId: id,
       status,
+    });
+
+    broadcastToProject(projectId, {
+      type: "task:status_changed",
+      projectId,
+      taskId: id,
+      taskBoardId: body.taskBoardId ?? "",
     });
 
     return apiSuccess("Task status updated.");

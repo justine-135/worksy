@@ -9,6 +9,7 @@ import { Permissions } from "@/enum/permissions.enum";
 import { apiError, apiSuccess } from "@/lib/api/apiResponse.lib";
 import { authConfig } from "@/lib/auth/auth";
 import { hasPermissionInProject } from "@/lib/permission/checkPermission";
+import { broadcastToProject } from "@/lib/ws/boardBroadcaster.lib";
 
 export async function GET(
   _: Request,
@@ -78,6 +79,12 @@ export async function PATCH(
       userId: session?.user.id,
       taskId: id,
       assignees,
+    });
+
+    broadcastToProject(projectId, {
+      type: "task:updated",
+      projectId,
+      taskId: id,
     });
 
     return apiSuccess("Assignees updated.");

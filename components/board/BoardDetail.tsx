@@ -533,7 +533,10 @@ export default function BoardDetail() {
                 <TaskCardContent
                   data={activeTask}
                   dragging
-                  projectTitle={columns.find((c) => c.id === activeTaskColumnId)?.project.title}
+                  projectTitle={
+                    columns.find((c) => c.id === activeTaskColumnId)?.project
+                      .title
+                  }
                 />
               )}
 

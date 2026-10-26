@@ -5,6 +5,7 @@ import { Permissions } from "@/enum/permissions.enum";
 import { apiError, apiSuccess } from "@/lib/api/apiResponse.lib";
 import { authConfig } from "@/lib/auth/auth";
 import { hasPermissionInProject } from "@/lib/permission/checkPermission";
+import { broadcastToProject } from "@/lib/ws/boardBroadcaster.lib";
 
 export async function PATCH(req: Request) {
   const session = await getServerSession(authConfig);
@@ -54,6 +55,12 @@ export async function PATCH(req: Request) {
       400,
     );
   }
+
+  broadcastToProject(projectId, {
+    type: "task:updated",
+    projectId,
+    taskId: parentId,
+  });
 
   return apiSuccess("Task link updated.");
 }

@@ -5,6 +5,7 @@ import { Permissions } from "@/enum/permissions.enum";
 import { apiError, apiSuccess } from "@/lib/api/apiResponse.lib";
 import { authConfig } from "@/lib/auth/auth";
 import { hasPermissionInProject } from "@/lib/permission/checkPermission";
+import { broadcastToProject } from "@/lib/ws/boardBroadcaster.lib";
 
 export async function PATCH(req: Request) {
   const session = await getServerSession(authConfig);
@@ -43,6 +44,13 @@ export async function PATCH(req: Request) {
       taskId,
       taskBoardId,
       orderedTaskIdsByBoard,
+    });
+
+    broadcastToProject(projectId, {
+      type: "task:moved",
+      projectId,
+      taskId,
+      taskBoardId,
     });
 
     return apiSuccess("Tasks reordered.");
@@ -97,6 +105,12 @@ export async function POST(req: Request) {
     userId: session?.user?.id,
     parentId: parent_id ?? null,
     dueDate: due_date ?? null,
+  });
+
+  broadcastToProject(project_id, {
+    type: "task:created",
+    projectId: project_id,
+    taskBoardId: task_board_id,
   });
 
   return apiSuccess("Task created.", data);

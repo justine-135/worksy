@@ -12,6 +12,7 @@ import { Permissions } from "@/enum/permissions.enum";
 import { apiError, apiSuccess } from "@/lib/api/apiResponse.lib";
 import { authConfig } from "@/lib/auth/auth";
 import { hasPermissionInProject } from "@/lib/permission/checkPermission";
+import { broadcastToProject } from "@/lib/ws/boardBroadcaster.lib";
 
 export async function GET(req: Request) {
   const session = await getServerSession(authConfig);
@@ -71,6 +72,8 @@ export async function PATCH(req: Request) {
       orderedTaskBoardIds,
     });
 
+    broadcastToProject(projectId, { type: "board:reordered", projectId });
+
     return apiSuccess("Columns reordered.");
   } catch (error) {
     return apiError(
@@ -110,6 +113,12 @@ export async function PUT(req: Request) {
     taskBoardId,
     title,
     status,
+  });
+
+  broadcastToProject(projectId, {
+    type: "board:updated",
+    projectId,
+    taskBoardId,
   });
 
   return apiSuccess("Column updated.");
@@ -156,12 +165,25 @@ export async function DELETE(req: Request) {
       taskBoardId,
     });
 
+    broadcastToProject(projectId, {
+      type: "board:deleted",
+      projectId,
+      taskBoardId,
+    });
+
     return apiSuccess("Column deleted.");
   }
 
   await deleteAllTasksInBoardDB({
     projectId,
     userId: session?.user?.id,
+    taskBoardId,
+  });
+
+  // Tasks in the board were deleted — broadcast as board update so clients refresh
+  broadcastToProject(projectId, {
+    type: "board:updated",
+    projectId,
     taskBoardId,
   });
 
@@ -197,6 +219,8 @@ export async function POST(req: Request) {
     title,
     status,
   });
+
+  broadcastToProject(projectId, { type: "board:created", projectId });
 
   return apiSuccess("Column created.", { projectId, title, status });
 }
