@@ -35,10 +35,18 @@ async function assertBoardAccess(
   }
 }
 
+export type BoardFilter = {
+  title?: string;
+  assigneeId?: string;
+  priority?: string;
+  status?: string;
+};
+
 export async function getTaskBoard({
   userId,
   projectId,
-}: UserProjectParamsDTO) {
+  filter,
+}: UserProjectParamsDTO & { filter?: BoardFilter }) {
   const data = await prisma.taskBoard.findMany({
     where: {
       project: {
@@ -61,6 +69,18 @@ export async function getTaskBoard({
       tasks: {
         orderBy: {
           order: "asc",
+        },
+        where: {
+          ...(filter?.title && {
+            title: { contains: filter.title, mode: "insensitive" },
+          }),
+          ...(filter?.status && { status: filter.status as any }),
+          ...(filter?.priority && { priority: filter.priority as any }),
+          ...(filter?.assigneeId && {
+            assignees: {
+              some: { projectMember: { id: filter.assigneeId } },
+            },
+          }),
         },
         select: {
           id: true,

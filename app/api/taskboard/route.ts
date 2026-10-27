@@ -29,9 +29,20 @@ export async function GET(req: Request) {
     return apiError("Missing project id.", 400);
   }
 
+  const filter_title = searchParams.get("filter_title") ?? undefined;
+  const filter_assignee = searchParams.get("filter_assignee_id") ?? undefined;
+  const filter_priority = searchParams.get("filter_priority") ?? undefined;
+  const filter_status = searchParams.get("filter_status") ?? undefined;
+
   const data = await getTaskBoard({
     userId: session?.user.id,
     projectId: project_id,
+    filter: {
+      title: filter_title,
+      assigneeId: filter_assignee,
+      priority: filter_priority,
+      status: filter_status,
+    },
   });
 
   return Response.json(data);
