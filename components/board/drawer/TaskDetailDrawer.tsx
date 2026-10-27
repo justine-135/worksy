@@ -876,7 +876,10 @@ export default function TaskDetailDrawer({ id, title }: TaskDetailDrawerProps) {
     // Strip the deep-link param on close so the URL stays clean and the drawer
     // doesn't immediately re-open from the derived state.
     if (!open && isDeepLinked) {
-      router.replace(pathname);
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("task");
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname);
     }
   };
 
