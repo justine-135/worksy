@@ -84,13 +84,11 @@ function BoardDetailInner() {
       <div className="flex items-center gap-3 flex-wrap">
         <BoardSearch projectId={projectId} onFilterChange={setActiveFilters} />
         <Dropdown>
-          <Dropdown.Trigger>
-            <button
-              aria-label="Change view"
-              className="flex items-center justify-center rounded-md p-1 text-default-500 hover:bg-default-100"
-            >
-              <MdSettings className="size-5" />
-            </button>
+          <Dropdown.Trigger
+            aria-label="Change view"
+            className="flex items-center justify-center rounded-md p-1 text-default-500 hover:bg-default-100"
+          >
+            <MdSettings className="size-5" />
           </Dropdown.Trigger>
           <Dropdown.Popover>
             <Dropdown.Menu
