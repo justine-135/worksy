@@ -10,6 +10,8 @@ import {
   Typography,
 } from "@heroui/react";
 import { AnimatePresence, motion } from "motion/react";
+import { useSearchParams } from "next/navigation";
+import React, { useState } from "react";
 
 import CustomAvatar from "@/components/common/custom/CustomAvatar";
 import { PRIORITY_CHIP, TASK_PRIORITY_LABELS } from "@/enum/taskPriority.enum";
@@ -79,13 +81,17 @@ export const TaskCardContent = ({
   data,
   dragging = false,
   projectTitle,
+  preOpenDrawer,
 }: {
   data: TaskResponseDTO;
   dragging?: boolean;
   projectTitle?: string;
+  preOpenDrawer?: boolean;
 }) => {
   const { id, title, ticketNumber, assignees, status, priority, createdAt } =
     data;
+
+  const [drawerOpen, setDrawerOpen] = useState(preOpenDrawer ?? false);
 
   const fullTicketId = `${projectTitle} #${String(ticketNumber)}`;
 
@@ -105,7 +111,20 @@ export const TaskCardContent = ({
       </div>
 
       <div className="mb-3">
-        <TaskDetailDrawer id={id} title={title} />
+        {drawerOpen ? (
+          <TaskDetailDrawer id={id} title={title} initialOpen />
+        ) : (
+          <button
+            type="button"
+            className="w-full text-left text-sm font-medium leading-snug hover:underline focus:outline-none"
+            onClick={(e) => {
+              e.stopPropagation();
+              setDrawerOpen(true);
+            }}
+          >
+            {title}
+          </button>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-1.5">
@@ -129,18 +148,22 @@ export const TaskCardContent = ({
   );
 };
 
-export const TaskCard = ({
+const TaskCardBase = ({
   data,
   columnId,
   title,
+  boardIsDragging,
+  preOpenDrawer,
 }: {
   data: TaskResponseDTO;
   columnId: string;
   title: string;
+  boardIsDragging?: boolean;
+  preOpenDrawer?: boolean;
 }) => {
   const {
     attributes,
-    isDragging,
+    isDragging: isSelfDragging,
     listeners,
     setNodeRef,
     transform,
@@ -162,24 +185,39 @@ export const TaskCard = ({
 
   return (
     <motion.div
-      layout
-      layoutId={`task-${data.id}`}
       ref={setNodeRef}
       style={style}
       {...attributes}
       {...listeners}
-      animate={{ opacity: isDragging ? 0.5 : 1 }}
+      {...(!boardIsDragging && { layout: true, layoutId: `task-${data.id}` })}
+      animate={{ opacity: isSelfDragging ? 0.5 : 1 }}
       transition={
-        isDragging
+        isSelfDragging || boardIsDragging
           ? { duration: 0 }
           : { layout: { type: "spring", damping: 25, stiffness: 300 } }
       }
       className="touch-none"
     >
-      <TaskCardContent data={data} dragging={isDragging} projectTitle={title} />
+      <TaskCardContent
+        data={data}
+        dragging={isSelfDragging}
+        projectTitle={title}
+        preOpenDrawer={preOpenDrawer}
+      />
     </motion.div>
   );
 };
+
+export const TaskCard = React.memo(
+  TaskCardBase,
+  (prev, next) =>
+    prev.data === next.data &&
+    prev.columnId === next.columnId &&
+    prev.title === next.title &&
+    prev.boardIsDragging === next.boardIsDragging,
+);
+
+TaskCard.displayName = "TaskCard";
 
 export const StaticTaskCard = ({
   data,
@@ -224,10 +262,15 @@ const EmptyColumnDropZone = ({ columnId }: { columnId: string }) => {
 export const TaskList = ({
   column,
   sortable = true,
+  boardIsDragging,
 }: {
   column: TaskBoardResponseDTO;
   sortable?: boolean;
+  boardIsDragging?: boolean;
 }) => {
+  const searchParams = useSearchParams();
+  const deepLinkedTaskId = searchParams.get("task");
+
   return (
     <div className="flex max-h-[calc(100vh-18rem)] min-h-24 flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto p-1">
       <AnimatePresence initial={false}>
@@ -238,6 +281,8 @@ export const TaskList = ({
                 data={task}
                 title={column.project.title}
                 columnId={column.id}
+                boardIsDragging={boardIsDragging}
+                preOpenDrawer={task.id === deepLinkedTaskId}
               />
             ))
           : column.tasks.map((task) => (

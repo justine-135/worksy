@@ -4,7 +4,7 @@ import {
   DragStartEvent,
 } from "@dnd-kit/core/dist/types/events";
 import { arrayMove } from "@dnd-kit/sortable";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import {
   findTaskLocation,
@@ -24,6 +24,7 @@ export default function useDragState({
   onColumnsChange,
   onTaskDrop,
   onColumnDrop,
+  isDraggingRef,
 }: {
   columns: TaskBoardResponseDTO[];
   onColumnsChange: (columns: TaskBoardResponseDTO[]) => void;
@@ -38,12 +39,14 @@ export default function useDragState({
     position: number;
     columns: TaskBoardResponseDTO[];
   }) => void;
+  isDraggingRef?: React.RefObject<boolean>;
 }) {
   const [activeTask, setActiveTask] = useState<TaskResponseDTO | null>(null);
   const [activeTaskColumnId, setActiveTaskColumnId] = useState<string | null>(null);
   const [activeColumn, setActiveColumn] = useState<TaskBoardResponseDTO | null>(
     null,
   );
+  const [dragColumns, setDragColumns] = useState<TaskBoardResponseDTO[] | null>(null);
   const columnsRef = useRef(columns);
 
   useEffect(() => {
@@ -52,6 +55,9 @@ export default function useDragState({
 
   const handleDragStart = (event: DragStartEvent) => {
     const activeData = event.active.data.current;
+
+    setDragColumns(columnsRef.current);
+    if (isDraggingRef) isDraggingRef.current = true;
 
     if (activeData?.type === "task") {
       setActiveTask(activeData.task as TaskResponseDTO);
@@ -124,13 +130,13 @@ export default function useDragState({
           overTaskIndex,
         );
 
-        onColumnsChange(
-          currentColumns.map((column) =>
-            column.id === toColumnId
-              ? { ...column, tasks: reorderedTasks }
-              : column,
-          ),
+        const nextColumns = currentColumns.map((column) =>
+          column.id === toColumnId
+            ? { ...column, tasks: reorderedTasks }
+            : column,
         );
+        columnsRef.current = nextColumns;
+        setDragColumns(nextColumns);
         return;
       }
     }
@@ -160,7 +166,8 @@ export default function useDragState({
     }
 
     activeData.columnId = toColumnId;
-    onColumnsChange(nextColumns);
+    columnsRef.current = nextColumns;
+    setDragColumns(nextColumns);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -173,6 +180,8 @@ export default function useDragState({
     setActiveColumn(null);
 
     if (!over) {
+      if (isDraggingRef) isDraggingRef.current = false;
+      setDragColumns(null);
       return;
     }
 
@@ -199,11 +208,17 @@ export default function useDragState({
           position: newIndex,
           columns: nextColumns,
         });
+      } else {
+        // No reorder — still sync final state to query cache
+        onColumnsChange(columnsRef.current);
       }
     }
 
     if (activeData?.type === "task") {
       const currentColumns = columnsRef.current;
+      // Sync final drag state to query cache once
+      onColumnsChange(currentColumns);
+
       const finalColumnId = activeData.columnId;
       const finalColumn = currentColumns.find(
         (column) => column.id === finalColumnId,
@@ -220,10 +235,15 @@ export default function useDragState({
         columns: currentColumns,
       });
     }
+
+    if (isDraggingRef) isDraggingRef.current = false;
+    setDragColumns(null);
   };
 
   return {
     columns,
+    dragColumns,
+    isDragging: dragColumns !== null,
     activeTask,
     activeTaskColumnId,
     activeColumn,

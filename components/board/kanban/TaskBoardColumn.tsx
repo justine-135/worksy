@@ -3,7 +3,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useState } from "react";
+import React, { useState } from "react";
 
 import { TaskBoardResponseDTO } from "@/types/taskboard.dto";
 
@@ -19,7 +19,7 @@ const COLUMN_INDICATOR: Record<string, string> = {
   DONE: "bg-success",
 };
 
-export const TaskBoardContent = ({
+const TaskBoardContentBase = ({
   column,
   dragging = false,
   dragDisabled = false,
@@ -30,6 +30,7 @@ export const TaskBoardContent = ({
   onTaskDetailLeave,
   sortable = true,
   projectId,
+  boardIsDragging,
 }: {
   column: TaskBoardResponseDTO;
   dragging?: boolean;
@@ -41,6 +42,7 @@ export const TaskBoardContent = ({
   onTaskDetailLeave?: () => void;
   sortable?: boolean;
   projectId?: string | null;
+  boardIsDragging?: boolean;
 }) => {
   return (
     <div
@@ -92,7 +94,7 @@ export const TaskBoardContent = ({
             items={column.tasks.map((task) => getTaskId(task.id))}
             strategy={verticalListSortingStrategy}
           >
-            <TaskList column={column} />
+            <TaskList column={column} boardIsDragging={boardIsDragging} />
           </SortableContext>
         ) : (
           <TaskList column={column} sortable={false} />
@@ -102,12 +104,29 @@ export const TaskBoardContent = ({
   );
 };
 
+export const TaskBoardContent = React.memo(
+  TaskBoardContentBase,
+  (prev, next) =>
+    prev.column.id === next.column.id &&
+    prev.column.tasks.length === next.column.tasks.length &&
+    prev.column.tasks.every((t, i) => t.id === next.column.tasks[i]?.id) &&
+    prev.dragging === next.dragging &&
+    prev.dragDisabled === next.dragDisabled &&
+    prev.sortable === next.sortable &&
+    prev.projectId === next.projectId &&
+    prev.boardIsDragging === next.boardIsDragging,
+);
+
+TaskBoardContent.displayName = "TaskBoardContent";
+
 export const TaskBoard = ({
   column,
   projectId,
+  boardIsDragging,
 }: {
   column: TaskBoardResponseDTO;
   projectId?: string | null;
+  boardIsDragging?: boolean;
 }) => {
   const [isTaskDetailHovered, setIsTaskDetailHovered] = useState(false);
   const {
@@ -146,6 +165,7 @@ export const TaskBoard = ({
         onTaskDetailEnter={() => setIsTaskDetailHovered(true)}
         onTaskDetailLeave={() => setIsTaskDetailHovered(false)}
         projectId={projectId}
+        boardIsDragging={boardIsDragging}
       />
     </div>
   );

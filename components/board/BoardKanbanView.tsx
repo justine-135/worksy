@@ -14,7 +14,7 @@ import {
 } from "@dnd-kit/sortable";
 import { ScrollShadow } from "@heroui/react/scroll-shadow";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useSyncExternalStore } from "react";
+import React, { useCallback, useSyncExternalStore } from "react";
 
 import { QUERY_KEYS } from "@/constant/queryKeys";
 import useSaveTaskBoardPositionMutation from "@/hooks/taskboard/useSaveTaskBoardPositionMutation";
@@ -32,6 +32,7 @@ interface BoardKanbanViewProps {
   isLoading: boolean;
   projectId: string | null;
   invalidateTaskBoards: () => Promise<void>;
+  isDraggingRef?: React.RefObject<boolean>;
 }
 
 export default function BoardKanbanView({
@@ -39,6 +40,7 @@ export default function BoardKanbanView({
   isLoading,
   projectId,
   invalidateTaskBoards,
+  isDraggingRef,
 }: BoardKanbanViewProps) {
   const queryClient = useQueryClient();
 
@@ -67,12 +69,15 @@ export default function BoardKanbanView({
     activeTask,
     activeTaskColumnId,
     activeColumn,
+    dragColumns,
+    isDragging,
     handleDragStart,
     handleDragOver,
     handleDragEnd,
   } = useDragState({
     columns,
     onColumnsChange: handleColumnsChange,
+    isDraggingRef,
     onColumnDrop: ({ columns: orderedColumns }) => {
       saveTaskBoardOrderMutation.mutate({
         orderedTaskBoardIds: orderedColumns.map((column) => column.id),
@@ -89,6 +94,8 @@ export default function BoardKanbanView({
       });
     },
   });
+
+  const displayColumns = dragColumns ?? columns;
 
   const isMounted = useSyncExternalStore(
     () => () => {},
@@ -124,14 +131,15 @@ export default function BoardKanbanView({
             sensors={sensors}
           >
             <SortableContext
-              items={columns.map((column) => getColumnId(column.id))}
+              items={displayColumns.map((column) => getColumnId(column.id))}
               strategy={horizontalListSortingStrategy}
             >
-              {columns.map((column) => (
+              {displayColumns.map((column) => (
                 <TaskBoard
                   key={column.id}
                   column={column}
                   projectId={projectId}
+                  boardIsDragging={isDragging}
                 />
               ))}
             </SortableContext>
@@ -145,7 +153,7 @@ export default function BoardKanbanView({
                   data={activeTask}
                   dragging
                   projectTitle={
-                    columns.find((c) => c.id === activeTaskColumnId)?.project
+                    displayColumns.find((c) => c.id === activeTaskColumnId)?.project
                       .title
                   }
                 />

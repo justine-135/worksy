@@ -3,7 +3,7 @@
 import { Dropdown, Label } from "@heroui/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useMemo, useRef, useState } from "react";
 import {
   MdCalendarMonth,
   MdSettings,
@@ -59,7 +59,9 @@ function BoardDetailInner() {
     queryClient,
   );
 
-  useBoardWebSocket({ projectId });
+  const isDraggingRef = useRef(false);
+
+  useBoardWebSocket({ projectId, isDraggingRef });
 
   const { data, isLoading } = useGetTaskBoard({
     projectId: projectId || "",
@@ -121,6 +123,7 @@ function BoardDetailInner() {
           isLoading={isLoading}
           projectId={projectId}
           invalidateTaskBoards={invalidateTaskBoards}
+          isDraggingRef={isDraggingRef}
         />
       )}
       {activeView === "list" && (

@@ -20,10 +20,11 @@ import TaskSidebar from "./TaskSidebar";
 interface TaskDetailDrawerProps {
   id: string;
   title: string;
+  initialOpen?: boolean;
 }
 
-export default function TaskDetailDrawer({ id, title }: TaskDetailDrawerProps) {
-  const [manualOpen, setManualOpen] = useState<boolean>(false);
+export default function TaskDetailDrawer({ id, title, initialOpen }: TaskDetailDrawerProps) {
+  const [manualOpen, setManualOpen] = useState<boolean>(initialOpen ?? false);
 
   const router = useRouter();
   const pathname = usePathname();

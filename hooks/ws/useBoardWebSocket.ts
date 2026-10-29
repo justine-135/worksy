@@ -1,13 +1,14 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { QUERY_KEYS } from "@/constant/queryKeys";
 import { BoardEvent } from "@/lib/ws/boardBroadcaster.lib";
 
 interface UseBoardWebSocketOptions {
   projectId?: string | null;
+  isDraggingRef?: React.RefObject<boolean>;
 }
 
 interface UseBoardWebSocketResult {
@@ -16,6 +17,7 @@ interface UseBoardWebSocketResult {
 
 export function useBoardWebSocket({
   projectId,
+  isDraggingRef,
 }: UseBoardWebSocketOptions): UseBoardWebSocketResult {
   const queryClient = useQueryClient();
   const [isConnected, setIsConnected] = useState(false);
@@ -24,10 +26,11 @@ export function useBoardWebSocket({
 
   const invalidateBoard = useCallback(() => {
     if (!projectId) return;
+    if (isDraggingRef?.current) return;
     queryClient.invalidateQueries({
       queryKey: QUERY_KEYS.TASK_BOARDS(projectId),
     });
-  }, [queryClient, projectId]);
+  }, [queryClient, projectId, isDraggingRef]);
 
   const handleEvent = useCallback(
     (event: BoardEvent) => {
