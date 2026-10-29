@@ -197,7 +197,7 @@ export default function TableSearch({
     <div
       role="search"
       aria-label="Filter"
-      className="flex flex-1 w-full flex-wrap items-center gap-1.5 rounded-xl border border-default-200 bg-content1 px-3 py-1.5 min-h-[38px] cursor-pointer transition-colors hover:border-default-400 focus-within:border-primary"
+      className="flex flex-1 w-full flex-wrap items-center gap-1.5 rounded-xl border border-default-200 bg-content1 px-3 py-1.5 min-h-9.5 cursor-pointer transition-colors hover:border-default-400 focus-within:border-primary"
       onClick={() => ghostInputRef.current?.focus()}
     >
       {/* Chips */}
@@ -226,7 +226,7 @@ export default function TableSearch({
                     textInputRefs.current[filter.type] = el;
                   }}
                   aria-label={`Filter by ${def.label}`}
-                  className="min-w-[80px] max-w-[180px] bg-transparent text-sm text-foreground outline-none placeholder:text-primary/50"
+                  className="min-w-20 max-w-45 bg-transparent text-sm text-foreground outline-none placeholder:text-primary/50"
                   placeholder="type to filter…"
                   value={filter.value ?? ""}
                   onChange={(e) => handleTextChange(filter.type, e)}
@@ -279,7 +279,7 @@ export default function TableSearch({
               )}
 
               {/* × remove button */}
-              <span className="min-w-[24px] min-h-[24px] flex items-center justify-center">
+              <span className="min-w-6 min-h-6 flex items-center justify-center">
                 <button
                   type="button"
                   aria-label={`Remove ${filter.type} filter`}
@@ -325,7 +325,7 @@ export default function TableSearch({
       )}
 
       {availableTypes.length > 0 && (
-        <div className="flex-1 min-w-[80px]">
+        <div className="flex-1 min-w-20">
           <input
             ref={ghostInputRef}
             readOnly

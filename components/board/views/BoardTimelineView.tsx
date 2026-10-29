@@ -79,7 +79,7 @@ function TimelineSkeleton() {
             <div className="w-60 shrink-0 border-r border-default-100 px-3 py-2.5">
               <Skeleton className="h-4 w-full rounded" />
             </div>
-            <div className="flex flex-1 items-center px-2 py-2">
+            <div className="flex flex-1 items-center p-2">
               <Skeleton className="h-5 w-24 rounded-full" />
             </div>
           </div>
@@ -129,7 +129,7 @@ function TaskTimelineRow({
       </div>
 
       {/* Right: timeline bar */}
-      <div className="relative min-h-[2.5rem] flex-1 overflow-x-auto">
+      <div className="relative min-h-10 flex-1 overflow-x-auto">
         <div
           className="relative h-full"
           style={{
@@ -143,7 +143,7 @@ function TaskTimelineRow({
             <div
               key={i}
               className={[
-                "border-l border-default-100 min-h-[2.5rem]",
+                "border-l border-default-100 min-h-10",
                 isToday(addDays(viewStart, i)) ? "bg-primary/5" : "",
               ].join(" ")}
             />

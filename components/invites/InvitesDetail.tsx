@@ -13,7 +13,7 @@ import InvitesList from "./InvitesList";
 const SkeletonInviteInformation = () => {
   return (
     <div className="flex gap-4 rounded-2xl border border-default-200/40 bg-content1 p-4">
-      <Skeleton className="h-[72px] w-[72px] shrink-0 rounded-xl" />
+      <Skeleton className="h-18 w-18 shrink-0 rounded-xl" />
       <div className="flex flex-1 items-center gap-4">
         <div className="flex-1 space-y-2">
           <Skeleton className="h-4 w-36 rounded-lg" />

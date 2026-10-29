@@ -10,8 +10,8 @@
 
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 
-import MembersSearch from '@/components/members/MembersSearch'
 import type { ActiveFilter } from '@/components/common/table-search/types'
+import MembersSearch from '@/components/members/MembersSearch'
 
 // ─── framer-motion ────────────────────────────────────────────────────────────
 jest.mock('framer-motion', () => {

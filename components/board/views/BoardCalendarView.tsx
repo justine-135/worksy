@@ -89,7 +89,7 @@ function AgendaSkeleton() {
       <div className="flex border border-default-200 rounded-xl overflow-hidden h-64">
         <div className="w-14 shrink-0 flex flex-col">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-[60px] flex items-start pt-1 pr-2">
+            <div key={i} className="h-15 flex items-start pt-1 pr-2">
               <Skeleton className="h-3 w-10 rounded ml-auto" />
             </div>
           ))}
@@ -548,7 +548,7 @@ function AgendaMonthView({ currentDate, tasks }: AgendaMonthViewProps) {
       {DAY_HEADERS.map((d) => (
         <div
           key={d}
-          className="bg-content2 px-2 py-2 text-center text-xs font-semibold text-default-500"
+          className="bg-content2 p-2 text-center text-xs font-semibold text-default-500"
         >
           {d}
         </div>
@@ -558,7 +558,7 @@ function AgendaMonthView({ currentDate, tasks }: AgendaMonthViewProps) {
       {paddedDays.map((date, idx) => {
         if (!date) {
           return (
-            <div key={`pad-${idx}`} className="min-h-[100px] bg-default-50 opacity-60" />
+            <div key={`pad-${idx}`} className="min-h-25 bg-default-50 opacity-60" />
           );
         }
         const inMonth = isSameMonth(date, currentDate);
@@ -571,7 +571,7 @@ function AgendaMonthView({ currentDate, tasks }: AgendaMonthViewProps) {
           <div
             key={date.toISOString()}
             className={[
-              "min-h-[100px] bg-content1 p-2",
+              "min-h-25 bg-content1 p-2",
               !inMonth ? "opacity-50" : "",
               today ? "ring-2 ring-inset ring-primary/30" : "",
             ].join(" ")}
