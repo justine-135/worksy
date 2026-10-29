@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, Drawer } from "@heroui/react";
+import { Button, Card, Drawer } from "@heroui/react";
 import DOMPurify from "dompurify";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -72,18 +72,18 @@ export default function TaskDetailDrawer({ id, title }: TaskDetailDrawerProps) {
   return (
     <div>
       <Drawer>
-        <button
-          type="button"
-          disabled={!canViewTask}
-          onClick={canViewTask ? () => handleOpenChange(true) : undefined}
+        <Button
+          variant="ghost"
+          isDisabled={!canViewTask}
+          onPress={canViewTask ? () => handleOpenChange(true) : undefined}
           className={
             canViewTask
-              ? "text-left hover:bg-transparent hover:underline cursor-pointer"
-              : "text-left cursor-default"
+              ? "h-auto min-w-0 p-0 text-left hover:bg-transparent hover:underline"
+              : "h-auto min-w-0 p-0 text-left cursor-default"
           }
         >
           {title}
-        </button>
+        </Button>
         <Drawer.Backdrop isOpen={isOpen} onOpenChange={handleOpenChange}>
           <Drawer.Content placement="right">
             <Drawer.Dialog className="min-w-5xl max-w-[95vw]">
