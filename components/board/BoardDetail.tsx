@@ -1,9 +1,16 @@
 "use client";
 
+import { Button, Dropdown, Label } from "@heroui/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
-import { MdCalendarMonth, MdTableRows, MdTimeline, MdViewKanban } from "react-icons/md";
+import {
+  MdCalendarMonth,
+  MdSettings,
+  MdTableRows,
+  MdTimeline,
+  MdViewKanban,
+} from "react-icons/md";
 
 import { useGetTaskBoard } from "@/hooks/taskboard/useGetTaskBoard";
 import useInvalidateQuery from "@/hooks/taskboard/useInvalidateQuery";
@@ -76,24 +83,31 @@ function BoardDetailInner() {
       {/* Top row: search + view switcher */}
       <div className="flex items-center gap-3 flex-wrap">
         <BoardSearch projectId={projectId} onFilterChange={setActiveFilters} />
-        <div className="flex w-fit shrink-0 items-center gap-1 rounded-xl border border-default-200 bg-content1 p-1">
-          {VIEWS.map(({ key, label, icon: Icon }) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setView(key)}
-              className={[
-                "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
-                activeView === key
-                  ? "bg-primary text-white shadow-sm"
-                  : "text-default-600 hover:bg-default-100",
-              ].join(" ")}
+        <Dropdown>
+          <Dropdown.Trigger>
+            <Button isIconOnly variant="ghost" size="sm" aria-label="Change view">
+              <MdSettings className="size-5" />
+            </Button>
+          </Dropdown.Trigger>
+          <Dropdown.Popover>
+            <Dropdown.Menu
+              selectedKeys={new Set([activeView])}
+              selectionMode="single"
+              onSelectionChange={(keys) => {
+                const key = Array.from(keys)[0] as ViewKey;
+                if (key) setView(key);
+              }}
             >
-              <Icon className="size-4" />
-              {label}
-            </button>
-          ))}
-        </div>
+              {VIEWS.map(({ key, label, icon: Icon }) => (
+                <Dropdown.Item key={key} id={key} textValue={label}>
+                  <Dropdown.ItemIndicator />
+                  <Icon className="size-4" />
+                  <Label>{label}</Label>
+                </Dropdown.Item>
+              ))}
+            </Dropdown.Menu>
+          </Dropdown.Popover>
+        </Dropdown>
       </div>
 
       {/* Active view */}

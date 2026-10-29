@@ -2,8 +2,10 @@
 
 import { Chip, ChipVariants, Skeleton } from "@heroui/react";
 import { format } from "date-fns";
+import { MdTableRows } from "react-icons/md";
 
 import CustomAvatar from "@/components/common/custom/CustomAvatar";
+import CustomEmpty from "@/components/common/custom/CustomEmpty";
 import { PRIORITY_CHIP, TASK_PRIORITY_LABELS } from "@/enum/taskPriority.enum";
 import { TASK_STATUS_CHIP, TASK_STATUS_LABELS } from "@/enum/taskStatus.enum";
 import { TaskResponseDTO } from "@/types/task.dto";
@@ -190,8 +192,12 @@ export default function BoardListView({ columns, isLoading, projectId }: BoardLi
 
   if (columns.length === 0 || totalTasks === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-default-400">
-        <span className="text-sm">No tasks found</span>
+      <div className="flex justify-center">
+        <CustomEmpty
+          title="No tasks found"
+          message="Create a task or adjust your filters to see results."
+          icon={MdTableRows}
+        />
       </div>
     );
   }

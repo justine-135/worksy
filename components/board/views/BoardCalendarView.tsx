@@ -1,6 +1,6 @@
 "use client";
 
-import { Chip, Skeleton } from "@heroui/react";
+import { Chip, Skeleton, Tabs } from "@heroui/react";
 import {
   addDays,
   addMonths,
@@ -134,24 +134,22 @@ function AgendaHeader({
       </h2>
       <div className="flex items-center gap-2">
         {/* View selector */}
-        <div className="flex items-center gap-1 rounded-xl border border-default-200 bg-content1 p-1">
-          {VIEW_OPTIONS.map(({ key, label, icon: Icon }) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => onViewChange(key)}
-              className={[
-                "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
-                activeView === key
-                  ? "bg-primary text-white shadow-sm"
-                  : "text-default-600 hover:bg-default-100",
-              ].join(" ")}
-            >
-              <Icon className="size-4" />
-              {label}
-            </button>
-          ))}
-        </div>
+        <Tabs
+          selectedKey={activeView}
+          onSelectionChange={(key) => onViewChange(key as AgendaView)}
+        >
+          <Tabs.ListContainer>
+            <Tabs.List aria-label="Calendar view">
+              {VIEW_OPTIONS.map(({ key, label, icon: Icon }) => (
+                <Tabs.Tab key={key} id={key}>
+                  <Icon className="size-4" />
+                  {label}
+                  <Tabs.Indicator />
+                </Tabs.Tab>
+              ))}
+            </Tabs.List>
+          </Tabs.ListContainer>
+        </Tabs>
         {/* Navigation */}
         <button
           type="button"

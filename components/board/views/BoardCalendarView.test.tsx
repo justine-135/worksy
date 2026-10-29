@@ -31,15 +31,76 @@ jest.mock('next/navigation', () => ({
 }))
 
 // ─── HeroUI ───────────────────────────────────────────────────────────────────
+//
+// Tabs is stubbed as a compound component. Each Tabs.Tab renders as a <button>
+// with role="tab". Clicking fires onSelectionChange so the parent updates its
+// selectedKey, causing a re-render where the active tab gains aria-selected="true".
+//
+// The context and stubs are created inside the factory via require() because
+// jest.mock() factories are hoisted before top-level imports.
 
-jest.mock('@heroui/react', () => ({
-  Chip: ({ children, className }: { children: React.ReactNode; className?: string }) => (
-    <span className={className}>{children}</span>
-  ),
-  Skeleton: ({ className }: { className?: string }) => (
-    <div data-testid="skeleton" className={className} />
-  ),
-}))
+jest.mock('@heroui/react', () => {
+  const React = require('react') as typeof import('react')
+
+  const TabsCtx = React.createContext<{
+    selectedKey?: string
+    onSelectionChange?: (key: string) => void
+  }>({})
+
+  const TabsStub = ({
+    children,
+    selectedKey,
+    onSelectionChange,
+  }: {
+    children?: React.ReactNode
+    selectedKey?: string
+    onSelectionChange?: (key: string) => void
+  }) => (
+    <TabsCtx.Provider value={{ selectedKey, onSelectionChange }}>
+      <div>{children}</div>
+    </TabsCtx.Provider>
+  )
+
+  TabsStub.ListContainer = ({ children }: { children?: React.ReactNode }) => (
+    <div>{children}</div>
+  )
+  TabsStub.List = ({
+    children,
+    'aria-label': al,
+  }: {
+    children?: React.ReactNode
+    'aria-label'?: string
+  }) => (
+    <div role="tablist" aria-label={al}>
+      {children}
+    </div>
+  )
+  TabsStub.Tab = ({ children, id }: { children?: React.ReactNode; id?: string }) => {
+    const { selectedKey, onSelectionChange } = React.useContext(TabsCtx)
+    return (
+      <button
+        type="button"
+        role="tab"
+        aria-selected={selectedKey === id}
+        data-tab-id={id}
+        onClick={() => onSelectionChange?.(id!)}
+      >
+        {children}
+      </button>
+    )
+  }
+  TabsStub.Indicator = () => null
+
+  return {
+    Chip: ({ children, className }: { children: React.ReactNode; className?: string }) => (
+      <span className={className}>{children}</span>
+    ),
+    Skeleton: ({ className }: { className?: string }) => (
+      <div data-testid="skeleton" className={className} />
+    ),
+    Tabs: TabsStub,
+  }
+})
 
 // ─── TaskDetailDrawer ─────────────────────────────────────────────────────────
 
@@ -119,35 +180,35 @@ describe('BoardCalendarView', () => {
 
     it('renders Day, Week, and Month view buttons', () => {
       render(<BoardCalendarView columns={makeColumns([])} isLoading={false} />)
-      expect(screen.getByRole('button', { name: /^day$/i })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /^week$/i })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /^month$/i })).toBeInTheDocument()
+      expect(screen.getByRole('tab', { name: /^day$/i })).toBeInTheDocument()
+      expect(screen.getByRole('tab', { name: /^week$/i })).toBeInTheDocument()
+      expect(screen.getByRole('tab', { name: /^month$/i })).toBeInTheDocument()
     })
 
-    it('"Week" button is active by default (has bg-primary class)', () => {
+    it('"Week" tab is selected by default (aria-selected=true)', () => {
       render(<BoardCalendarView columns={makeColumns([])} isLoading={false} />)
-      const weekBtn = screen.getByRole('button', { name: /^week$/i })
-      expect(weekBtn).toHaveClass('bg-primary')
+      const weekBtn = screen.getByRole('tab', { name: /^week$/i })
+      expect(weekBtn).toHaveAttribute('aria-selected', 'true')
     })
 
-    it('Day and Month buttons do NOT have bg-primary by default', () => {
+    it('Day and Month tabs are NOT selected by default (aria-selected=false)', () => {
       render(<BoardCalendarView columns={makeColumns([])} isLoading={false} />)
-      expect(screen.getByRole('button', { name: /^day$/i })).not.toHaveClass('bg-primary')
-      expect(screen.getByRole('button', { name: /^month$/i })).not.toHaveClass('bg-primary')
+      expect(screen.getByRole('tab', { name: /^day$/i })).toHaveAttribute('aria-selected', 'false')
+      expect(screen.getByRole('tab', { name: /^month$/i })).toHaveAttribute('aria-selected', 'false')
     })
 
-    it('clicking "Day" makes it active', () => {
+    it('clicking "Day" makes it selected', () => {
       render(<BoardCalendarView columns={makeColumns([])} isLoading={false} />)
-      fireEvent.click(screen.getByRole('button', { name: /^day$/i }))
-      expect(screen.getByRole('button', { name: /^day$/i })).toHaveClass('bg-primary')
-      expect(screen.getByRole('button', { name: /^week$/i })).not.toHaveClass('bg-primary')
+      fireEvent.click(screen.getByRole('tab', { name: /^day$/i }))
+      expect(screen.getByRole('tab', { name: /^day$/i })).toHaveAttribute('aria-selected', 'true')
+      expect(screen.getByRole('tab', { name: /^week$/i })).toHaveAttribute('aria-selected', 'false')
     })
 
-    it('clicking "Month" makes it active', () => {
+    it('clicking "Month" makes it selected', () => {
       render(<BoardCalendarView columns={makeColumns([])} isLoading={false} />)
-      fireEvent.click(screen.getByRole('button', { name: /^month$/i }))
-      expect(screen.getByRole('button', { name: /^month$/i })).toHaveClass('bg-primary')
-      expect(screen.getByRole('button', { name: /^week$/i })).not.toHaveClass('bg-primary')
+      fireEvent.click(screen.getByRole('tab', { name: /^month$/i }))
+      expect(screen.getByRole('tab', { name: /^month$/i })).toHaveAttribute('aria-selected', 'true')
+      expect(screen.getByRole('tab', { name: /^week$/i })).toHaveAttribute('aria-selected', 'false')
     })
 
     it('renders Prev (aria-label=Previous) and Next (aria-label=Next) navigation buttons', () => {
@@ -271,7 +332,7 @@ describe('BoardCalendarView', () => {
     it('a task with dueDate=null appears in the all-day section in day view (visible after toggle open)', () => {
       const tasks = [makeTask({ id: 'task-null-day', title: 'Null day task', dueDate: null })]
       render(<BoardCalendarView columns={makeColumns(tasks)} isLoading={false} />)
-      fireEvent.click(screen.getByRole('button', { name: /^day$/i }))
+      fireEvent.click(screen.getByRole('tab', { name: /^day$/i }))
       expect(screen.getByText('All-day / Unscheduled')).toBeInTheDocument()
       // Section starts closed in day view too; open it first
       fireEvent.click(screen.getByText('All-day / Unscheduled').closest('button')!)
@@ -313,7 +374,7 @@ describe('BoardCalendarView', () => {
       render(<BoardCalendarView columns={makeColumns([])} isLoading={false} />)
 
       // Switch to month view first
-      fireEvent.click(screen.getByRole('button', { name: /^month$/i }))
+      fireEvent.click(screen.getByRole('tab', { name: /^month$/i }))
       expect(screen.getByText('November 2025')).toBeInTheDocument()
 
       fireEvent.click(screen.getByRole('button', { name: /next/i }))
@@ -323,7 +384,7 @@ describe('BoardCalendarView', () => {
     it('clicking "Prev" in month view goes to October 2025', () => {
       render(<BoardCalendarView columns={makeColumns([])} isLoading={false} />)
 
-      fireEvent.click(screen.getByRole('button', { name: /^month$/i }))
+      fireEvent.click(screen.getByRole('tab', { name: /^month$/i }))
       fireEvent.click(screen.getByRole('button', { name: /previous/i }))
 
       expect(screen.getByText('October 2025')).toBeInTheDocument()
@@ -337,7 +398,7 @@ describe('BoardCalendarView', () => {
       render(
         <BoardCalendarView columns={makeColumns([])} isLoading={false} />
       )
-      fireEvent.click(screen.getByRole('button', { name: /^month$/i }))
+      fireEvent.click(screen.getByRole('tab', { name: /^month$/i }))
       expect(screen.getByText('Sun')).toBeInTheDocument()
       expect(screen.getByText('Mon')).toBeInTheDocument()
       expect(screen.getByText('Sat')).toBeInTheDocument()
@@ -350,7 +411,7 @@ describe('BoardCalendarView', () => {
           isLoading={false}
         />
       )
-      fireEvent.click(screen.getByRole('button', { name: /^month$/i }))
+      fireEvent.click(screen.getByRole('tab', { name: /^month$/i }))
       expect(screen.getByText('November 3 task')).toBeInTheDocument()
     })
 
@@ -361,7 +422,7 @@ describe('BoardCalendarView', () => {
           isLoading={false}
         />
       )
-      fireEvent.click(screen.getByRole('button', { name: /^month$/i }))
+      fireEvent.click(screen.getByRole('tab', { name: /^month$/i }))
       expect(screen.queryByText('Null date task')).not.toBeInTheDocument()
     })
 
@@ -377,7 +438,7 @@ describe('BoardCalendarView', () => {
           isLoading={false}
         />
       )
-      fireEvent.click(screen.getByRole('button', { name: /^month$/i }))
+      fireEvent.click(screen.getByRole('tab', { name: /^month$/i }))
       expect(screen.getByText('+1 more')).toBeInTheDocument()
     })
 
@@ -388,7 +449,7 @@ describe('BoardCalendarView', () => {
           isLoading={false}
         />
       )
-      fireEvent.click(screen.getByRole('button', { name: /^month$/i }))
+      fireEvent.click(screen.getByRole('tab', { name: /^month$/i }))
       expect(screen.queryByText('October task')).not.toBeInTheDocument()
     })
   })
@@ -398,7 +459,7 @@ describe('BoardCalendarView', () => {
   describe('7. day view', () => {
     it('single-day header shows "Mon" and "3" for Nov 3 2025', () => {
       render(<BoardCalendarView columns={makeColumns([])} isLoading={false} />)
-      fireEvent.click(screen.getByRole('button', { name: /^day$/i }))
+      fireEvent.click(screen.getByRole('tab', { name: /^day$/i }))
 
       // The day view renders a single column header with abbreviated day name
       expect(screen.getByText('Mon')).toBeInTheDocument()
@@ -408,7 +469,7 @@ describe('BoardCalendarView', () => {
     it('a task due on the current day appears in day view', () => {
       const tasks = [makeTask({ id: 'task-day', title: 'Day view task', dueDate: '2025-11-03T14:00:00.000Z' })]
       render(<BoardCalendarView columns={makeColumns(tasks)} isLoading={false} />)
-      fireEvent.click(screen.getByRole('button', { name: /^day$/i }))
+      fireEvent.click(screen.getByRole('tab', { name: /^day$/i }))
 
       expect(screen.getByText('Day view task')).toBeInTheDocument()
     })
@@ -416,14 +477,14 @@ describe('BoardCalendarView', () => {
     it('a task due on a different day does NOT appear in day view', () => {
       const tasks = [makeTask({ id: 'task-other', title: 'Different day task', dueDate: '2025-11-05T14:00:00.000Z' })]
       render(<BoardCalendarView columns={makeColumns(tasks)} isLoading={false} />)
-      fireEvent.click(screen.getByRole('button', { name: /^day$/i }))
+      fireEvent.click(screen.getByRole('tab', { name: /^day$/i }))
 
       expect(screen.queryByText('Different day task')).not.toBeInTheDocument()
     })
 
     it('navigating to next day in day view changes the heading date', () => {
       render(<BoardCalendarView columns={makeColumns([])} isLoading={false} />)
-      fireEvent.click(screen.getByRole('button', { name: /^day$/i }))
+      fireEvent.click(screen.getByRole('tab', { name: /^day$/i }))
 
       // Nov 3 shows "3"
       expect(screen.getByText('3')).toBeInTheDocument()
@@ -464,7 +525,7 @@ describe('BoardCalendarView', () => {
       render(<BoardCalendarView columns={makeColumns(tasks)} isLoading={false} />)
 
       // Switch to month view
-      fireEvent.click(screen.getByRole('button', { name: /^month$/i }))
+      fireEvent.click(screen.getByRole('tab', { name: /^month$/i }))
       // In month view the task renders as a button with its title as text
       fireEvent.click(screen.getAllByText('Month click task')[0])
 
@@ -477,7 +538,7 @@ describe('BoardCalendarView', () => {
       const tasks = [makeTask({ id: 'task-day-click', title: 'Day click task', dueDate: '2025-11-03T14:00:00.000Z' })]
       render(<BoardCalendarView columns={makeColumns(tasks)} isLoading={false} />)
 
-      fireEvent.click(screen.getByRole('button', { name: /^day$/i }))
+      fireEvent.click(screen.getByRole('tab', { name: /^day$/i }))
       fireEvent.click(screen.getByText('Day click task'))
 
       expect(mockPush).toHaveBeenCalledTimes(1)

@@ -1,7 +1,6 @@
-import { Typography } from "@heroui/react/typography";
 import React from "react";
 import { IconType } from "react-icons/lib";
-import { MdPerson } from "react-icons/md";
+import { MdInbox } from "react-icons/md";
 
 interface CustomEmptyProps {
   title?: string;
@@ -16,18 +15,20 @@ export default function CustomEmpty({
   icon: Icon,
   action,
 }: CustomEmptyProps) {
-  const IconComponent = Icon || MdPerson;
+  const IconComponent = Icon || MdInbox;
   return (
-    <div className="flex flex-col items-center p-5">
-      <div className="bg-surface-muted rounded-xl border mb-4 p-2">
-        <IconComponent size={32} />
+    <div className="flex flex-col items-center gap-3 py-8 text-center">
+      <div className="flex items-center justify-center rounded-full bg-default-100 p-4">
+        <IconComponent size={28} className="text-default-400" />
       </div>
-      <Typography.Heading level={1} className="text-[16px]">
-        {title || "No data available"}
-      </Typography.Heading>
-      <Typography.Paragraph className="text-muted text-sm">
-        {message ?? "No members yet"}
-      </Typography.Paragraph>
+      <div className="flex flex-col gap-1">
+        <p className="text-sm font-semibold text-foreground">
+          {title || "No data available"}
+        </p>
+        <p className="text-xs text-default-400">
+          {message ?? "Nothing to show here yet."}
+        </p>
+      </div>
       {action}
     </div>
   );

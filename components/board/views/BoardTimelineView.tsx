@@ -21,8 +21,10 @@ import {
   MdCalendarToday,
   MdChevronLeft,
   MdChevronRight,
+  MdTimeline,
 } from "react-icons/md";
 
+import CustomEmpty from "@/components/common/custom/CustomEmpty";
 import { ETaskStatus } from "@/enum/taskStatus.enum";
 import { TaskResponseDTO } from "@/types/task.dto";
 import { TaskBoardResponseDTO } from "@/types/taskboard.dto";
@@ -369,8 +371,12 @@ export default function BoardTimelineView({
 
         {/* Empty state */}
         {totalTasks === 0 && (
-          <div className="flex items-center justify-center py-16 text-sm italic text-default-400">
-            No tasks to display
+          <div className="flex justify-center py-4">
+            <CustomEmpty
+              title="No tasks to display"
+              message="Tasks with due dates will appear on the timeline."
+              icon={MdTimeline}
+            />
           </div>
         )}
 
