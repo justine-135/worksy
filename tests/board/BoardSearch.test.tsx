@@ -129,7 +129,8 @@ function renderBoardSearch(onFilterChange = jest.fn()) {
 
 /** Dispatch spacebar keydown on the ghost input to open the type picker. */
 function openTypePicker() {
-  const ghostInput = screen.getByRole('textbox', { name: /add a filter/i })
+  // Ghost input has role="combobox" in TableSearch (not "textbox")
+  const ghostInput = screen.getByRole('combobox', { name: /add a filter/i })
   act(() => {
     ghostInput.focus()
     fireEvent.keyDown(ghostInput, { key: ' ', code: 'Space' })
@@ -138,7 +139,8 @@ function openTypePicker() {
 
 /** Dispatch backspace keydown on the ghost input to remove the last chip. */
 function pressBackspaceOnGhostInput() {
-  const ghostInput = screen.getByRole('textbox', { name: /add a filter/i })
+  // Ghost input has role="combobox" in TableSearch (not "textbox")
+  const ghostInput = screen.getByRole('combobox', { name: /add a filter/i })
   act(() => {
     ghostInput.focus()
     fireEvent.keyDown(ghostInput, { key: 'Backspace', code: 'Backspace' })
@@ -164,12 +166,14 @@ beforeEach(() => {
 describe('BoardSearch — initial render', () => {
   it('renders a search region with accessible label', () => {
     renderBoardSearch()
-    expect(screen.getByRole('search', { name: /filter tasks/i })).toBeInTheDocument()
+    // TableSearch uses aria-label="Filter" (generic, not "Filter tasks")
+    expect(screen.getByRole('search', { name: /^filter$/i })).toBeInTheDocument()
   })
 
   it('renders the ghost input with placeholder "Filter…" when no chips exist', () => {
     renderBoardSearch()
-    const ghostInput = screen.getByRole('textbox', { name: /add a filter/i })
+    // Ghost input has role="combobox" (not "textbox") in TableSearch
+    const ghostInput = screen.getByRole('combobox', { name: /add a filter/i })
     expect(ghostInput).toBeInTheDocument()
     expect(ghostInput).toHaveAttribute('placeholder', 'Filter…')
   })
@@ -181,7 +185,7 @@ describe('BoardSearch — initial render', () => {
 
   it('ghost input has aria-haspopup="listbox"', () => {
     renderBoardSearch()
-    expect(screen.getByRole('textbox', { name: /add a filter/i })).toHaveAttribute(
+    expect(screen.getByRole('combobox', { name: /add a filter/i })).toHaveAttribute(
       'aria-haspopup',
       'listbox',
     )
@@ -208,7 +212,7 @@ describe('BoardSearch — adding a title chip', () => {
     openTypePicker()
     click(/^title$/i)
 
-    expect(screen.getByRole('textbox', { name: /add a filter/i })).toHaveAttribute(
+    expect(screen.getByRole('combobox', { name: /add a filter/i })).toHaveAttribute(
       'placeholder',
       'Add filter…',
     )
@@ -269,7 +273,7 @@ describe('BoardSearch — adding a title chip', () => {
 
     click(/remove title filter/i)
 
-    expect(screen.queryByRole('textbox', { name: /filter by title/i })).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/filter by title/i)).not.toBeInTheDocument()
     expect(onFilterChange).toHaveBeenLastCalledWith([])
   })
 })
@@ -389,7 +393,8 @@ describe('BoardSearch — adding an assignee chip', () => {
     click(/change assignee filter value/i)
 
     act(() => {
-      fireEvent.change(screen.getByPlaceholderText(/search members/i), {
+      // AsyncPopoverContent search input has placeholder "Search…"
+      fireEvent.change(screen.getByPlaceholderText(/search…/i), {
         target: { value: 'bob' },
       })
     })
@@ -417,7 +422,8 @@ describe('BoardSearch — adding an assignee chip', () => {
     click(/^assignee$/i)
     click(/change assignee filter value/i)
 
-    expect(screen.getByText(/no members found/i)).toBeInTheDocument()
+    // AsyncPopoverContent shows "No results found" (generic, not "No members found")
+    expect(screen.getByText(/no results found/i)).toBeInTheDocument()
   })
 })
 
@@ -462,7 +468,7 @@ describe('BoardSearch — ghost input hidden when all 4 types used', () => {
     openTypePicker()
     click(/^assignee$/i)
 
-    expect(screen.queryByRole('textbox', { name: /add a filter/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('combobox', { name: /add a filter/i })).not.toBeInTheDocument()
   })
 })
 

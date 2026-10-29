@@ -15,6 +15,8 @@ export function useGetProjectMembers({
   enabled = true,
   queryKey = [],
   search,
+  roleId,
+  status,
 }: {
   projectId?: string | null;
   page?: number;
@@ -23,6 +25,8 @@ export function useGetProjectMembers({
   enabled?: boolean;
   queryKey?: string[];
   search?: string;
+  roleId?: string;
+  status?: string;
 }) {
   const { data, error, isLoading } = useQuery<ProjectMemberResponseDTO>({
     queryKey: QUERY_KEYS.PROJECT_MEMBERS(
@@ -30,6 +34,8 @@ export function useGetProjectMembers({
       page,
       ...queryKey,
       ...(search ? [search] : []),
+      ...(roleId ? [roleId] : []),
+      ...(status ? [status] : []),
     ),
     queryFn: () =>
       fetchProjectMembers({
@@ -37,6 +43,8 @@ export function useGetProjectMembers({
         skip: skip ?? (page ?? 1) * PAGE_SIZE,
         take: take ?? PAGE_SIZE,
         search,
+        roleId,
+        status,
       }),
     enabled: !!projectId && enabled,
   });

@@ -8,16 +8,22 @@ import { CustomTable } from "../common/custom/table/CustomTable";
 import usePagination from "../common/custom/table/usePagination";
 import rolesTableColumns from "./rolesTableColumns";
 
-export default function RolesTable({ search }: { search?: string }) {
+export default function RolesTable({
+  search,
+  permission,
+}: {
+  search?: string;
+  permission?: string;
+}) {
   const projectId = useSessionStore((s) => s.projectId);
   const { columns } = rolesTableColumns();
   const { page, setPage } = usePagination();
 
   useEffect(() => {
     setPage(0);
-  }, [search, setPage]);
+  }, [search, permission, setPage]);
 
-  const { data, isLoading } = useGetRoles({ projectId, page, search });
+  const { data, isLoading } = useGetRoles({ projectId, page, search, permission });
 
   useEffect(() => {
     if (!isLoading && data?.data?.length === 0 && page > 0) {

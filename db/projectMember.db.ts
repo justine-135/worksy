@@ -1,4 +1,5 @@
 import type { Prisma } from "@prisma/client";
+import { ProjectMemberStatus } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import { EditMemberStatusRoleDTO } from "@/types/projectMember.dto";
@@ -29,11 +30,15 @@ export async function getProjectMembers({
   skip,
   take,
   search,
+  roleId,
+  status,
 }: {
   projectId: string;
   skip: number;
   take: number;
   search?: string;
+  roleId?: string;
+  status?: string;
 }) {
   const where = {
     projectId,
@@ -47,6 +52,8 @@ export async function getProjectMembers({
           },
         }
       : {}),
+    ...(roleId ? { roleId } : {}),
+    ...(status ? { status: status as ProjectMemberStatus } : {}),
   };
 
   return prisma.$transaction(async (tx) => {

@@ -13,6 +13,7 @@ export function useGetRoles({
   skip,
   take,
   search,
+  permission,
 }: {
   projectId?: string | null;
   page?: number;
@@ -21,15 +22,22 @@ export function useGetRoles({
   enabled?: boolean;
   queryKey?: string[];
   search?: string;
+  permission?: string;
 }) {
   const { data, error, isLoading } = useQuery<RolesResponseDTO>({
-    queryKey: QUERY_KEYS.ROLES(projectId, search, page),
+    queryKey: QUERY_KEYS.ROLES(
+      projectId,
+      search,
+      page,
+      ...(permission ? [permission] : []),
+    ),
     queryFn: () =>
       fetchRoles({
         projectId,
         skip: skip ?? (page ?? 0) * PAGE_SIZE,
         take: take ?? PAGE_SIZE,
         search,
+        permission,
       }),
     enabled: !!projectId,
   });

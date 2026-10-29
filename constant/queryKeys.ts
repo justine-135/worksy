@@ -6,8 +6,12 @@ export const QUERY_KEYS = {
     page?: number,
     ...rest: string[]
   ) => ["project", "members", projectId, page, ...rest] as const,
-  ROLES: (projectId?: string | null, search?: string, page?: number) =>
-    ["roles", projectId, search, page] as const,
+  ROLES: (
+    projectId?: string | null,
+    search?: string,
+    page?: number,
+    ...rest: string[]
+  ) => ["roles", projectId, search, page, ...rest] as const,
   TASK_BOARDS: (projectId?: string | null, filter?: object) =>
     ["boards", projectId, filter] as const,
   TASK: (id?: string) => ["task", id] as const,

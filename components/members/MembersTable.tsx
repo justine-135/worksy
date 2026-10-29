@@ -10,18 +10,28 @@ import { CustomTable } from "../common/custom/table/CustomTable";
 import usePagination from "../common/custom/table/usePagination";
 import memberTableColumns from "./memberTableColumns";
 
-export function MembersTable({ search }: { search?: string }) {
+export function MembersTable({
+  search,
+  roleId,
+  status,
+}: {
+  search?: string;
+  roleId?: string;
+  status?: string;
+}) {
   const projectId = useSessionStore((s) => s.projectId);
   const { page, setPage } = usePagination();
 
   useEffect(() => {
     setPage(1);
-  }, [search, setPage]);
+  }, [search, roleId, status, setPage]);
 
   const { data, isLoading } = useGetProjectMembers({
     projectId,
     page,
     search,
+    roleId,
+    status,
   });
   const { columns } = memberTableColumns(page);
 

@@ -19,12 +19,13 @@ export async function GET(req: Request) {
   const skip = Number(searchParams.get("skip"));
   const take = Number(searchParams.get("take"));
   const search = searchParams.get("search") ?? undefined;
+  const permission = searchParams.get("permission") ?? undefined;
 
   if (!projectId) {
     return apiError("Missing project id.", 400);
   }
 
-  const data = await getRoles({ projectId, skip, take, search });
+  const data = await getRoles({ projectId, skip, take, search, permission });
 
   return Response.json(data);
 }

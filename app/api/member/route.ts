@@ -17,12 +17,14 @@ export async function GET(req: Request) {
   const skip = Number(searchParams.get("skip"));
   const take = Number(searchParams.get("take"));
   const search = searchParams.get("search") ?? undefined;
+  const roleId = searchParams.get("role_id") ?? undefined;
+  const status = searchParams.get("status") ?? undefined;
 
   if (!projectId) {
     return apiError("Missing project id.", 400);
   }
 
-  const data = await getProjectMembers({ projectId, skip, take, search });
+  const data = await getProjectMembers({ projectId, skip, take, search, roleId, status });
 
   return Response.json(data);
 }

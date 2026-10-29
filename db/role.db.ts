@@ -7,16 +7,21 @@ export async function getRoles({
   skip,
   take,
   search,
+  permission,
 }: {
   projectId: string;
   skip: number;
   take: number;
   search?: string;
+  permission?: string;
 }) {
   const where = {
     projectId,
     ...(search
       ? { name: { contains: search, mode: "insensitive" as const } }
+      : {}),
+    ...(permission
+      ? { permissions: { some: { key: permission } } }
       : {}),
   };
 
