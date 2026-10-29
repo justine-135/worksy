@@ -21,6 +21,9 @@ const ESM_PACKAGES = [
 module.exports = async () => {
   const config = await createJestConfig({
     testEnvironment: "jsdom",
+    // Pin all worker processes to UTC via globalSetup so that Date.getHours()
+    // matches UTC timestamps in test fixtures across all environments.
+    globalSetup: "<rootDir>/jest.globalSetup.ts",
     setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
     moduleNameMapper: {
       // @heroui/react exports map has only "import" condition; bypass resolver entirely

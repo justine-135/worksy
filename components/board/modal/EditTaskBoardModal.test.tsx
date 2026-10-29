@@ -52,7 +52,14 @@ jest.mock('@/components/common/ConfirmModal', () => ({
   default: () => null,
 }))
 
-const mockColumn = { id: 'board-1', title: 'Backlog', status: ETaskStatus.TODO }
+const mockColumn = {
+  id: 'board-1',
+  title: 'Backlog',
+  status: ETaskStatus.TODO,
+  order: 0,
+  tasks: [],
+  project: { title: 'Test Project' },
+}
 
 async function openEditModal() {
   const user = userEvent.setup()

@@ -1,3 +1,5 @@
+import { TaskStatus } from "@prisma/client";
+
 import { touchProjectActivity } from "@/db/projectMember.db";
 import { prisma } from "@/lib/prisma";
 import {
@@ -74,8 +76,8 @@ export async function getTaskBoard({
           ...(filter?.title && {
             title: { contains: filter.title, mode: "insensitive" },
           }),
-          ...(filter?.status && { status: filter.status as any }),
-          ...(filter?.priority && { priority: filter.priority as any }),
+          ...(filter?.status && { status: filter.status as TaskStatus }),
+          ...(filter?.priority && { priority: filter.priority as string }),
           ...(filter?.assigneeId && {
             assignees: {
               some: { projectMember: { id: filter.assigneeId } },

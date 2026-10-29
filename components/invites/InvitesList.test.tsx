@@ -36,7 +36,7 @@ jest.mock('@/hooks/permission/usePermission', () => ({
 const mockInvite: ProjectInviteResponseDTO = {
   id: 'invite-1',
   userSender: { id: 'sender-1', name: 'Alice', email: 'alice@example.com', image: null },
-  project: { id: 'project-1', title: 'Cool Project', imageUrl: null, count: 2, owner: { name: 'Alice', image: '' } },
+  project: { id: 'project-1', title: 'Cool Project', imageUrl: null, count: 2 },
   createdAt: new Date('2024-01-01'),
 }
 

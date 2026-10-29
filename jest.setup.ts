@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom'
 
 // jsdom doesn't expose Node's TextEncoder/TextDecoder; undici (used by @vercel/blob) needs them
-const { TextEncoder, TextDecoder } = require('util') as typeof import('util')
+import { TextDecoder, TextEncoder } from 'util'
 Object.assign(global, { TextEncoder, TextDecoder })
 
 global.ResizeObserver = class ResizeObserver {
@@ -33,3 +33,9 @@ Object.defineProperty(global.URL, 'revokeObjectURL', {
   writable: true,
   value: jest.fn(),
 })
+
+// jsdom does not implement Element.prototype.scrollTo — mock it globally so
+// components that call scrollRef.current?.scrollTo() don't throw in tests.
+if (!HTMLElement.prototype.scrollTo) {
+  HTMLElement.prototype.scrollTo = jest.fn()
+}

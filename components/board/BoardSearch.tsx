@@ -1,20 +1,23 @@
 "use client";
 
-import { Popover, PopoverContent, PopoverTrigger, Skeleton } from "@heroui/react";
+import { Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useRef, useState } from "react";
 import {
-  MdCheck,
   MdCircle,
   MdClose,
   MdPerson,
   MdPriorityHigh,
-  MdSearch,
   MdTitle,
 } from "react-icons/md";
 
-import CustomAvatar from "@/components/common/custom/CustomAvatar";
 import { useGetProjectMembers } from "@/hooks/member/useGetProjectMembers";
-import { MemberDataDTO } from "@/types/projectMember.dto";
+
+import {
+  AssigneeContent,
+  PriorityContent,
+  StatusContent,
+} from "./search/BoardSearchPopovers";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -35,183 +38,34 @@ const FILTER_TYPES = [
   { type: "status" as FilterType, label: "Status", Icon: MdCircle },
 ];
 
-const PRIORITY_OPTIONS = [
-  { value: "URGENT", label: "Urgent", dot: "bg-danger" },
-  { value: "HIGH", label: "High", dot: "bg-warning" },
-  { value: "MEDIUM", label: "Medium", dot: "bg-primary" },
-  { value: "LOW", label: "Low", dot: "bg-default-400" },
-];
-
-const STATUS_OPTIONS = [
-  { value: "TODO", label: "Todo", dot: "bg-primary" },
-  { value: "IN_PROGRESS", label: "In Progress", dot: "bg-warning" },
-  { value: "DONE", label: "Done", dot: "bg-success" },
-];
-
-// ─── Sub-popover components (module-scope to preserve identity) ───────────────
-
-interface AssigneeContentProps {
-  assigneesLoading: boolean;
-  filteredMembers: MemberDataDTO[];
-  activeFilter: ActiveFilter | null;
-  memberSearch: string;
-  setMemberSearch: (s: string) => void;
-  selectAssignee: (id: string, name: string) => void;
-}
-
-function AssigneeContent({
-  assigneesLoading,
-  filteredMembers,
-  activeFilter,
-  memberSearch,
-  setMemberSearch,
-  selectAssignee,
-}: AssigneeContentProps) {
-  return (
-    <div className="w-56 overflow-hidden p-0">
-      {/* Search row */}
-      <div className="flex items-center gap-2 border-b border-default-100 px-3 py-2">
-        <MdSearch className="size-4 shrink-0 text-default-400" />
-        <input
-          autoFocus
-          className="flex-1 bg-transparent text-sm outline-none placeholder:text-default-400 text-foreground"
-          placeholder="Search members…"
-          value={memberSearch}
-          onChange={(e) => setMemberSearch(e.target.value)}
-        />
-      </div>
-
-      {/* Member list */}
-      {assigneesLoading ? (
-        <div className="py-1">
-          {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="mx-3 my-1 h-9 rounded-lg" />
-          ))}
-        </div>
-      ) : filteredMembers.length === 0 ? (
-        <p className="py-6 text-center text-xs text-default-400">No members found</p>
-      ) : (
-        <div className="max-h-52 overflow-y-auto py-1">
-          {filteredMembers.map((member) => {
-            const isSelected = activeFilter?.value === member.id;
-            return (
-              <button
-                key={member.id}
-                type="button"
-                className={[
-                  "flex w-full items-center gap-2.5 px-3 py-2 cursor-pointer transition-colors",
-                  isSelected ? "bg-primary/5" : "hover:bg-default-100",
-                ].join(" ")}
-                onClick={() => selectAssignee(member.id, member.user.name)}
-              >
-                <CustomAvatar
-                  avatarProps={{ className: "size-6 shrink-0" }}
-                  avatarImageProps={
-                    member.user.image ? { src: member.user.image } : undefined
-                  }
-                  fallback={member.user.name}
-                />
-                <span className="flex-1 truncate text-left text-sm text-foreground">
-                  {member.user.name}
-                </span>
-                {isSelected && <MdCheck className="size-4 shrink-0 text-primary" />}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-
-interface PriorityContentProps {
-  activeFilter: ActiveFilter | null;
-  selectOption: (value: string, label: string) => void;
-}
-
-function PriorityContent({ activeFilter, selectOption }: PriorityContentProps) {
-  return (
-    <div className="w-40 p-1">
-      {PRIORITY_OPTIONS.map((opt) => {
-        const isSelected = activeFilter?.value === opt.value;
-        return (
-          <button
-            key={opt.value}
-            type="button"
-            className={[
-              "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm cursor-pointer transition-colors",
-              isSelected
-                ? "bg-primary/5 font-medium text-primary"
-                : "text-foreground hover:bg-default-100",
-            ].join(" ")}
-            onClick={() => selectOption(opt.value, opt.label)}
-          >
-            <span className={`size-2 rounded-full shrink-0 ${opt.dot}`} />
-            <span className="flex-1 text-left">{opt.label}</span>
-            {isSelected && <MdCheck className="size-4 shrink-0" />}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-interface StatusContentProps {
-  activeFilter: ActiveFilter | null;
-  selectOption: (value: string, label: string) => void;
-}
-
-function StatusContent({ activeFilter, selectOption }: StatusContentProps) {
-  return (
-    <div className="w-40 p-1">
-      {STATUS_OPTIONS.map((opt) => {
-        const isSelected = activeFilter?.value === opt.value;
-        return (
-          <button
-            key={opt.value}
-            type="button"
-            className={[
-              "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm cursor-pointer transition-colors",
-              isSelected
-                ? "bg-primary/5 font-medium text-primary"
-                : "text-foreground hover:bg-default-100",
-            ].join(" ")}
-            onClick={() => selectOption(opt.value, opt.label)}
-          >
-            <span className={`size-2 rounded-full shrink-0 ${opt.dot}`} />
-            <span className="flex-1 text-left">{opt.label}</span>
-            {isSelected && <MdCheck className="size-4 shrink-0" />}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
 // ─── Main component props ─────────────────────────────────────────────────────
 
 interface BoardSearchProps {
   projectId?: string | null;
-  onFilterChange: (filter: ActiveFilter | null) => void;
+  onFilterChange: (filters: ActiveFilter[]) => void;
 }
 
 // ─── BoardSearch ──────────────────────────────────────────────────────────────
 
 export default function BoardSearch({ projectId, onFilterChange }: BoardSearchProps) {
-  const [activeFilter, setActiveFilter] = useState<ActiveFilter | null>(null);
+  const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>([]);
   const [typePopoverOpen, setTypePopoverOpen] = useState(false);
-  const [subPopoverOpen, setSubPopoverOpen] = useState(false);
-  const [titleInput, setTitleInput] = useState("");
+  const [subPopoverOpenIdx, setSubPopoverOpenIdx] = useState<number | null>(null);
   const [memberSearch, setMemberSearch] = useState("");
 
-  const inputRef = useRef<HTMLInputElement>(null);
+  const ghostInputRef = useRef<HTMLInputElement>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Derived
+  const usedTypes = useMemo(() => new Set(activeFilters.map((f) => f.type)), [activeFilters]);
+  const availableTypes = FILTER_TYPES.filter((ft) => !usedTypes.has(ft.type));
 
   // Fetch members only when assignee filter is active
   const { data: assigneesData, isLoading: assigneesLoading } = useGetProjectMembers({
     projectId,
     take: 50,
-    enabled: activeFilter?.type === "assignee",
+    enabled: activeFilters.some((f) => f.type === "assignee"),
   });
 
   const filteredMembers = useMemo(() => {
@@ -223,189 +77,218 @@ export default function BoardSearch({ projectId, onFilterChange }: BoardSearchPr
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
-  function clearFilter() {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    setActiveFilter(null);
-    setTitleInput("");
-    setMemberSearch("");
-    setTypePopoverOpen(false);
-    setSubPopoverOpen(false);
-    onFilterChange(null);
+  function fireFilterChange(filters: ActiveFilter[]) {
+    onFilterChange(filters);
   }
 
-  function handleBarClick() {
-    if (!activeFilter) {
-      setTypePopoverOpen(true);
-    }
+  function removeFilter(index: number) {
+    const next = activeFilters.filter((_, i) => i !== index);
+    setActiveFilters(next);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    fireFilterChange(next);
   }
 
   function handleTypeSelect(type: FilterType) {
     setTypePopoverOpen(false);
     const next: ActiveFilter = { type, value: null, displayLabel: null };
-    setActiveFilter(next);
-
+    const newFilters = [...activeFilters, next];
+    setActiveFilters(newFilters);
     if (type === "title") {
-      setTimeout(() => inputRef.current?.focus(), 0);
-    } else {
-      setSubPopoverOpen(true);
+      setTimeout(() => titleInputRef.current?.focus(), 0);
     }
   }
 
   function handleTitleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const val = e.target.value;
-    setTitleInput(val);
-
-    const next: ActiveFilter = { type: "title", value: val || null, displayLabel: val || null };
-    setActiveFilter(next);
-
+    const newFilters = activeFilters.map((f) =>
+      f.type === "title" ? { ...f, value: val || null, displayLabel: val || null } : f,
+    );
+    setActiveFilters(newFilters);
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      onFilterChange(val ? next : null);
-    }, 300);
-  }
-
-  function handleValueClick(e: React.MouseEvent) {
-    e.stopPropagation();
-    setSubPopoverOpen(true);
+    debounceRef.current = setTimeout(() => fireFilterChange(newFilters), 300);
   }
 
   function selectAssignee(memberId: string, name: string) {
-    const next: ActiveFilter = { type: "assignee", value: memberId, displayLabel: name };
-    setActiveFilter(next);
-    setSubPopoverOpen(false);
-    onFilterChange(next);
+    const newFilters = activeFilters.map((f, i) =>
+      i === subPopoverOpenIdx ? { ...f, value: memberId, displayLabel: name } : f,
+    );
+    setActiveFilters(newFilters);
+    setSubPopoverOpenIdx(null);
+    fireFilterChange(newFilters);
   }
 
-  function selectPriorityOrStatus(type: "priority" | "status", value: string, label: string) {
-    const next: ActiveFilter = { type, value, displayLabel: label };
-    setActiveFilter(next);
-    setSubPopoverOpen(false);
-    onFilterChange(next);
+  function selectOption(value: string, label: string) {
+    const newFilters = activeFilters.map((f, i) =>
+      i === subPopoverOpenIdx ? { ...f, value, displayLabel: label } : f,
+    );
+    setActiveFilters(newFilters);
+    setSubPopoverOpenIdx(null);
+    fireFilterChange(newFilters);
   }
 
-  // Stable partial-application wrappers so prop references are stable per render
-  function selectPriority(value: string, label: string) {
-    selectPriorityOrStatus("priority", value, label);
-  }
-
-  function selectStatus(value: string, label: string) {
-    selectPriorityOrStatus("status", value, label);
+  function handleGhostKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === " " && availableTypes.length > 0) {
+      e.preventDefault();
+      setTypePopoverOpen(true);
+    }
+    if (e.key === "Backspace" && activeFilters.length > 0) {
+      removeFilter(activeFilters.length - 1);
+    }
   }
 
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <Popover isOpen={typePopoverOpen} onOpenChange={setTypePopoverOpen}>
-      <PopoverTrigger>
-        <div
-          role="button"
-          tabIndex={0}
-          aria-label="Filter tasks"
-          aria-haspopup="listbox"
-          aria-expanded={typePopoverOpen}
-          className="flex items-center gap-1.5 rounded-xl border border-default-200 bg-content1 px-3 py-1.5 min-w-[200px] cursor-pointer hover:border-default-400 transition-colors"
-          onClick={handleBarClick}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") handleBarClick();
-          }}
-        >
-          {!activeFilter ? (
-            <>
-              <MdSearch className="size-4 shrink-0 text-default-400" />
-              <span className="flex-1 select-none text-sm text-default-400">Filter…</span>
-            </>
-          ) : (
-            <>
-              {/* Active-type chip */}
-              <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
-                {activeFilter.type}:
-                <button
-                  type="button"
-                  className="ml-0.5 rounded-sm p-0.5 text-primary/70 transition-colors hover:bg-primary/10 hover:text-primary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    clearFilter();
-                  }}
-                  aria-label="Clear filter"
-                >
-                  <MdClose className="size-3" />
-                </button>
-              </span>
-
-              {/* Value area */}
-              {activeFilter.type === "title" ? (
-                <input
-                  ref={inputRef}
-                  className="min-w-[120px] flex-1 bg-transparent text-sm outline-none placeholder:text-default-400 text-foreground"
-                  placeholder="Search by title…"
-                  value={titleInput}
-                  onChange={handleTitleChange}
-                  onClick={(e) => e.stopPropagation()}
-                />
-              ) : (
-                <Popover isOpen={subPopoverOpen} onOpenChange={setSubPopoverOpen}>
-                  <PopoverTrigger>
-                    <button
-                      type="button"
-                      className={[
-                        "flex-1 text-left text-sm",
-                        activeFilter.displayLabel
-                          ? "font-medium text-foreground"
-                          : "text-default-400",
-                      ].join(" ")}
-                      onClick={handleValueClick}
-                    >
-                      {activeFilter.displayLabel ?? `Select ${activeFilter.type}…`}
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent placement="bottom start" className="p-0">
-                    {activeFilter.type === "assignee" && (
-                      <AssigneeContent
-                        assigneesLoading={assigneesLoading}
-                        filteredMembers={filteredMembers}
-                        activeFilter={activeFilter}
-                        memberSearch={memberSearch}
-                        setMemberSearch={setMemberSearch}
-                        selectAssignee={selectAssignee}
-                      />
-                    )}
-                    {activeFilter.type === "priority" && (
-                      <PriorityContent
-                        activeFilter={activeFilter}
-                        selectOption={selectPriority}
-                      />
-                    )}
-                    {activeFilter.type === "status" && (
-                      <StatusContent
-                        activeFilter={activeFilter}
-                        selectOption={selectStatus}
-                      />
-                    )}
-                  </PopoverContent>
-                </Popover>
-              )}
-            </>
-          )}
-        </div>
-      </PopoverTrigger>
-
-      {/* Type-picker popover content */}
-      <PopoverContent placement="bottom start" className="w-48 p-1">
-        <p className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wide text-default-400">
-          Filter by
-        </p>
-        {FILTER_TYPES.map(({ type, label, Icon }) => (
-          <button
-            key={type}
-            type="button"
-            className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-default-700 transition-colors hover:bg-default-100 active:bg-default-200 cursor-pointer"
-            onClick={() => handleTypeSelect(type)}
+    <div
+      role="search"
+      aria-label="Filter tasks"
+      className="flex flex-1 w-full flex-wrap items-center gap-1.5 rounded-xl border border-default-200 bg-content1 px-3 py-1.5 min-h-[38px] cursor-pointer transition-colors hover:border-default-400 focus-within:border-primary"
+      onClick={() => {
+        ghostInputRef.current?.focus();
+      }}
+    >
+      {/* Chips */}
+      <AnimatePresence initial={false}>
+        {activeFilters.map((filter, index) => (
+          <motion.span
+            key={`${filter.type}-${index}`}
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.85 }}
+            transition={{ duration: 0.12, ease: "easeOut" }}
+            className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-primary/20 bg-primary/10 pl-2 pr-1 py-0.5"
           >
-            <Icon className="size-4 shrink-0 text-default-500" />
-            {label}
-          </button>
+            {/* Type label */}
+            <span className="text-xs font-semibold text-primary capitalize select-none">
+              {filter.type}:
+            </span>
+
+            {/* Value area */}
+            {filter.type === "title" ? (
+              <input
+                ref={titleInputRef}
+                aria-label="Filter by title"
+                className="min-w-[80px] max-w-[180px] bg-transparent text-sm text-foreground outline-none placeholder:text-primary/50"
+                placeholder="type to filter…"
+                value={filter.value ?? ""}
+                onChange={handleTitleChange}
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              <Popover
+                isOpen={subPopoverOpenIdx === index}
+                onOpenChange={(open) => {
+                  if (!open) setSubPopoverOpenIdx(null);
+                }}
+              >
+                <PopoverTrigger>
+                  <button
+                    type="button"
+                    aria-label={`Change ${filter.type} filter value`}
+                    aria-haspopup="listbox"
+                    aria-expanded={subPopoverOpenIdx === index}
+                    className={[
+                      "text-sm",
+                      filter.displayLabel
+                        ? "font-medium text-foreground hover:text-primary"
+                        : "italic text-primary/60 hover:text-primary",
+                    ].join(" ")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSubPopoverOpenIdx(index);
+                    }}
+                  >
+                    {filter.displayLabel ?? `Select…`}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent placement="bottom start" className="p-0">
+                  {filter.type === "assignee" && (
+                    <AssigneeContent
+                      assigneesLoading={assigneesLoading}
+                      filteredMembers={filteredMembers}
+                      activeFilter={filter}
+                      memberSearch={memberSearch}
+                      setMemberSearch={setMemberSearch}
+                      selectAssignee={selectAssignee}
+                    />
+                  )}
+                  {filter.type === "priority" && (
+                    <PriorityContent activeFilter={filter} selectOption={selectOption} />
+                  )}
+                  {filter.type === "status" && (
+                    <StatusContent activeFilter={filter} selectOption={selectOption} />
+                  )}
+                </PopoverContent>
+              </Popover>
+            )}
+
+            {/* × remove button */}
+            <span className="min-w-[24px] min-h-[24px] flex items-center justify-center">
+              <button
+                type="button"
+                aria-label={`Remove ${filter.type} filter`}
+                className="ml-0.5 rounded-sm p-0.5 text-primary/60 hover:bg-primary/20 hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeFilter(index);
+                }}
+              >
+                <MdClose className="size-3" />
+              </button>
+            </span>
+          </motion.span>
         ))}
-      </PopoverContent>
-    </Popover>
+      </AnimatePresence>
+
+      {/* Ghost input + type picker popover */}
+      {availableTypes.length > 0 && (
+        <Popover isOpen={typePopoverOpen} onOpenChange={setTypePopoverOpen}>
+          <PopoverTrigger>
+            {/* Invisible trigger; we open the popover programmatically */}
+            <span className="sr-only" />
+          </PopoverTrigger>
+          <PopoverContent placement="bottom start" className="w-48 p-1">
+            <div id="board-filter-type-listbox">
+            <p className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wide text-default-400">
+              Filter by
+            </p>
+            {availableTypes.map(({ type, label, Icon }) => (
+              <button
+                key={type}
+                type="button"
+                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-default-700 hover:bg-default-100 cursor-pointer"
+                onClick={() => handleTypeSelect(type)}
+              >
+                <Icon className="size-4 shrink-0 text-default-500" />
+                {label}
+              </button>
+            ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
+
+      {availableTypes.length > 0 && (
+        <div className="flex-1 min-w-[80px]">
+          <input
+            ref={ghostInputRef}
+            readOnly
+            role="combobox"
+            aria-label="Add a filter"
+            aria-haspopup="listbox"
+            aria-expanded={typePopoverOpen}
+            aria-controls="board-filter-type-listbox"
+            className="w-full cursor-pointer bg-transparent text-sm outline-none placeholder:text-default-400 caret-transparent"
+            placeholder={activeFilters.length === 0 ? "Filter…" : "Add filter…"}
+            value=""
+            onKeyDown={handleGhostKeyDown}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (availableTypes.length > 0) setTypePopoverOpen(true);
+            }}
+          />
+        </div>
+      )}
+    </div>
   );
 }

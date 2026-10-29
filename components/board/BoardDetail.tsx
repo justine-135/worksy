@@ -31,17 +31,20 @@ function BoardDetailInner() {
   const queryClient = useQueryClient();
   const projectId = useSessionStore((s) => s.projectId);
 
-  const [activeFilter, setActiveFilter] = useState<ActiveFilter | null>(null);
+  const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>([]);
 
   const boardFilter = useMemo((): BoardFilter | undefined => {
-    if (!activeFilter?.value) return undefined;
-    return {
-      title: activeFilter.type === "title" ? activeFilter.value : undefined,
-      assigneeId: activeFilter.type === "assignee" ? activeFilter.value : undefined,
-      priority: activeFilter.type === "priority" ? activeFilter.value : undefined,
-      status: activeFilter.type === "status" ? activeFilter.value : undefined,
-    };
-  }, [activeFilter]);
+    if (activeFilters.length === 0) return undefined;
+    const f: BoardFilter = {};
+    for (const af of activeFilters) {
+      if (!af.value) continue;
+      if (af.type === "title") f.title = af.value;
+      if (af.type === "assignee") f.assigneeId = af.value;
+      if (af.type === "priority") f.priority = af.value;
+      if (af.type === "status") f.status = af.value;
+    }
+    return Object.keys(f).length ? f : undefined;
+  }, [activeFilters]);
 
   const { invalidateTaskBoards } = useInvalidateQuery(
     projectId,
@@ -72,7 +75,7 @@ function BoardDetailInner() {
     <div className="flex flex-col gap-4">
       {/* Top row: search + view switcher */}
       <div className="flex items-center gap-3 flex-wrap">
-        <BoardSearch projectId={projectId} onFilterChange={setActiveFilter} />
+        <BoardSearch projectId={projectId} onFilterChange={setActiveFilters} />
         <div className="flex w-fit shrink-0 items-center gap-1 rounded-xl border border-default-200 bg-content1 p-1">
           {VIEWS.map(({ key, label, icon: Icon }) => (
             <button

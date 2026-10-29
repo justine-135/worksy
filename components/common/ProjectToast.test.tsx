@@ -16,7 +16,7 @@ jest.mock('next/navigation', () => ({
 describe('ProjectToast', () => {
   // Retrieve the mocked danger fn after the module registry is set up
   const getToastDanger = () =>
-    (require('@heroui/react/toast').toast as jest.Mock & { danger: jest.Mock }).danger
+    (jest.requireMock('@heroui/react/toast').toast as jest.Mock & { danger: jest.Mock }).danger
 
   beforeEach(() => {
     jest.clearAllMocks()

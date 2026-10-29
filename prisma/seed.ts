@@ -260,7 +260,7 @@ async function main() {
     },
   });
 
-  const writeDocsTask = await prisma.task.create({
+  const _writeDocsTask = await prisma.task.create({
     data: {
       ticketNumber: nextTicket(),
       title: "Write onboarding docs",
