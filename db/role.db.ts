@@ -21,7 +21,7 @@ export async function getRoles({
   };
 
   return prisma.$transaction(async (tx) => {
-    const roles = await prisma.role.findMany({
+    const roles = await tx.role.findMany({
       where,
       take,
       skip,

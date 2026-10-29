@@ -23,11 +23,11 @@ export function useGetRoles({
   search?: string;
 }) {
   const { data, error, isLoading } = useQuery<RolesResponseDTO>({
-    queryKey: QUERY_KEYS.ROLES(projectId, search),
+    queryKey: QUERY_KEYS.ROLES(projectId, search, page),
     queryFn: () =>
       fetchRoles({
         projectId,
-        skip: skip ?? (page ?? 1) * PAGE_SIZE,
+        skip: skip ?? (page ?? 0) * PAGE_SIZE,
         take: take ?? PAGE_SIZE,
         search,
       }),

@@ -14,10 +14,16 @@ export default function RolesTable({ search }: { search?: string }) {
   const { page, setPage } = usePagination();
 
   useEffect(() => {
-    setPage(1);
+    setPage(0);
   }, [search, setPage]);
 
   const { data, isLoading } = useGetRoles({ projectId, page, search });
+
+  useEffect(() => {
+    if (!isLoading && data?.data?.length === 0 && page > 0) {
+      setPage(0);
+    }
+  }, [data, isLoading, page, setPage]);
 
   const transformData = (): RolesTableDTO[] => {
     if (!data) return [];
