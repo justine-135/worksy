@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Dropdown, Label } from "@heroui/react";
+import { Dropdown, Label } from "@heroui/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
@@ -85,9 +85,12 @@ function BoardDetailInner() {
         <BoardSearch projectId={projectId} onFilterChange={setActiveFilters} />
         <Dropdown>
           <Dropdown.Trigger>
-            <Button isIconOnly variant="ghost" size="sm" aria-label="Change view">
+            <button
+              aria-label="Change view"
+              className="flex items-center justify-center rounded-md p-1 text-default-500 hover:bg-default-100"
+            >
               <MdSettings className="size-5" />
-            </Button>
+            </button>
           </Dropdown.Trigger>
           <Dropdown.Popover>
             <Dropdown.Menu
