@@ -14,6 +14,7 @@ import {
 
 import { useGetTaskBoard } from "@/hooks/taskboard/useGetTaskBoard";
 import useInvalidateQuery from "@/hooks/taskboard/useInvalidateQuery";
+import { useBoardWebSocket } from "@/hooks/ws/useBoardWebSocket";
 import { type BoardFilter } from "@/lib/taskboard/fetchTaskBoard.lib";
 import { useSessionStore } from "@/store/session.store";
 import { TaskBoardResponseDTO } from "@/types/taskboard.dto";
@@ -57,6 +58,8 @@ function BoardDetailInner() {
     projectId,
     queryClient,
   );
+
+  useBoardWebSocket({ projectId });
 
   const { data, isLoading } = useGetTaskBoard({
     projectId: projectId || "",

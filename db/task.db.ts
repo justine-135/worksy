@@ -274,21 +274,20 @@ export async function updateTaskPositionsDB({
       data: { taskBoardId },
     });
 
-    for (const board of orderedTaskIdsByBoard) {
-      for (const [index, orderedTaskId] of board.taskIds.entries()) {
-        await tx.task.update({
-          where: { id: orderedTaskId },
-          data: {
-            taskBoardId: board.taskBoardId,
-            order: index + 1,
-          },
-        });
-      }
-    }
+    await Promise.all(
+      orderedTaskIdsByBoard.flatMap((board) =>
+        board.taskIds.map((orderedTaskId, index) =>
+          tx.task.update({
+            where: { id: orderedTaskId },
+            data: { taskBoardId: board.taskBoardId, order: index + 1 },
+          })
+        )
+      )
+    );
 
     // Float this project to the top of the user's "Recents".
     await touchProjectActivity({ userId, projectId }, tx);
-  });
+  }, { timeout: 15000 });
 }
 
 export async function updateTaskAssigneesDB({

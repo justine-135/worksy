@@ -25,8 +25,10 @@ export default function useSaveTaskPositionMutation({
       }),
 
     onSettled: async () => {
-      await invalidateTaskBoards();
       await invalidateRecents();
+    },
+    onError: () => {
+      invalidateTaskBoards();
     },
   });
 

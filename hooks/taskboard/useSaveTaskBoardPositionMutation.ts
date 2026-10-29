@@ -10,7 +10,7 @@ export default function useSaveTaskBoardPositionMutation({
   const mutation = useMutation({
     mutationFn: (variables: { orderedTaskBoardIds: string[] }) =>
       saveTaskBoardPosition({ ...variables, projectId }),
-    onSettled: invalidateTaskBoards,
+    onError: invalidateTaskBoards,
   });
 
   return { mutation };
