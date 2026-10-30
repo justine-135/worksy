@@ -70,6 +70,7 @@ export default function BoardSearch({ projectId, onFilterChange }: BoardSearchPr
       filterDefs={filterDefs}
       asyncData={{ assignee: assigneeAsyncData }}
       onFilterChange={onFilterChange}
+      ariaLabel="Filter tasks"
     />
   );
 }

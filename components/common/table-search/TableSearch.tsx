@@ -119,6 +119,7 @@ interface TableSearchProps {
   onFilterChange: (filters: ActiveFilter[]) => void;
   asyncData?: Record<string, AsyncFilterData>;
   placeholder?: string;
+  ariaLabel?: string;
 }
 
 export default function TableSearch({
@@ -126,6 +127,7 @@ export default function TableSearch({
   onFilterChange,
   asyncData,
   placeholder,
+  ariaLabel = "Filter",
 }: TableSearchProps) {
   const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>([]);
   const [typePopoverOpen, setTypePopoverOpen] = useState(false);
@@ -196,7 +198,7 @@ export default function TableSearch({
   return (
     <div
       role="search"
-      aria-label="Filter"
+      aria-label={ariaLabel}
       className="flex flex-1 w-full flex-wrap items-center gap-1.5 rounded-xl border border-default-200 bg-content1 px-3 py-1.5 min-h-9.5 cursor-pointer transition-colors hover:border-default-400 focus-within:border-primary"
       onClick={() => ghostInputRef.current?.focus()}
     >
