@@ -83,7 +83,11 @@ export async function PATCH(req: Request) {
       orderedTaskBoardIds,
     });
 
-    broadcastToProject(projectId, { type: "board:reordered", projectId });
+    broadcastToProject(
+      projectId,
+      { type: "board:reordered", projectId },
+      req.headers.get("X-Client-Id") ?? undefined,
+    );
 
     return apiSuccess("Columns reordered.");
   } catch (error) {
@@ -231,7 +235,11 @@ export async function POST(req: Request) {
     status,
   });
 
-  broadcastToProject(projectId, { type: "board:created", projectId });
+  broadcastToProject(
+    projectId,
+    { type: "board:created", projectId },
+    req.headers.get("X-Client-Id") ?? undefined,
+  );
 
   return apiSuccess("Column created.", { projectId, title, status });
 }

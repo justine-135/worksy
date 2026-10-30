@@ -1,4 +1,5 @@
 import { throwApiError } from "@/lib/api/apiMessage.lib";
+import clientId from "@/lib/ws/clientId";
 import { UserProjectParamsDTO } from "@/types/taskboard.dto";
 
 interface Params extends Omit<UserProjectParamsDTO, "userId"> {
@@ -13,6 +14,7 @@ export default async function saveTaskBoardPosition({
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
+      "X-Client-Id": clientId,
     },
     body: JSON.stringify({
       projectId,

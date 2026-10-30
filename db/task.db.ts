@@ -269,21 +269,14 @@ export async function updateTaskPositionsDB({
       }
     }
 
-    await tx.task.update({
-      where: { id: taskId },
-      data: { taskBoardId },
-    });
-
-    await Promise.all(
-      orderedTaskIdsByBoard.flatMap((board) =>
-        board.taskIds.map((orderedTaskId, index) =>
-          tx.task.update({
-            where: { id: orderedTaskId },
-            data: { taskBoardId: board.taskBoardId, order: index + 1 },
-          })
-        )
-      )
-    );
+    for (const board of orderedTaskIdsByBoard) {
+      for (let i = 0; i < board.taskIds.length; i++) {
+        await tx.task.update({
+          where: { id: board.taskIds[i] },
+          data: { taskBoardId: board.taskBoardId, order: i + 1 },
+        });
+      }
+    }
 
     // Float this project to the top of the user's "Recents".
     await touchProjectActivity({ userId, projectId }, tx);

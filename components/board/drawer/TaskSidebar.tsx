@@ -222,7 +222,7 @@ const TaskSidebar = ({ task, onNavigateTask }: TaskSidebarProps) => {
     });
 
     saveTaskPosition.mutate(
-      { taskId: task.id, taskBoardId: boardId, orderedTaskIdsByBoard },
+      { taskId: task.id, taskTitle: task.title, taskBoardId: boardId, orderedTaskIdsByBoard },
       {
         // Refetch the open task so its column, auto-suggested status, and
         // activity timeline update.

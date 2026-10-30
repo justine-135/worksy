@@ -23,6 +23,8 @@ export function useGetTaskBoard({
         filter,
       }),
     enabled: !!projectId,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
   });
 
   return { data, error, isLoading };

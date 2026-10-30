@@ -46,12 +46,11 @@ export async function PATCH(req: Request) {
       orderedTaskIdsByBoard,
     });
 
-    broadcastToProject(projectId, {
-      type: "task:moved",
+    broadcastToProject(
       projectId,
-      taskId,
-      taskBoardId,
-    });
+      { type: "task:moved", projectId, taskId, taskBoardId },
+      req.headers.get("X-Client-Id") ?? undefined,
+    );
 
     return apiSuccess("Tasks reordered.");
   } catch (error) {

@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { QUERY_KEYS } from "@/constant/queryKeys";
 import { BoardEvent } from "@/lib/ws/boardBroadcaster.lib";
+import clientId from "@/lib/ws/clientId";
 
 interface UseBoardWebSocketOptions {
   projectId?: string | null;
@@ -76,8 +77,10 @@ export function useBoardWebSocket({
 
     es.onmessage = (ev: MessageEvent<string>) => {
       try {
-        const raw = JSON.parse(ev.data) as { type: string };
-        handleEvent(raw as BoardEvent);
+        const raw = JSON.parse(ev.data) as BoardEvent & { sourceClientId?: string };
+        // Skip events caused by this tab — local state is already up to date.
+        if (raw.sourceClientId && raw.sourceClientId === clientId) return;
+        handleEvent(raw);
       } catch {
         // Malformed message — ignore
       }

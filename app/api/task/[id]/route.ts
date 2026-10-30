@@ -81,11 +81,11 @@ export async function PATCH(
       assignees,
     });
 
-    broadcastToProject(projectId, {
-      type: "task:updated",
+    broadcastToProject(
       projectId,
-      taskId: id,
-    });
+      { type: "task:updated", projectId, taskId: id },
+      req.headers.get("X-Client-Id") ?? undefined,
+    );
 
     return apiSuccess("Assignees updated.");
   } catch (error) {

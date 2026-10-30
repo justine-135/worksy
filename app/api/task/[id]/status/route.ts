@@ -46,12 +46,11 @@ export async function PATCH(
       status,
     });
 
-    broadcastToProject(projectId, {
-      type: "task:status_changed",
+    broadcastToProject(
       projectId,
-      taskId: id,
-      taskBoardId: body.taskBoardId ?? "",
-    });
+      { type: "task:status_changed", projectId, taskId: id, taskBoardId: body.taskBoardId ?? "" },
+      req.headers.get("X-Client-Id") ?? undefined,
+    );
 
     return apiSuccess("Task status updated.");
   } catch (error) {

@@ -1,4 +1,5 @@
 import { throwApiError } from "@/lib/api/apiMessage.lib";
+import clientId from "@/lib/ws/clientId";
 import { CreateTaskBoardDTO } from "@/types/taskboard.dto";
 
 export default async function createTaskBoard({
@@ -10,6 +11,7 @@ export default async function createTaskBoard({
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "X-Client-Id": clientId,
     },
     body: JSON.stringify({
       title,

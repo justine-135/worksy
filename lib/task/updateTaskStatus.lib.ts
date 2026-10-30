@@ -1,4 +1,5 @@
 import { throwApiError } from "@/lib/api/apiMessage.lib";
+import clientId from "@/lib/ws/clientId";
 import { UpdateTaskStatusPayload } from "@/types/task.dto";
 
 export default async function updateTaskStatus({
@@ -10,6 +11,7 @@ export default async function updateTaskStatus({
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
+      "X-Client-Id": clientId,
     },
     body: JSON.stringify({ projectId, status }),
   });

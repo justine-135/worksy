@@ -43,11 +43,11 @@ export async function PATCH(
       dueDate: dueDate ?? null,
     });
 
-    broadcastToProject(projectId, {
-      type: "task:updated",
+    broadcastToProject(
       projectId,
-      taskId: id,
-    });
+      { type: "task:updated", projectId, taskId: id },
+      req.headers.get("X-Client-Id") ?? undefined,
+    );
 
     return apiSuccess("Due date updated.");
   } catch (error) {

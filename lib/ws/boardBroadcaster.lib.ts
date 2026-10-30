@@ -34,11 +34,17 @@ export function unregisterClient(projectId: string, ctrl: SseController): void {
   }
 }
 
-export function broadcastToProject(projectId: string, event: BoardEvent): void {
+export function broadcastToProject(
+  projectId: string,
+  event: BoardEvent,
+  sourceClientId?: string,
+): void {
   const bucket = channels.get(projectId);
   if (!bucket || bucket.size === 0) return;
 
-  const payload = encoder.encode(`data: ${JSON.stringify(event)}\n\n`);
+  const payload = encoder.encode(
+    `data: ${JSON.stringify({ ...event, sourceClientId })}\n\n`,
+  );
   const dead: SseController[] = [];
 
   for (const ctrl of bucket) {
