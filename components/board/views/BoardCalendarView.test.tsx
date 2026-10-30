@@ -40,7 +40,7 @@ jest.mock('next/navigation', () => ({
 // jest.mock() factories are hoisted before top-level imports.
 
 jest.mock('@heroui/react', () => {
-  const React = require('react') as typeof import('react')
+  const React = jest.requireActual<typeof import('react')>('react')
 
   const TabsCtx = React.createContext<{
     selectedKey?: string
@@ -64,6 +64,8 @@ jest.mock('@heroui/react', () => {
   TabsStub.ListContainer = ({ children }: { children?: React.ReactNode }) => (
     <div>{children}</div>
   )
+  TabsStub.ListContainer.displayName = 'TabsStub.ListContainer'
+
   TabsStub.List = ({
     children,
     'aria-label': al,
@@ -75,7 +77,9 @@ jest.mock('@heroui/react', () => {
       {children}
     </div>
   )
-  TabsStub.Tab = ({ children, id }: { children?: React.ReactNode; id?: string }) => {
+  TabsStub.List.displayName = 'TabsStub.List'
+
+  TabsStub.Tab = function TabsStubTab({ children, id }: { children?: React.ReactNode; id?: string }) {
     const { selectedKey, onSelectionChange } = React.useContext(TabsCtx)
     return (
       <button
@@ -89,7 +93,10 @@ jest.mock('@heroui/react', () => {
       </button>
     )
   }
+  TabsStub.Tab.displayName = 'TabsStub.Tab'
+
   TabsStub.Indicator = () => null
+  TabsStub.Indicator.displayName = 'TabsStub.Indicator'
 
   return {
     Chip: ({ children, className }: { children: React.ReactNode; className?: string }) => (
