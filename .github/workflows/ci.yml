@@ -19,6 +19,8 @@ jobs:
   quality:
     name: Lint, Type-check & Unit Tests
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -99,6 +101,8 @@ jobs:
     name: Production Build Check
     runs-on: ubuntu-latest
     continue-on-error: true
+    env:
+      DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -116,4 +120,3 @@ jobs:
         run: npm run build
         env:
           NEXTAUTH_SECRET: ci-placeholder-secret
-          DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder
