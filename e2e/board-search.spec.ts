@@ -228,7 +228,7 @@ test("Step 4 — spacebar in ghost input opens type-picker; Priority absent when
   await expect(page.getByText("Filter by")).toBeVisible();
 
   // Scope the check to the type-picker container to avoid matching chip elements
-  const typePicker = page.locator("#board-filter-type-listbox");
+  const typePicker = page.locator("#table-filter-type-listbox");
   await expect(typePicker).toBeVisible();
 
   // Priority should NOT be in the type-picker (already used)

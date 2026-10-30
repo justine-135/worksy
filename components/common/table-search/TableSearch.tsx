@@ -161,6 +161,8 @@ export default function TableSearch({
     const def = filterDefs.find((fd) => fd.type === type);
     if (def?.kind === "text") {
       setTimeout(() => textInputRefs.current[type]?.focus(), 0);
+    } else {
+      setSubPopoverOpenIdx(activeFilters.length);
     }
   };
 

@@ -66,6 +66,8 @@ jest.mock('@/hooks/taskboard/useSaveTaskPositionMutation', () => ({
 }))
 
 jest.mock('@/hooks/common/useApiMessage', () => ({
+  __esModule: true,
+  default: () => ({ showSuccess: jest.fn(), showError: jest.fn() }),
   useApiMessage: () => ({ showSuccess: jest.fn(), showError: jest.fn() }),
 }))
 
