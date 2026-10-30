@@ -99,6 +99,7 @@ export default function BoardKanbanView({
     }) => {
       saveTaskPosition.mutate({
         taskId: task.id,
+        taskTitle: task.title,
         taskBoardId,
         orderedTaskIdsByBoard: orderedColumns.map((column) => ({
           taskBoardId: column.id,
