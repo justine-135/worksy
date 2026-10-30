@@ -14,7 +14,10 @@ async function globalSetup() {
   const prisma = new PrismaClient({ adapter });
 
   try {
-    // Clean up any leftover E2E data from a previous aborted run
+    // Clean up any leftover E2E data from a previous aborted run.
+    // Delete projects first to clear orphans from runs where teardown failed
+    // (each failed teardown leaves a project owned by a now-gone user ID).
+    await prisma.project.deleteMany({ where: { title: "E2E Test Project" } });
     await prisma.user.deleteMany({ where: { email: "e2e-owner@playwright.test" } });
 
     const user = await prisma.user.create({

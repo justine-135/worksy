@@ -31,5 +31,5 @@ test("can create a project", async ({ page }) => {
   await page.getByRole("button", { name: "Add project" }).click();
   await page.getByRole("textbox", { name: "Title" }).fill("E2E Test Project");
   await page.getByRole("button", { name: "Create" }).click();
-  await expect(page.getByText("E2E Test Project")).toBeVisible();
+  await expect(page.getByText("E2E Test Project").first()).toBeVisible();
 });
