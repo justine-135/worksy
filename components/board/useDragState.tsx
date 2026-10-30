@@ -4,7 +4,7 @@ import {
   DragStartEvent,
 } from "@dnd-kit/core/dist/types/events";
 import { arrayMove } from "@dnd-kit/sortable";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import {
   findTaskLocation,
@@ -53,7 +53,7 @@ export default function useDragState({
     columnsRef.current = columns;
   }, [columns]);
 
-  const handleDragStart = (event: DragStartEvent) => {
+  const handleDragStart = useCallback((event: DragStartEvent) => {
     const activeData = event.active.data.current;
 
     setDragColumns(columnsRef.current);
@@ -68,9 +68,9 @@ export default function useDragState({
     if (activeData?.type === "column") {
       setActiveColumn(activeData.column as TaskBoardResponseDTO);
     }
-  };
+  }, [isDraggingRef]);
 
-  const handleDragOver = (event: DragOverEvent) => {
+  const handleDragOver = useCallback((event: DragOverEvent) => {
     const { active, over } = event;
 
     if (!over || active.id === over.id) {
@@ -168,9 +168,9 @@ export default function useDragState({
     activeData.columnId = toColumnId;
     columnsRef.current = nextColumns;
     setDragColumns(nextColumns);
-  };
+  }, []);
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
     const activeData = active.data.current;
     const overData = over?.data.current;
@@ -238,7 +238,7 @@ export default function useDragState({
 
     if (isDraggingRef) isDraggingRef.current = false;
     setDragColumns(null);
-  };
+  }, [isDraggingRef, onColumnsChange, onColumnDrop, onTaskDrop]);
 
   return {
     columns,

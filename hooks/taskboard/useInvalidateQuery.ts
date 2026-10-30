@@ -1,5 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 import { QUERY_KEYS } from "@/constant/queryKeys";
 
@@ -12,11 +12,11 @@ export default function useInvalidateQuery(
     [projectId],
   );
 
-  const invalidateTaskBoards = async () => {
+  const invalidateTaskBoards = useCallback(async () => {
     await queryClient?.invalidateQueries({
       queryKey: taskBoardQueryKey,
     });
-  };
+  }, [queryClient, taskBoardQueryKey]);
 
   return { taskBoardQueryKey, invalidateTaskBoards };
 }

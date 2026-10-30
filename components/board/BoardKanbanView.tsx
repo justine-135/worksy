@@ -14,11 +14,12 @@ import {
 } from "@dnd-kit/sortable";
 import { ScrollShadow } from "@heroui/react/scroll-shadow";
 import { useQueryClient } from "@tanstack/react-query";
-import React, { useCallback, useSyncExternalStore } from "react";
+import React, { useCallback, useMemo, useSyncExternalStore } from "react";
 
 import { QUERY_KEYS } from "@/constant/queryKeys";
 import useSaveTaskBoardPositionMutation from "@/hooks/taskboard/useSaveTaskBoardPositionMutation";
 import useSaveTaskPositionMutation from "@/hooks/taskboard/useSaveTaskPositionMutation";
+import { TaskResponseDTO } from "@/types/task.dto";
 import { TaskBoardResponseDTO } from "@/types/taskboard.dto";
 
 import BoardSkeleton from "./BoardSkeleton";
@@ -26,6 +27,8 @@ import { TaskBoard, TaskBoardContent } from "./kanban/TaskBoardColumn";
 import { TaskCardContent } from "./kanban/TaskCard";
 import AddTaskBoardModal from "./modal/AddTaskBoardModal";
 import useDragState, { getColumnId } from "./useDragState";
+
+const POINTER_SENSOR_OPTIONS = { activationConstraint: { distance: 8 } } as const;
 
 interface BoardKanbanViewProps {
   columns: TaskBoardResponseDTO[];
@@ -44,7 +47,10 @@ export default function BoardKanbanView({
 }: BoardKanbanViewProps) {
   const queryClient = useQueryClient();
 
-  const taskBoardQueryKey = QUERY_KEYS.TASK_BOARDS(projectId);
+  const taskBoardQueryKey = useMemo(
+    () => QUERY_KEYS.TASK_BOARDS(projectId),
+    [projectId],
+  );
 
   const handleColumnsChange = useCallback(
     (nextColumns: TaskBoardResponseDTO[]) => {
@@ -65,6 +71,44 @@ export default function BoardKanbanView({
     invalidateTaskBoards,
   });
 
+  const handleColumnDrop = useCallback(
+    ({
+      columns: orderedColumns,
+    }: {
+      taskBoardId: string;
+      position: number;
+      columns: TaskBoardResponseDTO[];
+    }) => {
+      saveTaskBoardOrderMutation.mutate({
+        orderedTaskBoardIds: orderedColumns.map((column) => column.id),
+      });
+    },
+    [saveTaskBoardOrderMutation],
+  );
+
+  const handleTaskDrop = useCallback(
+    ({
+      task,
+      taskBoardId,
+      columns: orderedColumns,
+    }: {
+      task: TaskResponseDTO;
+      taskBoardId: string;
+      position: number;
+      columns: TaskBoardResponseDTO[];
+    }) => {
+      saveTaskPosition.mutate({
+        taskId: task.id,
+        taskBoardId,
+        orderedTaskIdsByBoard: orderedColumns.map((column) => ({
+          taskBoardId: column.id,
+          taskIds: column.tasks.map((columnTask) => columnTask.id),
+        })),
+      });
+    },
+    [saveTaskPosition],
+  );
+
   const {
     activeTask,
     activeTaskColumnId,
@@ -78,21 +122,8 @@ export default function BoardKanbanView({
     columns,
     onColumnsChange: handleColumnsChange,
     isDraggingRef,
-    onColumnDrop: ({ columns: orderedColumns }) => {
-      saveTaskBoardOrderMutation.mutate({
-        orderedTaskBoardIds: orderedColumns.map((column) => column.id),
-      });
-    },
-    onTaskDrop: ({ task, taskBoardId, columns: orderedColumns }) => {
-      saveTaskPosition.mutate({
-        taskId: task.id,
-        taskBoardId,
-        orderedTaskIdsByBoard: orderedColumns.map((column) => ({
-          taskBoardId: column.id,
-          taskIds: column.tasks.map((columnTask) => columnTask.id),
-        })),
-      });
-    },
+    onColumnDrop: handleColumnDrop,
+    onTaskDrop: handleTaskDrop,
   });
 
   const displayColumns = dragColumns ?? columns;
@@ -103,13 +134,7 @@ export default function BoardKanbanView({
     () => false,
   );
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-  );
+  const sensors = useSensors(useSensor(PointerSensor, POINTER_SENSOR_OPTIONS));
 
   const isLoadingView = isLoading;
   const isDragDropView = !isLoading && isMounted;
