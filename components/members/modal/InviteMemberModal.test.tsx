@@ -33,12 +33,12 @@ jest.mock('@/hooks/common/useApiMessage', () => ({
 
 // Mock UserComboBox so we can programmatically select a user
 jest.mock('./UserComboBox', () => ({
-  UserComboBox: ({ setMember }: { setMember: (m: unknown) => void }) => (
+  UserComboBox: ({ onSelect }: { onSelect: (m: unknown) => void }) => (
     <button
       type="button"
       data-testid="user-combobox"
       onClick={() =>
-        setMember({ id: 'user-789', name: 'Test User', email: 'test@test.com', image: null })
+        onSelect({ id: 'user-789', name: 'Test User', email: 'test@test.com', image: null })
       }
     >
       Select User

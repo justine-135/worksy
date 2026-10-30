@@ -8,6 +8,20 @@ import { TaskBoardResponseDTO } from '@/types/taskboard.dto'
 
 import BoardDetail from './BoardDetail'
 
+// ---- next/navigation mock ----
+
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ replace: jest.fn() }),
+  usePathname: () => '/projects/project-1/board',
+  useSearchParams: () => new URLSearchParams(),
+}))
+
+// ---- WebSocket hook mock ----
+
+jest.mock('@/hooks/ws/useBoardWebSocket', () => ({
+  useBoardWebSocket: () => ({ isConnected: false }),
+}))
+
 // ---- dnd-kit mocks ----
 
 jest.mock('@dnd-kit/core', () => ({

@@ -65,7 +65,7 @@ async function openModal() {
   )
   // BiPlus button (only button before modal opens due to PermissionGuard)
   await user.click(screen.getByRole('button'))
-  await screen.findByText('Add Task')
+  await screen.findByText('New task')
   return user
 }
 
@@ -75,7 +75,7 @@ describe('AddTaskModal', () => {
   it('calls mutate with title, default priority, and empty assignees on valid submit', async () => {
     const user = await openModal()
 
-    await user.type(screen.getByPlaceholderText(/enter title/i), 'Fix login bug')
+    await user.type(screen.getByPlaceholderText(/what needs to be done/i), 'Fix login bug')
 
     await user.click(screen.getByRole('button', { name: /create/i }))
 
@@ -106,7 +106,7 @@ describe('AddTaskModal', () => {
   it('does not submit when title is shorter than 3 characters', async () => {
     const user = await openModal()
 
-    await user.type(screen.getByPlaceholderText(/enter title/i), 'ab')
+    await user.type(screen.getByPlaceholderText(/what needs to be done/i), 'ab')
     await user.click(screen.getByRole('button', { name: /create/i }))
 
     await waitFor(() => expect(mockMutate).not.toHaveBeenCalled())

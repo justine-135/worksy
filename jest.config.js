@@ -43,5 +43,11 @@ module.exports = async () => {
     "^.+\\.module\\.(css|sass|scss)$",
   ];
 
+  // Prevent Jest from picking up Playwright E2E specs — those run in their own job.
+  config.testPathIgnorePatterns = [
+    ...(Array.isArray(config.testPathIgnorePatterns) ? config.testPathIgnorePatterns : []),
+    "<rootDir>/e2e/",
+  ];
+
   return config;
 };
