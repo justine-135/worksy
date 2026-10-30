@@ -25,7 +25,7 @@ export default defineConfig({
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
   ],
   webServer: {
-    command: "next dev -p 3001",
+    command: "next dev --no-turbopack -p 3001",
     url: "http://localhost:3001",
     reuseExistingServer: false,
     timeout: 120_000,

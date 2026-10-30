@@ -166,8 +166,7 @@ beforeEach(() => {
 describe('BoardSearch — initial render', () => {
   it('renders a search region with accessible label', () => {
     renderBoardSearch()
-    // TableSearch uses aria-label="Filter" (generic, not "Filter tasks")
-    expect(screen.getByRole('search', { name: /^filter$/i })).toBeInTheDocument()
+    expect(screen.getByRole('search', { name: /^filter tasks$/i })).toBeInTheDocument()
   })
 
   it('renders the ghost input with placeholder "Filter…" when no chips exist', () => {
