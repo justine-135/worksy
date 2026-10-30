@@ -64,6 +64,7 @@ jest.mock('@heroui/react', () => {
   TabsStub.ListContainer = ({ children }: { children?: React.ReactNode }) => (
     <div>{children}</div>
   )
+  // @ts-expect-error displayName exists at runtime on FC
   TabsStub.ListContainer.displayName = 'TabsStub.ListContainer'
 
   TabsStub.List = ({
@@ -77,6 +78,7 @@ jest.mock('@heroui/react', () => {
       {children}
     </div>
   )
+  // @ts-expect-error displayName exists at runtime on FC
   TabsStub.List.displayName = 'TabsStub.List'
 
   TabsStub.Tab = function TabsStubTab({ children, id }: { children?: React.ReactNode; id?: string }) {
@@ -93,9 +95,11 @@ jest.mock('@heroui/react', () => {
       </button>
     )
   }
+  // @ts-expect-error displayName exists at runtime on FC
   TabsStub.Tab.displayName = 'TabsStub.Tab'
 
   TabsStub.Indicator = () => null
+  // @ts-expect-error displayName exists at runtime on FC
   TabsStub.Indicator.displayName = 'TabsStub.Indicator'
 
   return {
